@@ -12,10 +12,9 @@ namespace UVSITCU.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DepartmentController : TController<Department>
+    public class OfficeController : TController<Office>
     {
-        public DepartmentController(IRepository<Department> repo) : base(repo) { }
-
+        public OfficeController(IRepository<Office> repo) : base(repo) { }
 
 
     }
