@@ -1,3 +1,4 @@
+///////////////////// DEPARTMENT ///////////////////////////////
 let addDept = function (dept) {
     return {
         type: "ADD_DEPT",
@@ -26,4 +27,30 @@ let fillUsers = function (users) {
     }
 }
 
-export default { fillDepts, fillUsers, addDept, deleteDept }
+///////////////////// OFFICE ///////////////////////////////
+let addOffice = function (office) {
+    return {
+        type: "ADD_OFFICE",
+        office
+    }
+};
+
+let deleteOffice = function (id) {
+    return {
+        type: "DELETE_OFFICE",
+        id
+    }
+};
+
+let fillOffices = function (offices) {
+    return {
+        type: "FILL_OFFICES",
+        offices
+    }
+}
+
+
+export default {
+    fillDepts, fillUsers, addDept, deleteDept,
+    addOffice, deleteOffice, fillOffices
+}

@@ -21,6 +21,7 @@ namespace UVSITCU
         {
             var conString = Configuration.GetConnectionString("LocalDb");
             services.AddScoped<IRepository<User>, TRepository<User>>(provider => new TRepository<User>(conString));
+            services.AddScoped<IRepository<Office>, TRepository<Office>>(provider => new TRepository<Office>(conString));
             services.AddScoped<IRepository<Department>, TRepository<Department>>(provider => new TRepository<Department>(conString));
 
             services.AddControllersWithViews();

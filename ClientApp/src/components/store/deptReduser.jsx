@@ -1,11 +1,11 @@
-let initialState = {
+let deptInitialState = {
   depts: [],
   users: [],
   title: "список отделов",
 }
 
 
-export let deptReducer = function (state = initialState, action) {
+export let deptReducer = function (state = deptInitialState, action) {
   switch (action.type) {
     case "ADD_DEPT":
       return {
@@ -31,6 +31,6 @@ export let deptReducer = function (state = initialState, action) {
         users: action.users
       };
 
-    default: return initialState;
+    default: return deptInitialState;
   }
 }

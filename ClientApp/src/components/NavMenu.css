@@ -25,3 +25,11 @@ html {
 .admin:hover {
   color: chartreuse !important;
 }
+
+.manager {
+  color: darkgoldenrod !important;
+}
+
+.manager:hover {
+  color: #f5b820 !important;
+}

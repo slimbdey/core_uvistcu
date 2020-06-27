@@ -10,7 +10,7 @@ namespace UVSITCU.Models.Repositories
 {
     public interface IRepository<T> where T : class
     {
-        Task<T> Put(T obj);
+        Task<int> Put(T obj);
         Task<T> Post(T obj);
         Task<T> Get(int id);
         Task<IEnumerable<T>> GetList();
@@ -30,6 +30,9 @@ namespace UVSITCU.Models.Repositories
             _table = "Users";
             if (typeof(T) == typeof(Department))
                 _table = "Departments";
+
+            else if (typeof(T) == typeof(Office))
+                _table = "Offices";
         }
 
 
@@ -54,17 +57,27 @@ namespace UVSITCU.Models.Repositories
             if (_table == "Departments")
                 query = "update Departments set Name=@Name, ManagerId=@ManagerId where Id=@Id";
 
-            await _db.ExecuteAsync(query, obj);
-            return obj;
-        }
-        public async Task<T> Put(T obj)
-        {
-            var query = "insert into Users (FullName, TabNum) values (@FullName, @TabNum)";
-            if (_table == "Departments")
-                query = "insert into Departments (Name, ManagerId) values (@Name, @ManagerId)";
+            else if (_table == "Departments")
+                query = "update Offices set Name=@Name, ChiefId=@ChiefId where Id=@Id";
 
             await _db.ExecuteAsync(query, obj);
             return obj;
+        }
+        public async Task<int> Put(T obj)
+        {
+            var query = "insert into Users (FullName, TabNum) values (@FullName, @TabNum)";
+            if (_table == "Departments")
+                query = @"insert into Departments (Name, ManagerId)
+                            output inserted.Id
+                            values (@Name, @ManagerId)";
+
+            else if (_table == "Offices")
+                query = @"insert into Offices (Name, ChiefId)
+                            output inserted.Id
+                            values (@Name, @ChiefId)";
+
+
+            return await _db.QuerySingleAsync<int>(query, obj);
         }
     }
 }

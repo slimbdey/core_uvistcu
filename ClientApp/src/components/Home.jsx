@@ -4,7 +4,7 @@ export class Home extends Component {
   static displayName = Home.name;
 
   state = {
-    title: <h2>СЛУЖБА ИНФОРМАЦИОННЫХ ТЕХНОЛОГИЙ<br /><small>УВСИТЦУ</small></h2>
+    title: <div><h2 className="display-4">СЛУЖБА ИНФОРМАЦИОННЫХ ТЕХНОЛОГИЙ<br /><div className="h2 float-right">УВСИТЦУ</div></h2></div>
   }
 
 
