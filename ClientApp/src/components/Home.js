@@ -3,10 +3,16 @@ import React, { Component } from 'react';
 export class Home extends Component {
   static displayName = Home.name;
 
-  render () {
+  state = {
+    title: <h2>СЛУЖБА ИНФОРМАЦИОННЫХ ТЕХНОЛОГИЙ<br /><small>УВСИТЦУ</small></h2>
+  }
+
+
+  render() {
+
     return (
       <div>
-        <h1>Hello, world!</h1>
+        <div className="jumbotron" style={{ opacity: 0.8, marginTop: -25, zIndex: -1, boxShadow: "0 0 20px gray", borderRadius: 10 }}>{this.state.title}</div>
         <p>Welcome to your new single-page application, built with:</p>
         <ul>
           <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>

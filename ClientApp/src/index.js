@@ -3,15 +3,24 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import { deptReducer } from "./components/store/deptReduser";
 import registerServiceWorker from './registerServiceWorker';
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 
+
+let store = createStore(deptReducer);
+
+
 ReactDOM.render(
-  <BrowserRouter basename={baseUrl}>
-    <App />
-  </BrowserRouter>,
+  <Provider store={store}>
+    <BrowserRouter basename={baseUrl}>
+      <App />
+    </BrowserRouter>
+  </Provider>,
   rootElement);
 
 registerServiceWorker();
