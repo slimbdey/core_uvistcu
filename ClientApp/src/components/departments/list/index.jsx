@@ -23,13 +23,16 @@ export class DepartmentList extends Component {
           </thead>
           <tbody>
             {this.props.depts.map(dept => {
-              let userName = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId).fullName;
+              let manager = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId);
+              let officesNum = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
+              console.log(officesNum);
+
               return <tr key={dept.id}>
                 <td>{dept.name}</td>
-                <td>{userName}</td>
-                <td>{dept.chiefId}</td>
+                <td>{manager.fullName}</td>
+                <td>{officesNum}</td>
                 <td className="d-flex">
-                  <a href="/management" onClick={this.props.onDetailsClick}>Подробно</a>&nbsp;&nbsp;
+                  <a href="/management" onClick={(e) => { e.preventDefault(); this.props.detailsClick(dept.id); }}>Подробно</a>&nbsp;&nbsp;
                   <Modal
                     buttonLabel="Удалить"
                     text={`Вы действительно хотите удалить отдел ${dept.name}?`}

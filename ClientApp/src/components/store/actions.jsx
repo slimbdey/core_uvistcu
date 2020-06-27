@@ -13,17 +13,12 @@ let deleteDept = function (id) {
     }
 };
 
-let fillDepts = function (depts) {
+let fillDepts = function (depts, users, offices) {
     return {
         type: "FILL_DEPTS",
-        depts
-    }
-}
-
-let fillUsers = function (users) {
-    return {
-        type: "FILL_USERS",
-        users
+        depts,
+        users,
+        offices
     }
 }
 
@@ -46,6 +41,13 @@ let fillOffices = function (offices) {
     return {
         type: "FILL_OFFICES",
         offices
+    }
+}
+
+let fillUsers = function (users) {
+    return {
+        type: "FILL_USERS",
+        users
     }
 }
 

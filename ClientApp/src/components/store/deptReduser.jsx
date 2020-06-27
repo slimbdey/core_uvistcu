@@ -1,5 +1,6 @@
 let deptInitialState = {
   depts: [],
+  offices: [],
   users: [],
   title: "список отделов",
 }
@@ -22,13 +23,9 @@ export let deptReducer = function (state = deptInitialState, action) {
     case "FILL_DEPTS":
       return {
         ...state,
-        depts: action.depts
-      };
-
-    case "FILL_USERS":
-      return {
-        ...state,
-        users: action.users
+        depts: action.depts,
+        users: action.users,
+        offices: action.offices
       };
 
     default: return deptInitialState;

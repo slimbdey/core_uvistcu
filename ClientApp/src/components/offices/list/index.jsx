@@ -17,7 +17,7 @@ export class OfficeList extends Component {
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>
-              <th>Люди</th>
+              <th>Сотрудники</th>
               <th></th>
             </tr>
           </thead>

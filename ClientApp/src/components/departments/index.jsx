@@ -21,26 +21,75 @@ class Departments extends Component {
 
 
   componentDidMount = async () => {
-    if (this.props.depts.length === 0)
-      this.getDepts();
+    let depts = [];
+    let users = [];
+    let offices = [];
+
+    async function bring(source) {
+      return await fetch(`api/${source}`, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        }
+      });
+    }
+
+    let d = bring("department");
+    let u = bring("user");
+    let o = bring("office");
+
+    let errors = "";
+    let responses = await Promise.all([d, u, o])
+      .catch(error => {
+        blink(`Error: ${error}`, true);
+        return;
+      });
+
+    responses[0].ok
+      ? depts = await responses[0].json()
+      : errors += "Отделы отсутствуют\n";
+
+    responses[1].ok
+      ? users = await responses[1].json()
+      : errors += "Пользователи не заведены\n";
+
+    responses[2].ok
+      ? offices = await responses[2].json()
+      : errors += "Бюро отсутствуют";
+
+    !!errors && blink(errors, true);
+
+    this.props.fillDepts(depts, users, offices);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.users.length === 0)
-      this.getUsers();
-  }
 
   ///// RENDER
   render() {
     let contents = [];
     if (this.state.mode === "list")
-      contents = <DepartmentList depts={this.props.depts} users={this.props.users} deleteDept={this.props.deleteDept} blink={blink} />
+      contents = <DepartmentList
+        depts={this.props.depts}
+        users={this.props.users}
+        offices={this.props.offices}
+        deleteDept={this.props.deleteDept}
+        detailsClick={this.detailsClick}
+        blink={blink}
+      />
 
     else if (this.state.mode === "create")
-      contents = <DepartmentCreate users={this.props.users} blink={blink} addDept={this.createDept} />
+      contents = <DepartmentCreate
+        users={this.props.users}
+        addDept={this.createDept}
+        blink={blink}
+      />
 
     else if (this.state.mode === "details")
-      contents = <DepartmentDetails offices={this.props.offices} fillOffices={this.props.fillOffices} blink={blink} />
+      contents = <DepartmentDetails
+        offices={this.props.offices}
+        fillOffices={this.props.fillOffices}
+        blink={blink}
+      />
 
     return (
       <div>
@@ -50,49 +99,6 @@ class Departments extends Component {
         {contents}
       </div>
     );
-  }
-
-
-  getDepts = async () => {
-    const response = await fetch('api/department', {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.length > 0)
-        this.props.fillDepts(data);
-
-      else
-        blink("Отделы отсутствуют", true);
-    }
-    else
-      blink(`Error: ${response.statusText}`, true);
-
-    await this.getUsers();
-  }
-
-
-  getUsers = async () => {
-    const response = await fetch('api/user', {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.length > 0)
-        this.props.fillUsers(data);
-    }
-    else
-      this.props.blink("Не могу найти пользователей", true);
   }
 
 
@@ -124,6 +130,11 @@ class Departments extends Component {
   }
 
 
+  detailsClick = async (id) => {
+    this.setState({ mode: "details", linkText: "Назад", title: "изменить отдел" });
+  }
+
+
   linkToggle = async () => {
     if (this.state.mode === "list")
       this.setState({ mode: "create", linkText: "Назад", title: "создать отдел" });
@@ -138,6 +149,7 @@ function mapStateToProps(state) {
   return {
     depts: state.deptReducer.depts,
     users: state.deptReducer.users,
+    offices: state.deptReducer.offices,
     title: state.deptReducer.title,
   }
 }

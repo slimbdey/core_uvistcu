@@ -26,7 +26,7 @@ class Offices extends Component {
   }
 
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.users.length === 0)
       this.getUsers();
   }
@@ -35,7 +35,7 @@ class Offices extends Component {
   ///// RENDER
   render() {
     let contents = [];
-    console.log("offices-render", this.props);
+
     if (this.state.mode === "list")
       contents = <OfficeList offices={this.props.offices} users={this.props.users} deleteOffice={this.props.deleteOffice} blink={blink} />
 
