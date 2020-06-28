@@ -55,8 +55,10 @@ namespace UVSITCU.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(T obj)
         {
-            var mObj = await _repo.Post(obj);
-            return Ok(mObj);
+            if (await _repo.Post(obj))
+                return Ok();
+
+            return BadRequest();
         }
 
 

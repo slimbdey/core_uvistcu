@@ -13,7 +13,7 @@ export class OfficeList extends Component {
     return (
       <div>
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead>
+          <thead className="thead-light">
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>
@@ -28,12 +28,14 @@ export class OfficeList extends Component {
                 <td>{office.name}</td>
                 <td>{userName}</td>
                 <td></td>
-                <td className="d-flex">
-                  <a href="/management" onClick={this.props.detailsClick}>Подробно</a>&nbsp;&nbsp;
-                  <Modal
-                    buttonLabel="Удалить"
-                    text={`Вы действительно хотите удалить бюро ${office.name}?`}
-                    func={() => this.deleteClick(office.id, office.name)} />
+                <td>
+                  <div className="d-flex">
+                    <a href="/management" onClick={this.props.detailsClick}>Подробно</a>&nbsp;&nbsp;
+                    <Modal
+                      buttonLabel="Удалить"
+                      text={`Вы действительно хотите удалить бюро ${office.name}?`}
+                      func={() => this.deleteClick(office.id, office.name)} />
+                  </div>
                 </td>
               </tr>
             })}

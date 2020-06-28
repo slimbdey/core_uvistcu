@@ -12,15 +12,23 @@ export class DepartmentCreate extends Component {
         <form name="CreateForm">
           <div className="form-group col-md-5 pl-0">
             <button type="submit" disabled style={{ display: 'none' }} ></button>
-            <label htmlFor="Name">Наименование отдела:</label>
+            <label htmlFor="Name" className="text-muted">Наименование отдела:</label>
             <input className="form-control" name="Name" />
           </div>
           <div className="form-group col-md-5 pl-0">
-            <label htmlFor="ChiefId">Руководитель отдела:</label>
-            <select className="form-control" name="ChiefId">{options}</select>
-          </div>
-          <div className="mb-4">
-            <button type="button" className="btn btn-outline-primary" onClick={this.props.addDept}>Создать</button>
+            <label htmlFor="ChiefId" className="text-muted">Руководитель отдела:</label>
+
+            <div className="input-group">
+              <select className="custom-select" name="ChiefId">{options}</select>
+              <div className="input-group-append">
+                <button
+                  className="btn btn-outline-primary"
+                  type="button"
+                  onClick={this.props.addDept}
+                >Создать</button>
+              </div>
+            </div>
+
           </div>
         </form >
       </div>

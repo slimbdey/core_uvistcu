@@ -1,35 +1,62 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { errorHandler } from '../extra/errorHandler';
-import { blink } from '../extra/blink';
+import { blink, errorHandler } from '../extra/extensions';
 import actions from '../store/actions';
 
 import { OfficeList } from './list'
-import { OfficeCreate } from './create';
+import { OfficeCreate } from './alter';
 import { OfficeDetails } from './details';
 
 
 class Offices extends Component {
-  static displayName = Offices.name;
+  displayName = Offices.name;
 
 
   state = {
     mode: "list",
     linkText: "Создать",
-    title: "список бюро"
+    title: "список бюро",
+    officeId: null
   }
 
 
   componentDidMount = async () => {
-    if (this.props.offices.length === 0)
-      this.getOffices();
+    let users = [];
+    let offices = [];
+
+    async function bring(source) {
+      return await fetch(`api/${source}`, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        }
+      });
+    }
+
+    let u = bring("user");
+    let o = bring("office");
+
+    let errors = "";
+    let responses = await Promise.all([u, o])
+      .catch(error => {
+        blink(`Error: ${error}`, true);
+        return;
+      });
+
+    responses[0].ok
+      ? users = await responses[0].json()
+      : errors += "Пользователи не заведены\n";
+
+    responses[1].ok
+      ? offices = await responses[1].json()
+      : errors += "Бюро отсутствуют";
+
+    !!errors && blink(errors, true);
+
+    this.props.fillOffices(users, offices);
   }
 
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.users.length === 0)
-      this.getUsers();
-  }
 
 
   ///// RENDER
@@ -37,13 +64,24 @@ class Offices extends Component {
     let contents = [];
 
     if (this.state.mode === "list")
-      contents = <OfficeList offices={this.props.offices} users={this.props.users} deleteOffice={this.props.deleteOffice} blink={blink} />
+      contents = <OfficeList
+        offices={this.props.offices}
+        users={this.props.users}
+        deleteOffice={this.props.deleteOffice}
+        blink={blink} />
 
     else if (this.state.mode === "create")
-      contents = <OfficeCreate users={this.props.users} blink={blink} addOffice={this.createOffice} />
+      contents = <OfficeCreate
+        users={this.props.users}
+        addOffice={this.createOffice}
+        blink={blink} />
 
-    else if (this.state.mode === "details")
-      contents = <OfficeDetails offices={this.props.offices} fillOffices={this.props.fillOffices} blink={blink} />
+    else if (this.state.mode === "alter")
+      contents = <OfficeAlter
+        state={this.props}
+        officeId={this.state.officeId}
+        alterClick={this.alterOffice}
+        blink={blink} />
 
     return (
       <div>
@@ -55,48 +93,6 @@ class Offices extends Component {
     );
   }
 
-
-  getOffices = async () => {
-    const response = await fetch('api/office', {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.length > 0)
-        this.props.fillOffices(data);
-
-      else
-        blink("Бюро отсутствуют", true);
-    }
-    else
-      blink(`Error: ${response.statusText}`, true);
-
-    await this.getUsers();
-  }
-
-
-  getUsers = async () => {
-    const response = await fetch('api/user', {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.length > 0)
-        this.props.fillUsers(data);
-    }
-    else
-      this.props.blink("Не могу найти пользователей", true);
-  }
 
 
   createOffice = async (e) => {
@@ -114,18 +110,52 @@ class Offices extends Component {
       },
       body: JSON.stringify({
         Name: name,
-        ChiefId: id
+        ChiefId: +id
       })
     });
 
     let data = await response.json();
     if (response.ok) {
       this.props.addOffice({ id: data, name: name, chiefId: id });
-      blink(`Бюро ${data.name} успешно добавлено`);
+      blink(`Бюро ${name} успешно добавлено`);
       this.linkToggle();
     }
     else
       blink(errorHandler(data), true);
+  }
+
+
+
+  alterDept = async () => {
+    let dept = this.props.depts.find(o => o.id === this.state.officeId);
+    office.chiefId = +document.getElementById("chiefId").value;
+
+    const response = await fetch(`api/office`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Id: office.id,
+        Name: office.name,
+        ChiefId: office.chiefId,
+      })
+    });
+
+    if (response.ok) {
+      blink(`Бюро ${office.name} успешно изменено`);
+      this.setState({ mode: "list", linkText: "Создать", title: "список бюро" });
+    }
+    else {
+      let data = await response.json();
+      blink(errorHandler(data), true);
+    }
+  }
+
+
+  alterClick = async (id) => {
+    this.setState({ mode: "alter", linkText: "Назад", title: "изменить бюро", deptId: id });
   }
 
 

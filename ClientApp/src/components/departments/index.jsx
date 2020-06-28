@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { errorHandler } from '../extra/errorHandler';
-import { blink } from '../extra/blink';
+import { blink, errorHandler, log } from '../extra/extensions';
 import actions from '../store/actions';
 
 import { DepartmentList } from './list';
 import { DepartmentCreate } from './create';
-import { DepartmentDetails } from './details';
+import { DepartmentAlter } from './alter';
 
 
 class Departments extends Component {
-  static displayName = Departments.name;
+  displayName = Departments.name;
 
 
   state = {
     mode: "list",
     linkText: "Создать",
-    title: "список отделов"
+    title: "список отделов",
+    deptId: null
   }
 
 
@@ -67,13 +67,14 @@ class Departments extends Component {
   ///// RENDER
   render() {
     let contents = [];
+
     if (this.state.mode === "list")
       contents = <DepartmentList
         depts={this.props.depts}
         users={this.props.users}
         offices={this.props.offices}
         deleteDept={this.props.deleteDept}
-        detailsClick={this.detailsClick}
+        alterClick={this.alterClick}
         blink={blink}
       />
 
@@ -84,10 +85,11 @@ class Departments extends Component {
         blink={blink}
       />
 
-    else if (this.state.mode === "details")
-      contents = <DepartmentDetails
-        offices={this.props.offices}
-        fillOffices={this.props.fillOffices}
+    else if (this.state.mode === "alter")
+      contents = <DepartmentAlter
+        state={this.props}
+        deptId={this.state.deptId}
+        alterClick={this.alterDept}
         blink={blink}
       />
 
@@ -115,14 +117,14 @@ class Departments extends Component {
       },
       body: JSON.stringify({
         Name: name,
-        managerId: id
+        ManagerId: +id
       })
     });
 
     let data = await response.json();
     if (response.ok) {
       this.props.addDept({ id: data, name: name, managerId: id });
-      blink(`Отдел ${data.name} успешно добавлен`);
+      blink(`Отдел ${name} успешно добавлен`);
       this.linkToggle();
     }
     else
@@ -130,8 +132,36 @@ class Departments extends Component {
   }
 
 
-  detailsClick = async (id) => {
-    this.setState({ mode: "details", linkText: "Назад", title: "изменить отдел" });
+  alterDept = async () => {
+    let dept = this.props.depts.find(d => d.id === this.state.deptId);
+    dept.managerId = +document.getElementById("managerId").value;
+
+    const response = await fetch(`api/department`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Id: dept.id,
+        Name: dept.name,
+        ManagerId: dept.managerId,
+      })
+    });
+
+    if (response.ok) {
+      blink(`Отдел ${dept.name} успешно изменен`);
+      this.setState({ mode: "list", linkText: "Создать", title: "список отделов" });
+    }
+    else {
+      let data = await response.json();
+      blink(errorHandler(data), true);
+    }
+  }
+
+
+  alterClick = async (id) => {
+    this.setState({ mode: "alter", linkText: "Назад", title: "изменить отдел", deptId: id });
   }
 
 

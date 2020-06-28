@@ -11,5 +11,22 @@ export let blink = async (message, bad = false) => {
     setTimeout(() => {
         popup.style.opacity = 0;
         setTimeout(() => popup.classList.replace("text-danger", "text-success"), 500);
-    }, 2000);
+    }, bad ? 4000 : 2000);
+}
+
+
+
+export let errorHandler = (data) => {
+    let errors = [];
+    for (let er in data.errors)
+        errors.push(data.errors[er]);
+
+    errors = errors.join("\n");
+    return errors;
+}
+
+
+
+export let log = (module, data) => {
+    console.log(module.displayName, data);
 }

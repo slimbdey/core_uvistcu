@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace UVSITCU.Models.DTOs
@@ -19,7 +20,21 @@ namespace UVSITCU.Models.DTOs
         [Display(Name = "Табельный номер", Prompt = "7 цифр")]
         public string TabNum { get; set; }
 
-
         public int OfficeId { get; set; }
+
+        [RegularExpression(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$", ErrorMessage = "Не корректный Email")]
+        public string Email { get; set; }
+
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "Номер телефона состоит из 11 цифр")]
+        public string PhoneNum { get; set; }
+        public bool ParticipateInLabour { get; set; }
+        public DateTime MedExam { get; set; }
+        public DateTime LabourSecurityExam { get; set; }
+        public DateTime IndustrialSecurityExam { get; set; }
+        public DateTime GotHelmet { get; set; }
+        public DateTime GotSuit { get; set; }
+        public DateTime GotBoots { get; set; }
+        public DateTime GotCoat { get; set; }
+
     }
 }

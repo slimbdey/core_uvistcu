@@ -22,7 +22,7 @@ html {
   color: yellowgreen !important;
 }
 
-.admin:hover {
+.admin:hover, .admin-active {
   color: chartreuse !important;
 }
 

@@ -22,12 +22,7 @@ export let officeReducer = function (state = officeInitialState, action) {
     case "FILL_OFFICES":
       return {
         ...state,
-        offices: action.offices
-      };
-
-    case "FILL_USERS":
-      return {
-        ...state,
+        offices: action.offices,
         users: action.users
       };
 

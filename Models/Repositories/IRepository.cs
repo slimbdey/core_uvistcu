@@ -11,7 +11,7 @@ namespace UVSITCU.Models.Repositories
     public interface IRepository<T> where T : class
     {
         Task<int> Put(T obj);
-        Task<T> Post(T obj);
+        Task<bool> Post(T obj);
         Task<T> Get(int id);
         Task<IEnumerable<T>> GetList();
         Task<bool> Delete(int id);
@@ -51,17 +51,17 @@ namespace UVSITCU.Models.Repositories
         }
         public async Task<T> Get(int id) => await _db.QueryFirstOrDefaultAsync<T>($"select * from {_table} where Id=@id", new { id });
         public async Task<IEnumerable<T>> GetList() => await _db.QueryAsync<T>($"select * from {_table}");
-        public async Task<T> Post(T obj)
+        public async Task<bool> Post(T obj)
         {
             var query = "update Users set FullName=@FullName, TabNum=@TabNum where Id=@Id";
             if (_table == "Departments")
                 query = "update Departments set Name=@Name, ManagerId=@ManagerId where Id=@Id";
 
-            else if (_table == "Departments")
-                query = "update Offices set Name=@Name, ChiefId=@ChiefId where Id=@Id";
+            else if (_table == "Offices")
+                query = "update Offices set Name=@Name, ChiefId=@ChiefId, DeptId=@DeptId where Id=@Id";
 
-            await _db.ExecuteAsync(query, obj);
-            return obj;
+            int rowsAffected = await _db.ExecuteAsync(query, obj);
+            return rowsAffected > 0;
         }
         public async Task<int> Put(T obj)
         {

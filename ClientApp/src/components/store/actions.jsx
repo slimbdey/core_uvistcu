@@ -37,22 +37,17 @@ let deleteOffice = function (id) {
     }
 };
 
-let fillOffices = function (offices) {
+let fillOffices = function (users, offices) {
     return {
         type: "FILL_OFFICES",
-        offices
-    }
-}
-
-let fillUsers = function (users) {
-    return {
-        type: "FILL_USERS",
+        offices,
         users
     }
 }
 
 
+
 export default {
-    fillDepts, fillUsers, addDept, deleteDept,
+    fillDepts, addDept, deleteDept,
     addOffice, deleteOffice, fillOffices
 }

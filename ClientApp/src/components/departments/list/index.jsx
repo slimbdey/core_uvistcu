@@ -4,6 +4,7 @@ import Modal from '../../extra/modal';
 
 
 export class DepartmentList extends Component {
+  displayName = DepartmentList.name;
 
   ///// RENDER
   render() {
@@ -13,7 +14,7 @@ export class DepartmentList extends Component {
     return (
       <div>
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead>
+          <thead className="thead-light">
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>
@@ -25,18 +26,19 @@ export class DepartmentList extends Component {
             {this.props.depts.map(dept => {
               let manager = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId);
               let officesNum = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
-              console.log(officesNum);
 
               return <tr key={dept.id}>
                 <td>{dept.name}</td>
                 <td>{manager.fullName}</td>
                 <td>{officesNum}</td>
-                <td className="d-flex">
-                  <a href="/management" onClick={(e) => { e.preventDefault(); this.props.detailsClick(dept.id); }}>Подробно</a>&nbsp;&nbsp;
-                  <Modal
-                    buttonLabel="Удалить"
-                    text={`Вы действительно хотите удалить отдел ${dept.name}?`}
-                    func={() => this.deleteClick(dept.id, dept.name)} />
+                <td>
+                  <div className="d-flex">
+                    <a href="/management" onClick={(e) => { e.preventDefault(); this.props.alterClick(dept.id); }}>Изменить</a>&nbsp;&nbsp;
+                    <Modal
+                      buttonLabel="Удалить"
+                      text={`Вы действительно хотите удалить отдел ${dept.name}?`}
+                      func={() => this.deleteClick(dept.id, dept.name)} />
+                  </div>
                 </td>
               </tr>
             })}
