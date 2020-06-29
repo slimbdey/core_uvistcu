@@ -53,7 +53,7 @@ namespace UVSITCU.Models.Repositories
         public async Task<IEnumerable<T>> GetList() => await _db.QueryAsync<T>($"select * from {_table}");
         public async Task<bool> Post(T obj)
         {
-            var query = "update Users set FullName=@FullName, TabNum=@TabNum where Id=@Id";
+            var query = "update Users set FullName=@FullName, TabNum=@TabNum, OfficeId=@OfficeId where Id=@Id";
             if (_table == "Departments")
                 query = "update Departments set Name=@Name, ManagerId=@ManagerId where Id=@Id";
 

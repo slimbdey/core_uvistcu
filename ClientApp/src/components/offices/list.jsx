@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import Modal from '../../extra/modal';
+import Modal from '../extra/modal';
 
 
 
 export class OfficeList extends Component {
+  displayName = OfficeList.name;
 
   ///// RENDER
   render() {
@@ -17,20 +18,21 @@ export class OfficeList extends Component {
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>
-              <th>Сотрудники</th>
+              <th>Работники</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {this.props.offices.map(office => {
-              let userName = this.props.users.length > 0 && this.props.users.find(u => u.id === +office.chiefId).fullName;
+              let user = this.props.users.length > 0 && this.props.users.find(u => u.id === +office.chiefId);
+              let users = this.props.users.filter(u => u.officeId === +office.id).map(us => <div key={us.id}>{us.fullName}</div>);
               return <tr key={office.id}>
                 <td>{office.name}</td>
-                <td>{userName}</td>
-                <td></td>
+                <td>{user.fullName}</td>
+                <td>{users}</td>
                 <td>
                   <div className="d-flex">
-                    <a href="/management" onClick={this.props.detailsClick}>Подробно</a>&nbsp;&nbsp;
+                    <a href="/office" onClick={(e) => { e.preventDefault(); this.props.alterClick(office.id); }}>Изменить</a>&nbsp;&nbsp;
                     <Modal
                       buttonLabel="Удалить"
                       text={`Вы действительно хотите удалить бюро ${office.name}?`}

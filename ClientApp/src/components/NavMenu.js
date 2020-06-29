@@ -5,7 +5,7 @@ import './NavMenu.css';
 
 
 export class NavMenu extends Component {
-  static displayName = NavMenu.name;
+  displayName = NavMenu.name;
 
   constructor(props) {
     super(props);
@@ -38,7 +38,7 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="manager" to="/office">Бюро</NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} to="/">Home</NavLink>
+                  <NavLink tag={Link} className="manager" to="/user">Работники</NavLink>
                 </NavItem>
               </ul>
             </Collapse>

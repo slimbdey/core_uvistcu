@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Modal from '../../extra/modal';
+import Modal from '../extra/modal';
 
 
 
@@ -25,12 +25,12 @@ export class DepartmentList extends Component {
           <tbody>
             {this.props.depts.map(dept => {
               let manager = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId);
-              let officesNum = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
+              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
 
               return <tr key={dept.id}>
                 <td>{dept.name}</td>
                 <td>{manager.fullName}</td>
-                <td>{officesNum}</td>
+                <td>{offices}</td>
                 <td>
                   <div className="d-flex">
                     <a href="/management" onClick={(e) => { e.preventDefault(); this.props.alterClick(dept.id); }}>Изменить</a>&nbsp;&nbsp;

@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
+import { blink, errorHandler } from '../extra/extensions';
 
 
-export class OfficeCreate extends Component {
-  displayName = OfficeCreate.name;
+export class DepartmentAlter extends Component {
+  displayName = DepartmentAlter.name;
 
   state = {
-    office: this.props.state.offices.find(o => o.id === this.props.officeId),
-    users: this.props.state.users.filter(u => u.officeId === this.props.officeId)
+    dept: this.props.state.depts.find(d => d.id === this.props.deptId),
+    offices: this.props.state.offices.filter(of => of.deptId === this.props.deptId)
   }
 
-  /////// RENDER
-  render() {//TODO:::::::::::::::
+
+
+  /////////// RENDER
+  render() {
     let usrOptions = this.props.state.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
     let ofcOptions = this.props.state.offices.map(office => <option key={office.id} value={office.id}>{office.name}</option>);
 
@@ -77,6 +80,47 @@ export class OfficeCreate extends Component {
         </form >
       </div>
     );
+  }
+
+
+  appendRemoveClick = async (officeId, append = true) => {
+    let office = this.props.state.offices.find(o => o.id === +officeId);
+
+    let alreadyThere = this.state.offices.includes(office);
+    if ((alreadyThere && append) || (!alreadyThere && !append))
+      return;
+
+    append
+      ? office.deptId = this.props.deptId
+      : office.deptId = null;
+
+    const response = await fetch(`api/office`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Id: office.id,
+        Name: office.name,
+        ChiefId: office.chiefId,
+        DeptId: +office.deptId
+      })
+    });
+
+    if (response.ok) {
+      blink(`Бюро ${office.name} успешно ${append ? "добавлено" : "удалено"}`);
+
+      let newOfficeSet = append
+        ? [...this.state.offices, office]
+        : this.state.offices.filter(o => o.id !== officeId);
+
+      this.setState({ offices: newOfficeSet });
+    }
+    else {
+      let data = await response.json();
+      blink(errorHandler(data), true);
+    }
   }
 
 }

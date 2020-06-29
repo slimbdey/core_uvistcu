@@ -8,7 +8,7 @@ import { OfficeCreate } from './create.jsx';
 import { OfficeAlter } from './alter.jsx';
 
 
-class Offices extends Component {
+class Users extends Component {
   displayName = Offices.name;
 
 
@@ -21,10 +21,11 @@ class Offices extends Component {
 
 
   componentDidMount = async () => {
-    if (this.props.match.params.id) {
-      this.alterClick(this.props.match.params.id);
-      return;
-    }
+    //if (this.props.state.match.params.id) {
+    //  this.alterClick(this.props.match.params.id);
+    //  return;
+    //}
+
 
     let users = [];
     let offices = [];
@@ -85,6 +86,7 @@ class Offices extends Component {
     else if (this.state.mode === "alter")
       contents = <OfficeAlter
         state={this.props}
+        offices={this.props.offices}
         officeId={this.state.officeId}
         alterClick={this.alterOffice}
         blink={blink} />
@@ -183,4 +185,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, actions)(Offices);
+export default connect(mapStateToProps, actions)(Users);
