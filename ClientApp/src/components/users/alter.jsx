@@ -1,123 +1,86 @@
 import React, { Component } from 'react';
-import { blink, errorHandler } from '../extra/extensions';
+import { Route } from 'react-router-dom';
+import { DateGroup, InputGroup } from '../view/templates';
 
 
-export class OfficeAlter extends Component {
-  displayName = OfficeAlter.name;
-
-  state = {
-    office: this.props.state.offices.find(o => o.id === this.props.officeId),
-    users: this.props.state.users.filter(u => u.officeId === this.props.officeId)
-  }
+export default class UserAlter extends Component {
+  displayName = UserAlter.name;
 
   /////// RENDER
   render() {
-    let usrOptions = this.props.state.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
-
-    let ofcUsers = this.state.users.map(u => <li className="list-group-item" key={u.id}>
-      {u.fullName}
-      <a href="/user" className="float-right" onClick={(e) => { e.preventDefault(); this.appendRemoveClick(u.id, false); }}>Удалить</a>
-    </li>);
+    let user = this.props.user;
+    let offices = this.props.offices.map(o => <option key={o.id} value={o.id}>{o.name}</option>);
 
     return (
       <div>
         <form name="alterForm" className="d-flex flex-column">
           <div className="d-flex flex-row col-md-12 pl-0">
 
-            <div className="col-md-4 pl-0">
-              <div className="form-group">
-                <button type="submit" disabled style={{ display: 'none' }} ></button>
-                <label htmlFor="name" className="text-muted">Наименование бюро:</label>
-                <input className="form-control" name="name" defaultValue={this.state.office.name} />
-              </div>
+            <div className="col-md-6 pl-0">
+              <button type="submit" disabled style={{ display: 'none' }} ></button>
 
-              <div className="form-group">
-                <label htmlFor="chiefId" className="text-muted">Руководитель бюро:</label>
-                <div className="input-group">
-                  <select
-                    className="custom-select"
-                    name="chiefId"
-                    id="chiefId"
-                    defaultValue={this.state.office.chiefId}
-                  >{usrOptions}</select>
+              <InputGroup name="FullName" value={user.fullName} hint="Ф.И.О." />
+              <InputGroup name="TabNum" value={user.tabNum} hint="Таб. №" />
+              <InputGroup name="Email" value={user.email} hint="Email" />
+              <InputGroup name="PhoneNum" value={user.phoneNum} hint="Телефон" />
+
+              <div className="input-group form-group">
+                <div className="input-group-prepend">
+                  <span className="input-group-text">Бюро</span>
                 </div>
+                <select
+                  className="custom-select"
+                  name="officeId"
+                  defaultValue={user.officeId}
+                >{offices}</select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="add" className="text-muted">Добавить работника:</label>
-                <div className="input-group">
-                  <select className="custom-select" id="newUser" name="add">{usrOptions}</select>
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="button"
-                      onClick={() => this.appendRemoveClick(document.getElementById("newUser").value)}
-                    >Добавить</button>
+              <div className="input-group form-group">
+                <div className="input-group-prepend">
+                  <span className="input-group-text">Участвует в субботниках</span>
+                </div>
+                <div className="input-group-append">
+                  <div className="input-group-text">
+                    {user.participateInLabour
+                      ? <input type="checkbox" name="ParticipateInLabour" defaultValue={user.participateInLabour} defaultChecked />
+                      : <input type="checkbox" name="ParticipateInLabour" defaultValue={user.participateInLabour} />}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="col-md-1">&nbsp;</div>
+            <div className="mr-5">&nbsp;</div>
 
-            <div className="col-md-7">
-              <div className="form-group">
-                <div className="card">
-                  <div className="card-header text-muted">Работники бюро:</div>
-                  <ul className="list-group list-group-flush">{ofcUsers.length > 0 ? ofcUsers : <li className="list-group-item">Нет работников</li>}</ul>
-                </div>
-              </div>
+            <div className="col-md-5">
+              <DateGroup name="MedExam" value={user.medExam} hint="Медосмотр" />
+              <DateGroup name="LabourSecurityExam" value={user.labourSecurityExam} hint="Охрана труда" />
+              <DateGroup name="IndustrialSecurityExam" value={user.industrialSecurityExam} hint="Промбезопасность" />
+              <DateGroup name="GotHelmet" value={user.gotHelmet} hint="Получил каску" />
+              <DateGroup name="GotSuit" value={user.gotSuit} hint="Получил костюм" />
+              <DateGroup name="GotBoots" value={user.gotBoots} hint="Получил ботинки" />
+              <DateGroup name="GotCoat" value={user.gotCoat} hint="Получил зимний костюм" />
             </div>
-
           </div>
 
           <div className="mb-4 col-md-3 pl-0"><br /><hr />
-            <button type="button" className="btn btn-outline-primary" onClick={this.props.alterClick}>Изменить</button>
+            <Route render={({ history }) => (
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => {
+                  this.props.alterClick()
+                    .then(result => {
+                      if (result)
+                        history.push('/user');
+                    });
+                }}
+              >Изменить
+              </button>
+            )} />
           </div>
         </form >
-      </div>
+      </div >
     );
-  }
-
-
-  appendRemoveClick = async (userId, append = true) => {
-    let user = this.props.state.users.find(u => u.id === +userId);
-
-    let alreadyThere = this.state.users.includes(user);
-    if ((alreadyThere && append) || (!alreadyThere && !append))
-      return;
-
-    append
-      ? user.officeId = +this.props.officeId
-      : user.officeId = null;
-
-    const response = await fetch(`api/user`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        Id: user.id,
-        FullName: user.fullName,
-        TabNum: user.tabNum,
-        OfficeId: +user.officeId
-      })
-    });
-
-    if (response.ok) {
-      blink(`Работник ${user.fullName} успешно ${append ? "добавлен" : "удален"}`);
-
-      let newUserSet = append
-        ? [...this.state.users, user]
-        : this.state.users.filter(u => u.id !== +userId);
-
-      this.setState({ users: newUserSet });
-    }
-    else {
-      let data = await response.json();
-      blink(errorHandler(data), true);
-    }
   }
 
 }

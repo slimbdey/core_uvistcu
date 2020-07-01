@@ -53,19 +53,43 @@ namespace UVSITCU.Models.Repositories
         public async Task<IEnumerable<T>> GetList() => await _db.QueryAsync<T>($"select * from {_table}");
         public async Task<bool> Post(T obj)
         {
-            var query = "update Users set FullName=@FullName, TabNum=@TabNum, OfficeId=@OfficeId where Id=@Id";
+            var query = @"update Users set 
+                            FullName=@FullName,
+                            OfficeId=@OfficeId,
+                            TabNum=@TabNum,
+                            Email=@Email,
+                            PhoneNum=@PhoneNum,
+                            ParticipateInLabour=@ParticipateInLabour,
+                            MedExam=@MedExam,
+                            LabourSecurityExam=@LabourSecurityExam,
+                            IndustrialSecurityExam=@IndustrialSecurityExam,
+                            GotHelmet=@GotHelmet,
+                            GotSuit=@GotSuit,
+                            GotBoots=@GotBoots,
+                            GotCoat=@GotCoat 
+                        where Id=@Id";
+
             if (_table == "Departments")
-                query = "update Departments set Name=@Name, ManagerId=@ManagerId where Id=@Id";
+                query = @"update Departments set 
+                            Name=@Name, 
+                            ManagerId=@ManagerId 
+                        where Id=@Id";
 
             else if (_table == "Offices")
-                query = "update Offices set Name=@Name, ChiefId=@ChiefId, DeptId=@DeptId where Id=@Id";
+                query = @"update Offices set 
+                            Name=@Name, 
+                            ChiefId=@ChiefId, 
+                            DeptId=@DeptId 
+                        where Id=@Id";
 
             int rowsAffected = await _db.ExecuteAsync(query, obj);
             return rowsAffected > 0;
         }
         public async Task<int> Put(T obj)
         {
-            var query = "insert into Users (FullName, TabNum) values (@FullName, @TabNum)";
+            var query = @"insert into Users (FullName, TabNum, ParticipateInLabour) 
+                            output inserted.Id
+                            values (@FullName, @TabNum, @ParticipateInLabour)";
             if (_table == "Departments")
                 query = @"insert into Departments (Name, ManagerId)
                             output inserted.Id

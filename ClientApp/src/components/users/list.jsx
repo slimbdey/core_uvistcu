@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import Modal from '../extra/modal';
+import Modal from '../view/templates';
+import { blink, errorHandler } from '../extra/extensions';
+import { Link } from 'react-router-dom';
+import './users.css'
 
 
-
-export class UserList extends Component {
-  displayName = OfficeList.name;
+export default class UserList extends Component {
+  displayName = UserList.name;
 
   ///// RENDER
   render() {
@@ -13,30 +15,32 @@ export class UserList extends Component {
 
     return (
       <div>
-        <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
+        <table className='table mytable table-sm table-hover mt-3' aria-labelledby="tabelLabel">
           <thead className="thead-light">
             <tr>
-              <th>Наименование</th>
-              <th width="35%">Руководитель</th>
-              <th>Работники</th>
+              <th>Ф.И.О.</th>
+              <th>Таб.№</th>
+              <th>Бюро</th>
+              <th>Руководитель</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {this.props.offices.map(office => {
-              let user = this.props.users.length > 0 && this.props.users.find(u => u.id === +office.chiefId);
-              let users = this.props.users.filter(u => u.officeId === +office.id).map(us => <div key={us.id}>{us.fullName}</div>);
-              return <tr key={office.id}>
-                <td>{office.name}</td>
-                <td>{user.fullName}</td>
-                <td>{users}</td>
+            {this.props.users.map(user => {
+              let office = this.props.offices.find(o => o.id === user.officeId);
+              let chief = office ? this.props.users.find(u => u.id === office.chiefId) : undefined;
+
+              return <tr key={user.id}>
+                <td><Link to={`/user/${user.id}`}>{user.fullName}</Link></td>
+                <td>ЧМ-{user.tabNum}</td>
+                <td><Link to={`/office/${user.officeId}`}>{office ? office.name : ""}</Link></td>
+                <td><Link to={`/user/${chief ? chief.id : ""}`}>{chief ? chief.fullName : ""}</Link></td>
                 <td>
                   <div className="d-flex">
-                    <a href="/office" onClick={(e) => { e.preventDefault(); this.props.alterClick(office.id); }}>Изменить</a>&nbsp;&nbsp;
                     <Modal
                       buttonLabel="Удалить"
-                      text={`Вы действительно хотите удалить бюро ${office.name}?`}
-                      func={() => this.deleteClick(office.id, office.name)} />
+                      text={`Вы действительно хотите удалить работника ${user.fullName}?`}
+                      func={() => this.deleteClick(user.id, user.fullName)} />
                   </div>
                 </td>
               </tr>
@@ -49,7 +53,7 @@ export class UserList extends Component {
 
 
   deleteClick = async (id, name) => {
-    const response = await fetch(`api/office/${id}`, {
+    const response = await fetch(`api/user/${id}`, {
       method: "DELETE",
       headers: {
         "Accept": "application/json",
@@ -58,11 +62,12 @@ export class UserList extends Component {
     });
 
     if (response.ok) {
-      this.props.blink(`Бюро ${name} успешно удалено`);
-      this.props.deleteOffice(id);
+      blink(`Работник ${name} успешно удален`);
+      this.props.deleteUser(id);
     }
     else
-      this.props.blink(response.statusText, true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 }

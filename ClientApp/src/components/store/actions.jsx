@@ -47,7 +47,33 @@ const fillOffices = function (offices, users) {
 
 
 
+///////////////////// USER ///////////////////////////////
+const addUser = function (user) {
+    return {
+        type: "ADD_USER",
+        user
+    }
+};
+
+const deleteUser = function (id) {
+    return {
+        type: "DELETE_USER",
+        id
+    }
+};
+
+const fillUsers = function (users, offices) {
+    return {
+        type: "FILL_USERS",
+        users,
+        offices
+    }
+}
+
+
+
 export default {
     fillDepts, addDept, deleteDept,
-    addOffice, deleteOffice, fillOffices
+    addOffice, deleteOffice, fillOffices,
+    addUser, deleteUser, fillUsers,
 }

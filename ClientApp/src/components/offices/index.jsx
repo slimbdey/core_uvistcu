@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { blink, errorHandler, bring, log } from '../extra/extensions';
+import { blink, errorHandler, bring } from '../extra/extensions';
 import actions from '../store/actions';
+import history from '../extra/history';
 
 import OfficeList from './list'
 import OfficeCreate from './create';
@@ -15,7 +16,7 @@ class Offices extends Component {
     ? {
       mode: "alter",
       title: "изменить бюро",
-      titleLink: "Назад",
+      titleLink: "Отмена",
       currentId: +this.props.match.params.id,
       loading: true,
     }
@@ -64,7 +65,7 @@ class Offices extends Component {
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img src="ajax_loader.gif" height={70} />;
+      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
 
     let contents = [];
 
@@ -72,7 +73,6 @@ class Offices extends Component {
       contents = <OfficeList
         offices={this.props.offices}
         users={this.props.users}
-        alterClick={this.alterClick}
         deleteOffice={this.props.deleteOffice}
       />
 
@@ -92,8 +92,8 @@ class Offices extends Component {
     return (
       <div>
         <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
-        <a href="/office" className="text-primary" onClick={(e) => { e.preventDefault(); this.linkToggle(); }}>{this.state.titleLink}</a>
-        <div className="text-success" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
+        <a href="/office" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
+        <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
       </div>
     );
@@ -123,7 +123,6 @@ class Offices extends Component {
         if (response.ok) {
           this.props.addOffice({ id: data, name: name, chiefId: id });
           blink(`Бюро ${name} успешно добавлено`);
-          this.linkToggle();
         }
         else
           blink(errorHandler(data), true);
@@ -149,27 +148,22 @@ class Offices extends Component {
       })
     });
 
-    if (response.ok) {
-      blink(`Бюро ${office.name} успешно изменено`);
-      this.linkToggle();
-    }
-    else {
-      response.json()
-        .then(error => blink(errorHandler(error), true));
-    }
+    response.ok
+      ? blink(`Бюро ${office.name} успешно изменено`)
+      : response.json().then(error => blink(errorHandler(error), true));
   }
 
 
-  alterClick = async (id) => {
-    this.setState({ mode: "alter", titleLink: "Назад", title: "изменить бюро", currentId: id });
-  }
 
+  linkToggle = async (e) => {
+    e.preventDefault();
 
-  linkToggle = async () => {
     if (this.state.mode === "list")
-      this.setState({ mode: "create", titleLink: "Назад", title: "создать бюро" });
-    else
+      this.setState({ mode: "create", titleLink: "Отмена", title: "создать бюро" });
+    else {
+      history.push("/office");
       this.setState({ mode: "list", titleLink: "Создать", title: "список бюро" });
+    }
   }
 
 }

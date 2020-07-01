@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import Modal from '../extra/modal';
-import { blink } from '../extra/extensions';
+import Modal from '../view/templates';
+import { blink, errorHandler } from '../extra/extensions';
+import { Link } from 'react-router-dom';
 
 
 export default class OfficeList extends Component {
@@ -25,14 +26,16 @@ export default class OfficeList extends Component {
           <tbody>
             {this.props.offices.map(office => {
               let manager = this.props.users.find(u => u.id === +office.chiefId);
-              let users = this.props.users.filter(u => u.officeId === +office.id).map(us => <div key={us.id}>{us.fullName}</div>);
+              let users = this.props.users.filter(u => u.officeId === +office.id).map(us =>
+                <div key={us.id}>
+                  <Link to={`/user/${us.id}`} >{us.fullName}</Link>
+                </div>);
               return <tr key={office.id}>
-                <td>{office.name}</td>
-                <td>{manager.fullName}</td>
+                <td><Link to={`/office/${office.id}`}>{office.name}</Link></td>
+                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
                 <td>{users}</td>
                 <td>
                   <div className="d-flex">
-                    <a href="/office" onClick={(e) => { e.preventDefault(); this.props.alterClick(office.id); }}>Изменить</a>&nbsp;&nbsp;
                     <Modal
                       buttonLabel="Удалить"
                       text={`Вы действительно хотите удалить бюро ${office.name}?`}
@@ -62,7 +65,8 @@ export default class OfficeList extends Component {
       this.props.deleteOffice(id);
     }
     else
-      this.props.blink(await response.json(), true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 }

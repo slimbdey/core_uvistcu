@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { blink, errorHandler, bring, log } from '../extra/extensions';
+import { blink, errorHandler, bring } from '../extra/extensions';
 import actions from '../store/actions';
+import history from '../extra/history';
 
 import DepartmentList from './list';
 import DepartmentCreate from './create';
@@ -15,7 +16,7 @@ class Departments extends Component {
     ? {
       mode: "alter",
       title: "изменить отдел",
-      tltleLink: "Назад",
+      titleLink: "Отмена",
       currentId: +this.props.match.params.id,
       loading: true
     }
@@ -65,10 +66,12 @@ class Departments extends Component {
   }
 
 
+
+
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img src="ajax_loader.gif" height={70} />;
+      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
 
     let contents = [];
 
@@ -77,7 +80,6 @@ class Departments extends Component {
         depts={this.props.depts}
         offices={this.props.offices}
         users={this.props.users}
-        alterClick={this.alterClick}
         deleteDept={this.props.deleteDept}
       />
 
@@ -98,20 +100,20 @@ class Departments extends Component {
     return (
       <div>
         <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
-        <a href="/department" className="text-primary" onClick={(e) => { e.preventDefault(); this.linkToggle(); }}>{this.state.titleLink}</a>
-        <div className="text-success" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
+        <a href="/department" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
+        <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
       </div>
     );
   }
 
 
-  createDept = async () => {
+  createDept = () => {
     const form = document.forms["CreateForm"];
     let name = form.elements["Name"].value;
     let id = form.elements["ChiefId"].value;
 
-    const response = await fetch("api/department", {
+    fetch("api/department", {
       method: "PUT",
       headers: {
         "Accept": "application/json",
@@ -121,19 +123,19 @@ class Departments extends Component {
         Name: name,
         ManagerId: +id
       })
-    });
-
-    response.json()
-      .then(data => {
-        if (response.ok) {
-          this.props.addDept({ id: data, name: name, managerId: id });
-          blink(`Отдел ${name} успешно добавлен`);
-          this.linkToggle();
-        }
-        else
-          blink(errorHandler(data), true);
+    })
+      .then(response => {
+        response.json()
+          .then(data => {
+            if (response.ok) {
+              this.props.addDept({ id: data, name: name, managerId: id });
+              blink(`Отдел ${name} успешно добавлен`);
+              this.linkToggle();
+            }
+            else
+              blink(errorHandler(data), true);
+          });
       });
-
   }
 
 
@@ -154,27 +156,21 @@ class Departments extends Component {
       })
     });
 
-    if (response.ok) {
-      blink(`Отдел ${dept.name} успешно изменен`);
-      this.linkToggle();
-    }
-    else {
-      response.json()
-        .then(error => blink(errorHandler(error), true));
-    }
+    response.ok
+      ? blink(`Отдел ${dept.name} успешно изменен`)
+      : response.json().then(error => blink(errorHandler(error), true));
   }
 
 
-  alterClick = async (id) => {
-    this.setState({ mode: "alter", titleLink: "Назад", title: "изменить отдел", currentId: id });
-  }
+  linkToggle = async (e) => {
+    e.preventDefault();
 
-
-  linkToggle = async () => {
     if (this.state.mode === "list")
-      this.setState({ mode: "create", titleLink: "Назад", title: "создать отдел" });
-    else
+      this.setState({ mode: "create", titleLink: "Отмена", title: "создать отдел" });
+    else {
+      history.push("/department");
       this.setState({ mode: "list", titleLink: "Создать", title: "список отделов" });
+    }
   }
 
 }

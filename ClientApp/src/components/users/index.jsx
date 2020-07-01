@@ -1,188 +1,214 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { blink, errorHandler, log } from '../extra/extensions';
+import { blink, errorHandler, bring } from '../extra/extensions';
 import actions from '../store/actions';
+import history from '../extra/history';
 
-import { OfficeList } from './list.jsx'
-import { OfficeCreate } from './create.jsx';
-import { OfficeAlter } from './alter.jsx';
+import UserList from './list'
+import UserCreate from './create';
+import UserAlter from './alter';
 
 
 class Users extends Component {
-  displayName = Offices.name;
+  displayName = Users.name;
 
 
-  state = {
-    mode: "list",
-    linkText: "Создать",
-    title: "список бюро",
-    officeId: null
-  }
+  state = this.props.match.params.id
+    ? {
+      mode: "alter",
+      title: "изменить работника",
+      titleLink: "Отмена",
+      currentId: +this.props.match.params.id,
+      loading: true
+    }
+    : {
+      mode: "list",
+      title: "список работников",
+      titleLink: "Создать",
+      currentId: null,
+      loading: true
+    }
 
 
   componentDidMount = async () => {
-    //if (this.props.state.match.params.id) {
-    //  this.alterClick(this.props.match.params.id);
-    //  return;
-    //}
+    if (this.props.users.length === 0) {
+      let users = [];
+      let offices = [];
+
+      let u = bring("user");
+      let o = bring("office");
+
+      let errors = "";
+      let responses = await Promise.all([u, o])
+        .catch(error => {
+          blink(`Error: ${error}`, true);
+          return;
+        });
 
 
-    let users = [];
-    let offices = [];
+      responses[0].ok
+        ? users = await responses[0].json()
+        : errors += "Работники отсутствуют";
 
-    async function bring(source) {
-      return await fetch(`api/${source}`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        }
-      });
+      responses[1].ok
+        ? offices = await responses[1].json()
+        : errors += "Бюро отсутствуют";
+
+      !!errors && blink(errors, true);
+      this.props.fillUsers(users, offices);
     }
 
-    let u = bring("user");
-    let o = bring("office");
-
-    let errors = "";
-    let responses = await Promise.all([u, o])
-      .catch(error => {
-        blink(`Error: ${error}`, true);
-        return;
-      });
-
-    responses[0].ok
-      ? users = await responses[0].json()
-      : errors += "Пользователи не заведены\n";
-
-    responses[1].ok
-      ? offices = await responses[1].json()
-      : errors += "Бюро отсутствуют";
-
-    !!errors && blink(errors, true);
-
-    this.props.fillOffices(users, offices);
+    this.setState({ loading: false });
   }
 
 
 
   ///// RENDER
   render() {
+    if (this.state.loading)
+      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+
     let contents = [];
 
     if (this.state.mode === "list")
-      contents = <OfficeList
-        offices={this.props.offices}
+      contents = <UserList
         users={this.props.users}
-        deleteOffice={this.props.deleteOffice}
-        alterClick={this.alterClick}
-        blink={blink} />
+        offices={this.props.offices}
+        deleteUser={this.props.deleteUser}
+      />
 
     else if (this.state.mode === "create")
-      contents = <OfficeCreate
-        users={this.props.users}
-        addOffice={this.createOffice}
-        blink={blink} />
+      contents = <UserCreate
+        createUser={this.createUser}
+      />
 
     else if (this.state.mode === "alter")
-      contents = <OfficeAlter
-        state={this.props}
+      contents = <UserAlter
+        user={this.props.users.find(u => u.id === this.state.currentId)}
         offices={this.props.offices}
-        officeId={this.state.officeId}
-        alterClick={this.alterOffice}
-        blink={blink} />
+        alterClick={this.alterUser}
+      />
 
     return (
       <div>
         <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
-        <a href="/office" className="text-primary" onClick={(e) => { e.preventDefault(); this.linkToggle(); }}>{this.state.linkText}</a>
-        <div className="text-success" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
+        <a href="/user" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
+        <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
       </div>
     );
   }
 
 
-
-  createOffice = async (e) => {
+  createUser = async (e) => {
     e.preventDefault();
 
     const form = document.forms["CreateForm"];
     let name = form.elements["Name"].value;
-    let id = form.elements["ChiefId"].value;
+    let num = form.elements["TabNum"].value;
 
-    const response = await fetch("api/office", {
+    fetch("api/user", {
       method: "PUT",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        Name: name,
-        ChiefId: +id
+        FullName: name,
+        TabNum: num,
+        ParticipateInLabour: false,
       })
-    });
-
-    let data = await response.json();
-    if (response.ok) {
-      this.props.addOffice({ id: data, name: name, chiefId: id });
-      blink(`Бюро ${name} успешно добавлено`);
-      this.linkToggle();
-    }
-    else
-      blink(errorHandler(data), true);
+    })
+      .then(response => {
+        response.json()
+          .then(data => {
+            if (response.ok) {
+              this.props.addUser({ id: data, fullName: name, tabNum: num });
+              blink(`Работник ${name} успешно добавлен`);
+              this.linkToggle();
+            }
+            else
+              blink(errorHandler(data), true);
+          });
+      });
   }
 
 
-  alterOffice = async () => {
-    let office = this.props.offices.find(o => o.id === this.state.officeId);
-    office.chiefId = +document.getElementById("chiefId").value;
+  alterUser = async () => {
+    let user = this.props.users.find(u => u.id === this.state.currentId);
 
-    const response = await fetch(`api/office`, {
+    const form = document.forms["alterForm"];
+    user.fullName = form.elements["FullName"].value;
+    user.officeId = +form.elements["officeId"].value;
+    user.tabNum = form.elements["TabNum"].value;
+    user.email = form.elements["Email"].value;
+    user.phoneNum = form.elements["PhoneNum"].value;
+    user.participateInLabour = form.elements["ParticipateInLabour"].checked ? true : false;
+    user.medExam = form.elements["MedExam"].value;
+    user.labourSecurityExam = form.elements["LabourSecurityExam"].value;
+    user.industrialSecurityExam = form.elements["IndustrialSecurityExam"].value;
+    user.gotHelmet = form.elements["GotHelmet"].value;
+    user.gotSuit = form.elements["GotSuit"].value;
+    user.gotBoots = form.elements["GotBoots"].value;
+    user.gotCoat = form.elements["GotCoat"].value;
+
+    let response = await fetch(`api/user`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        Id: office.id,
-        Name: office.name,
-        ChiefId: office.chiefId,
-        DeptId: +office.deptId
+        Id: user.id,
+        FullName: user.fullName,
+        OfficeId: user.officeId,
+        TabNum: user.tabNum,
+        Email: user.email,
+        PhoneNum: user.phoneNum,
+        ParticipateInLabour: user.participateInLabour,
+        MedExam: user.medExam,
+        LabourSecurityExam: user.labourSecurityExam,
+        IndustrialSecurityExam: user.industrialSecurityExam,
+        GotHelmet: user.gotHelmet,
+        GotSuit: user.gotSuit,
+        GotBoots: user.gotBoots,
+        GotCoat: user.gotCoat
       })
-    });
+    })
 
     if (response.ok) {
-      blink(`Бюро ${office.name} успешно изменено`);
-      this.setState({ mode: "list", linkText: "Создать", title: "список бюро" });
+      setTimeout(() => {
+        blink(`Работник ${user.fullName} успешно изменен`);
+      }, 10);
+      return new Promise(resolve => resolve(true));
+    }
+
+    let data = await response.json();
+    blink(errorHandler(data), true);
+    return new Promise(resolve => resolve(false));
+  }
+
+
+  linkToggle = async (e) => {
+    e.preventDefault();
+
+    if (this.state.mode === "list") {
+      this.setState({ mode: "create", titleLink: "Отмена", title: "добавить работника" });
     }
     else {
-      let data = await response.json();
-      blink(errorHandler(data), true);
+      history.push("/user");
+      this.setState({ mode: "list", titleLink: "Создать", title: "список работников" });
     }
-  }
-
-
-  alterClick = async (id) => {
-    this.setState({ mode: "alter", linkText: "Назад", title: "изменить бюро", officeId: id });
-  }
-
-
-  linkToggle = async () => {
-    if (this.state.mode === "list")
-      this.setState({ mode: "create", linkText: "Назад", title: "создать бюро" });
-    else
-      this.setState({ mode: "list", linkText: "Создать", title: "список бюро" });
   }
 
 }
 
 /////////// MAP STATE
-function mapStateToProps(state) {
+function chunkStateToProps(state) {
   return {
-    offices: state.officeReducer.offices,
-    users: state.officeReducer.users,
-    title: state.officeReducer.title,
+    users: state.users,
+    offices: state.offices,
   }
 }
 
-export default connect(mapStateToProps, actions)(Users);
+export default connect(chunkStateToProps, actions)(Users);

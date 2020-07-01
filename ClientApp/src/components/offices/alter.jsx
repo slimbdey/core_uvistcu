@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
+import { Route } from 'react-router-dom';
+import { InputGroup } from '../view/templates';
 
 
 export default class OfficeAlter extends Component {
@@ -22,43 +24,37 @@ export default class OfficeAlter extends Component {
     return (
       <div>
         <form name="alterForm" className="d-flex flex-column">
+          <button type="submit" disabled style={{ display: 'none' }} ></button>
           <div className="d-flex flex-row col-md-12 pl-0">
 
-            <div className="col-md-4 pl-0">
-              <div className="form-group">
-                <button type="submit" disabled style={{ display: 'none' }} ></button>
-                <label htmlFor="name" className="text-muted">Наименование бюро:</label>
-                <input className="form-control" name="name" defaultValue={this.props.office.name} />
-              </div>
+            <div className="col-md-5 pl-0">
+              <InputGroup name="name" value={this.props.office.name} hint="Наименование бюро" reversed />
 
-              <div className="form-group">
-                <label htmlFor="chiefId" className="text-muted">Руководитель бюро:</label>
-                <div className="input-group">
-                  <select
-                    className="custom-select"
-                    name="chiefId"
-                    id="chiefId"
-                    defaultValue={this.props.office.chiefId}
-                  >{usrOptions}</select>
+              <div className="input-group form-group">
+                <select
+                  className="custom-select"
+                  name="chiefId"
+                  id="chiefId"
+                  defaultValue={this.props.office.chiefId}
+                >{usrOptions}</select>
+                <div className="input-group-append">
+                  <span className="input-group-text">Руководитель бюро</span>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="add" className="text-muted">Добавить работника:</label>
-                <div className="input-group">
-                  <select className="custom-select" id="newUser" name="add">{usrOptions}</select>
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="button"
-                      onClick={() => this.appendRemoveClick(document.getElementById("newUser").value)}
-                    >Добавить</button>
-                  </div>
+              <div className="input-group form-group">
+                <select className="custom-select" id="newUser" name="add">{usrOptions}</select>
+                <div className="input-group-append">
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    onClick={() => this.appendRemoveClick(document.getElementById("newUser").value)}
+                  >Добавить</button>
                 </div>
               </div>
             </div>
 
-            <div className="col-md-1">&nbsp;</div>
+            <div className="mr-5">&nbsp;</div>
 
             <div className="col-md-7">
               <div className="form-group">
@@ -72,10 +68,21 @@ export default class OfficeAlter extends Component {
           </div>
 
           <div className="mb-4 col-md-3 pl-0"><br /><hr />
-            <button type="button" className="btn btn-outline-primary" onClick={this.props.alterClick}>Изменить</button>
+            <Route render={({ history }) => (
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => {
+                  history.push('/office');
+                  this.props.alterClick();
+                }}
+              >
+                Изменить
+              </button>
+            )} />
           </div>
         </form >
-      </div>
+      </div >
     );
   }
 

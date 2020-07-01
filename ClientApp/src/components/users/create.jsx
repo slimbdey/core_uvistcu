@@ -1,34 +1,29 @@
 import React, { Component } from 'react';
+import { InputGroup } from '../view/templates';
 
 
-export class OfficeCreate extends Component {
+export default class OfficeCreate extends Component {
 
   /////// RENDER
   render() {
-    let options = this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option>);
 
     return (
-      <div>
-        <form name="CreateForm" >
-          <div className="form-group col-md-5 pl-0">
-            <button type="submit" disabled style={{ display: 'none' }} ></button>
-            <label htmlFor="Name" className="text-muted">Наименование бюро:</label>
-            <input className="form-control" name="Name" />
+      <div className="mt-3">
+        <form name="CreateForm">
+          <button type="submit" disabled style={{ display: 'none' }} ></button>
+
+          <div className="col-md-5 pl-0">
+            <InputGroup name="FullName" value="" hint="Ф.И.О." reversed />
+            <InputGroup name="TabNum" value="" hint="Таб. №" reversed />
           </div>
-          <div className="form-group col-md-5 pl-0">
-            <label htmlFor="ChiefId" className="text-muted">Руководитель бюро:</label>
 
-            <div className="input-group">
-              <select className="custom-select" name="ChiefId">{options}</select>
-              <div className="input-group-append">
-                <button
-                  className="btn btn-outline-primary"
-                  type="button"
-                  onClick={this.props.addOffice}
-                >Создать</button>
-              </div>
-            </div>
-
+          <div className="col-md-3 mt-5 pl-0">
+            <hr />
+            <button
+              className="btn btn-outline-primary"
+              type="button"
+              onClick={this.props.createUser}
+            >Создать</button>
           </div>
         </form >
       </div >

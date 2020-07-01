@@ -1,7 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import history from './components/extra/history';
 import App from './App';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -17,9 +18,9 @@ let store = createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window._
 
 ReactDOM.render(
   <Provider store={store}>
-    <BrowserRouter basename={baseUrl}>
+    <Router basename={baseUrl} history={history} >
       <App />
-    </BrowserRouter>
+    </Router>
   </Provider>,
   rootElement);
 

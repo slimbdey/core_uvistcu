@@ -8,27 +8,33 @@ export default class DepartmentCreate extends Component {
     let options = this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option>);
 
     return (
-      <div>
+      <div className="mt-3">
         <form name="CreateForm">
-          <div className="form-group col-md-5 pl-0">
-            <button type="submit" disabled style={{ display: 'none' }} ></button>
-            <label htmlFor="Name" className="text-muted">Наименование отдела:</label>
-            <input className="form-control" name="Name" />
-          </div>
-          <div className="form-group col-md-5 pl-0">
-            <label htmlFor="ChiefId" className="text-muted">Руководитель отдела:</label>
+          <button type="submit" disabled style={{ display: 'none' }} ></button>
 
-            <div className="input-group">
-              <select className="custom-select" name="ChiefId">{options}</select>
-              <div className="input-group-append">
-                <button
-                  className="btn btn-outline-primary"
-                  type="button"
-                  onClick={this.props.createDept}
-                >Создать</button>
+          <div className="col-md-6 pl-0">
+            <div className="form-group input-group">
+              <div className="input-group-prepend">
+                <span className="input-group-text">Наименование</span>
               </div>
+              <input className="form-control" name="Name" />
             </div>
 
+            <div className="form-group input-group">
+              <div className="input-group-prepend">
+                <span className="input-group-text">Руководитель</span>
+              </div>
+              <select className="custom-select" name="ChiefId">{options}</select>
+            </div>
+          </div>
+
+          <div className="col-md-3 mt-5 pl-0">
+            <hr />
+            <button
+              className="btn btn-outline-primary"
+              type="button"
+              onClick={this.props.createDept}
+            >Создать</button>
           </div>
         </form >
       </div>
