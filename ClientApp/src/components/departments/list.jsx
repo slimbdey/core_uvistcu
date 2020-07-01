@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Modal from '../extra/modal';
 import { blink, errorHandler, log } from '../extra/extensions';
-
+import { Link } from 'react-router-dom';
 
 
 export default class DepartmentList extends Component {
@@ -27,7 +27,10 @@ export default class DepartmentList extends Component {
           <tbody>
             {this.props.depts.map(dept => {
               let manager = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId);
-              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
+              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os =>
+                <div key={os.id}>
+                  <Link to={`/office/${os.id}`} >{os.name}</Link>
+                </div>);
               return <tr key={dept.id}>
                 <td>{dept.name}</td>
                 <td>{manager.fullName}</td>

@@ -11,12 +11,21 @@ import DepartmentAlter from './alter';
 class Departments extends Component {
   displayName = Departments.name;
 
-  state = {
-    title: "список отделов",
-    titleLink: "Создать",
-    mode: "list",
-    currentId: null
-  };
+  state = this.props.match.params.id
+    ? {
+      mode: "alter",
+      title: "изменить отдел",
+      tltleLink: "Назад",
+      currentId: +this.props.match.params.id,
+      loading: true
+    }
+    : {
+      mode: "list",
+      title: "список отделов",
+      titleLink: "Создать",
+      currentId: null,
+      loading: true
+    }
 
 
   componentDidMount = async () => {
@@ -51,11 +60,16 @@ class Departments extends Component {
       !!errors && blink(errors, true);
       this.props.fillDepts(depts, offices, users);
     }
+
+    this.setState({ loading: false });
   }
 
 
   ///// RENDER
   render() {
+    if (this.state.loading)
+      return <img src="ajax_loader.gif" height={70} />;
+
     let contents = [];
 
     if (this.state.mode === "list")

@@ -11,13 +11,21 @@ import OfficeAlter from './alter';
 class Offices extends Component {
   displayName = Offices.name;
 
-
-  state = {
-    title: "список бюро",
-    titleLink: "Создать",
-    mode: "list",
-    currentId: null
-  }
+  state = this.props.match.params.id
+    ? {
+      mode: "alter",
+      title: "изменить бюро",
+      titleLink: "Назад",
+      currentId: +this.props.match.params.id,
+      loading: true,
+    }
+    : {
+      mode: "list",
+      title: "список бюро",
+      titleLink: "Создать",
+      currentId: null,
+      loading: true
+    }
 
 
   componentDidMount = async () => {
@@ -47,12 +55,17 @@ class Offices extends Component {
 
       this.props.fillOffices(offices, users);
     }
+
+    this.setState({ loading: false });
   }
 
 
 
   ///// RENDER
   render() {
+    if (this.state.loading)
+      return <img src="ajax_loader.gif" height={70} />;
+
     let contents = [];
 
     if (this.state.mode === "list")
