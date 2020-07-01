@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Modal from '../extra/modal';
+import { blink } from '../extra/extensions';
 
 
-
-export class OfficeList extends Component {
+export default class OfficeList extends Component {
   displayName = OfficeList.name;
 
   ///// RENDER
@@ -24,11 +24,11 @@ export class OfficeList extends Component {
           </thead>
           <tbody>
             {this.props.offices.map(office => {
-              let user = this.props.users.length > 0 && this.props.users.find(u => u.id === +office.chiefId);
+              let manager = this.props.users.find(u => u.id === +office.chiefId);
               let users = this.props.users.filter(u => u.officeId === +office.id).map(us => <div key={us.id}>{us.fullName}</div>);
               return <tr key={office.id}>
                 <td>{office.name}</td>
-                <td>{user.fullName}</td>
+                <td>{manager.fullName}</td>
                 <td>{users}</td>
                 <td>
                   <div className="d-flex">
@@ -58,11 +58,11 @@ export class OfficeList extends Component {
     });
 
     if (response.ok) {
-      this.props.blink(`Бюро ${name} успешно удалено`);
+      blink(`Бюро ${name} успешно удалено`);
       this.props.deleteOffice(id);
     }
     else
-      this.props.blink(response.statusText, true);
+      this.props.blink(await response.json(), true);
   }
 
 }

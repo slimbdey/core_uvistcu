@@ -1,43 +1,43 @@
 ///////////////////// DEPARTMENT ///////////////////////////////
-let addDept = function (dept) {
+const addDept = function (dept) {
     return {
         type: "ADD_DEPT",
         dept
     }
 };
 
-let deleteDept = function (id) {
+const deleteDept = function (id) {
     return {
         type: "DELETE_DEPT",
         id
     }
 };
 
-let fillDepts = function (depts, users, offices) {
+const fillDepts = function (depts, offices, users) {
     return {
         type: "FILL_DEPTS",
         depts,
-        users,
-        offices
+        offices,
+        users
     }
 }
 
 ///////////////////// OFFICE ///////////////////////////////
-let addOffice = function (office) {
+const addOffice = function (office) {
     return {
         type: "ADD_OFFICE",
         office
     }
 };
 
-let deleteOffice = function (id) {
+const deleteOffice = function (id) {
     return {
         type: "DELETE_OFFICE",
         id
     }
 };
 
-let fillOffices = function (users, offices) {
+const fillOffices = function (offices, users) {
     return {
         type: "FILL_OFFICES",
         offices,

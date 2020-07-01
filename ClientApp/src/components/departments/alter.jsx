@@ -2,25 +2,25 @@ import React, { Component } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
 
 
-export class DepartmentAlter extends Component {
+export default class DepartmentAlter extends Component {
   displayName = DepartmentAlter.name;
 
-  state = {
-    dept: this.props.state.depts.find(d => d.id === this.props.deptId),
-    offices: this.props.state.offices.filter(of => of.deptId === this.props.deptId)
-  }
 
+  state = {
+    deptOffices: this.props.offices.filter(of => of.deptId === this.props.dept.id)
+  }
 
 
   /////////// RENDER
   render() {
-    let usrOptions = this.props.state.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
-    let ofcOptions = this.props.state.offices.map(office => <option key={office.id} value={office.id}>{office.name}</option>);
+    let usrOptions = this.props.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
+    let ofcOptions = this.props.offices.map(office => <option key={office.id} value={office.id}>{office.name}</option>);
 
-    let offices = this.state.offices.map(o => <li className="list-group-item" key={o.id}>
-      {o.name}
-      <a href="/office" className="float-right" onClick={(e) => { e.preventDefault(); this.appendRemoveClick(o.id, false); }}>Удалить</a>
-    </li>);
+    let offices = this.state.deptOffices.map(o =>
+      <li className="list-group-item" key={o.id}>
+        {o.name}
+        <a href="/office" className="float-right" onClick={(e) => { e.preventDefault(); this.appendRemoveClick(o.id, false); }}>Удалить</a>
+      </li>);
 
     return (
       <div>
@@ -31,7 +31,7 @@ export class DepartmentAlter extends Component {
               <div className="form-group">
                 <button type="submit" disabled style={{ display: 'none' }} ></button>
                 <label htmlFor="name" className="text-muted">Наименование отдела:</label>
-                <input className="form-control" name="name" defaultValue={this.state.dept.name} />
+                <input className="form-control" name="name" defaultValue={this.props.dept.name} />
               </div>
 
               <div className="form-group">
@@ -41,7 +41,7 @@ export class DepartmentAlter extends Component {
                     className="custom-select"
                     name="managerId"
                     id="managerId"
-                    defaultValue={this.state.dept.managerId}
+                    defaultValue={this.props.dept.managerId}
                   >{usrOptions}</select>
                 </div>
               </div>
@@ -84,14 +84,14 @@ export class DepartmentAlter extends Component {
 
 
   appendRemoveClick = async (officeId, append = true) => {
-    let office = this.props.state.offices.find(o => o.id === +officeId);
+    let office = this.props.offices.find(o => o.id === +officeId);
 
-    let alreadyThere = this.state.offices.includes(office);
+    let alreadyThere = this.state.deptOffices.includes(office);
     if ((alreadyThere && append) || (!alreadyThere && !append))
       return;
 
     append
-      ? office.deptId = this.props.deptId
+      ? office.deptId = this.props.dept.id
       : office.deptId = null;
 
     const response = await fetch(`api/office`, {
@@ -112,14 +112,14 @@ export class DepartmentAlter extends Component {
       blink(`Бюро ${office.name} успешно ${append ? "добавлено" : "удалено"}`);
 
       let newOfficeSet = append
-        ? [...this.state.offices, office]
-        : this.state.offices.filter(o => o.id !== officeId);
+        ? [...this.state.deptOffices, office]
+        : this.state.deptOffices.filter(o => o.id !== officeId);
 
-      this.setState({ offices: newOfficeSet });
+      this.setState({ deptOffices: newOfficeSet });
     }
     else {
-      let data = await response.json();
-      blink(errorHandler(data), true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
     }
   }
 

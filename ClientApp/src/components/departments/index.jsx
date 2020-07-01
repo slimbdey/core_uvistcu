@@ -1,66 +1,56 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { blink, errorHandler, log } from '../extra/extensions';
+import { blink, errorHandler, bring, log } from '../extra/extensions';
 import actions from '../store/actions';
 
-import { DepartmentList } from './list';
-import { DepartmentCreate } from './create';
-import { DepartmentAlter } from './alter';
+import DepartmentList from './list';
+import DepartmentCreate from './create';
+import DepartmentAlter from './alter';
 
 
 class Departments extends Component {
   displayName = Departments.name;
 
-
   state = {
-    mode: "list",
-    linkText: "Создать",
     title: "список отделов",
-    deptId: null
-  }
+    titleLink: "Создать",
+    mode: "list",
+    currentId: null
+  };
 
 
   componentDidMount = async () => {
-    let depts = [];
-    let users = [];
-    let offices = [];
+    if (this.props.depts.length === 0) {
+      let depts = [];
+      let offices = [];
+      let users = [];
 
-    async function bring(source) {
-      return await fetch(`api/${source}`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        }
-      });
+      let d = bring("department");
+      let o = bring("office");
+      let u = bring("user");
+
+      let errors = "";
+      let responses = await Promise.all([d, o, u])
+        .catch(error => {
+          blink(`Error: ${error}`, true);
+          return;
+        });
+
+      responses[0].ok
+        ? depts = await responses[0].json()
+        : errors += "Отделы отсутствуют\n";
+
+      responses[1].ok
+        ? offices = await responses[1].json()
+        : errors += "Бюро отсутствуют";
+
+      responses[2].ok
+        ? users = await responses[2].json()
+        : errors += "Работники отсутствуют";
+
+      !!errors && blink(errors, true);
+      this.props.fillDepts(depts, offices, users);
     }
-
-    let d = bring("department");
-    let u = bring("user");
-    let o = bring("office");
-
-    let errors = "";
-    let responses = await Promise.all([d, u, o])
-      .catch(error => {
-        blink(`Error: ${error}`, true);
-        return;
-      });
-
-    responses[0].ok
-      ? depts = await responses[0].json()
-      : errors += "Отделы отсутствуют\n";
-
-    responses[1].ok
-      ? users = await responses[1].json()
-      : errors += "Пользователи не заведены\n";
-
-    responses[2].ok
-      ? offices = await responses[2].json()
-      : errors += "Бюро отсутствуют";
-
-    !!errors && blink(errors, true);
-
-    this.props.fillDepts(depts, users, offices);
   }
 
 
@@ -71,32 +61,30 @@ class Departments extends Component {
     if (this.state.mode === "list")
       contents = <DepartmentList
         depts={this.props.depts}
-        users={this.props.users}
         offices={this.props.offices}
-        deleteDept={this.props.deleteDept}
+        users={this.props.users}
         alterClick={this.alterClick}
-        blink={blink}
+        deleteDept={this.props.deleteDept}
       />
 
     else if (this.state.mode === "create")
       contents = <DepartmentCreate
         users={this.props.users}
-        addDept={this.createDept}
-        blink={blink}
+        createDept={this.createDept}
       />
 
     else if (this.state.mode === "alter")
       contents = <DepartmentAlter
-        state={this.props}
-        deptId={this.state.deptId}
+        dept={this.props.depts.find(d => d.id === this.state.currentId)}
+        offices={this.props.offices}
+        users={this.props.users}
         alterClick={this.alterDept}
-        blink={blink}
       />
 
     return (
       <div>
         <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
-        <a href="/department" className="text-primary" onClick={(e) => { e.preventDefault(); this.linkToggle(); }}>{this.state.linkText}</a>
+        <a href="/department" className="text-primary" onClick={(e) => { e.preventDefault(); this.linkToggle(); }}>{this.state.titleLink}</a>
         <div className="text-success" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
       </div>
@@ -121,19 +109,22 @@ class Departments extends Component {
       })
     });
 
-    let data = await response.json();
-    if (response.ok) {
-      this.props.addDept({ id: data, name: name, managerId: id });
-      blink(`Отдел ${name} успешно добавлен`);
-      this.linkToggle();
-    }
-    else
-      blink(errorHandler(data), true);
+    response.json()
+      .then(data => {
+        if (response.ok) {
+          this.props.addDept({ id: data, name: name, managerId: id });
+          blink(`Отдел ${name} успешно добавлен`);
+          this.linkToggle();
+        }
+        else
+          blink(errorHandler(data), true);
+      });
+
   }
 
 
   alterDept = async () => {
-    let dept = this.props.depts.find(d => d.id === this.state.deptId);
+    let dept = this.props.depts.find(d => d.id === this.state.currentId);
     dept.managerId = +document.getElementById("managerId").value;
 
     const response = await fetch(`api/department`, {
@@ -151,37 +142,36 @@ class Departments extends Component {
 
     if (response.ok) {
       blink(`Отдел ${dept.name} успешно изменен`);
-      this.setState({ mode: "list", linkText: "Создать", title: "список отделов" });
+      this.linkToggle();
     }
     else {
-      let data = await response.json();
-      blink(errorHandler(data), true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
     }
   }
 
 
   alterClick = async (id) => {
-    this.setState({ mode: "alter", linkText: "Назад", title: "изменить отдел", deptId: id });
+    this.setState({ mode: "alter", titleLink: "Назад", title: "изменить отдел", currentId: id });
   }
 
 
   linkToggle = async () => {
     if (this.state.mode === "list")
-      this.setState({ mode: "create", linkText: "Назад", title: "создать отдел" });
+      this.setState({ mode: "create", titleLink: "Назад", title: "создать отдел" });
     else
-      this.setState({ mode: "list", linkText: "Создать", title: "список отделов" });
+      this.setState({ mode: "list", titleLink: "Создать", title: "список отделов" });
   }
 
 }
 
 /////////// MAP STATE
-function mapStateToProps(state) {
+function chunkStateToProps(state) {
   return {
-    depts: state.deptReducer.depts,
-    users: state.deptReducer.users,
-    offices: state.deptReducer.offices,
-    title: state.deptReducer.title,
+    depts: state.depts,
+    offices: state.offices,
+    users: state.users,
   }
 }
 
-export default connect(mapStateToProps, actions)(Departments);
+export default connect(chunkStateToProps, actions)(Departments);

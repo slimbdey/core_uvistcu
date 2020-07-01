@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import Modal from '../extra/modal';
+import { blink, errorHandler, log } from '../extra/extensions';
 
 
 
-export class DepartmentList extends Component {
+export default class DepartmentList extends Component {
   displayName = DepartmentList.name;
+
 
   ///// RENDER
   render() {
@@ -26,7 +28,6 @@ export class DepartmentList extends Component {
             {this.props.depts.map(dept => {
               let manager = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId);
               let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
-
               return <tr key={dept.id}>
                 <td>{dept.name}</td>
                 <td>{manager.fullName}</td>
@@ -59,11 +60,12 @@ export class DepartmentList extends Component {
     });
 
     if (response.ok) {
-      this.props.blink(`Отдел ${name} успешно удален`);
+      blink(`Отдел ${name} успешно удален`);
       this.props.deleteDept(id);
     }
     else
-      this.props.blink(response.statusText, true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 }

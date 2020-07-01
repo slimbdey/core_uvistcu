@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 
-export class DepartmentCreate extends Component {
+export default class DepartmentCreate extends Component {
 
   /////// RENDER
   render() {
@@ -24,7 +24,7 @@ export class DepartmentCreate extends Component {
                 <button
                   className="btn btn-outline-primary"
                   type="button"
-                  onClick={this.props.addDept}
+                  onClick={this.props.createDept}
                 >Создать</button>
               </div>
             </div>
@@ -36,3 +36,4 @@ export class DepartmentCreate extends Component {
   }
 
 }
+

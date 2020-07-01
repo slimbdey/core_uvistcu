@@ -30,3 +30,14 @@ export let errorHandler = (data) => {
 export let log = (module, data) => {
     console.log(module.displayName, data);
 }
+
+
+export let bring = async (source) => {
+    return await fetch(`api/${source}`, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+    });
+}

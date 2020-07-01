@@ -2,22 +2,22 @@ import React, { Component } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
 
 
-export class OfficeAlter extends Component {
+export default class OfficeAlter extends Component {
   displayName = OfficeAlter.name;
 
   state = {
-    office: this.props.state.offices.find(o => o.id === this.props.officeId),
-    users: this.props.state.users.filter(u => u.officeId === this.props.officeId)
+    officePlangton: this.props.users.filter(of => of.officeId === this.props.office.id)
   }
 
   /////// RENDER
   render() {
-    let usrOptions = this.props.state.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
+    let usrOptions = this.props.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
 
-    let ofcUsers = this.state.users.map(u => <li className="list-group-item" key={u.id}>
-      {u.fullName}
-      <a href="/user" className="float-right" onClick={(e) => { e.preventDefault(); this.appendRemoveClick(u.id, false); }}>Удалить</a>
-    </li>);
+    let ofcUsers = this.state.officePlangton.map(u =>
+      <li className="list-group-item" key={u.id}>
+        {u.fullName}
+        <a href="/user" className="float-right" onClick={(e) => { e.preventDefault(); this.appendRemoveClick(u.id, false); }}>Удалить</a>
+      </li>);
 
     return (
       <div>
@@ -28,7 +28,7 @@ export class OfficeAlter extends Component {
               <div className="form-group">
                 <button type="submit" disabled style={{ display: 'none' }} ></button>
                 <label htmlFor="name" className="text-muted">Наименование бюро:</label>
-                <input className="form-control" name="name" defaultValue={this.state.office.name} />
+                <input className="form-control" name="name" defaultValue={this.props.office.name} />
               </div>
 
               <div className="form-group">
@@ -38,7 +38,7 @@ export class OfficeAlter extends Component {
                     className="custom-select"
                     name="chiefId"
                     id="chiefId"
-                    defaultValue={this.state.office.chiefId}
+                    defaultValue={this.props.office.chiefId}
                   >{usrOptions}</select>
                 </div>
               </div>
@@ -81,14 +81,14 @@ export class OfficeAlter extends Component {
 
 
   appendRemoveClick = async (userId, append = true) => {
-    let user = this.props.state.users.find(u => u.id === +userId);
+    let user = this.props.users.find(u => u.id === +userId);
 
-    let alreadyThere = this.state.users.includes(user);
+    let alreadyThere = this.state.officePlangton.includes(user);
     if ((alreadyThere && append) || (!alreadyThere && !append))
       return;
 
     append
-      ? user.officeId = +this.props.officeId
+      ? user.officeId = +this.props.office.id
       : user.officeId = null;
 
     const response = await fetch(`api/user`, {
@@ -109,14 +109,14 @@ export class OfficeAlter extends Component {
       blink(`Работник ${user.fullName} успешно ${append ? "добавлен" : "удален"}`);
 
       let newUserSet = append
-        ? [...this.state.users, user]
-        : this.state.users.filter(u => u.id !== +userId);
+        ? [...this.state.officePlangton, user]
+        : this.state.officePlangton.filter(u => u.id !== +userId);
 
-      this.setState({ users: newUserSet });
+      this.setState({ officePlangton: newUserSet });
     }
     else {
-      let data = await response.json();
-      blink(errorHandler(data), true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
     }
   }
 

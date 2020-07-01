@@ -4,16 +4,15 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { Provider } from 'react-redux';
-import { createStore, combineReducers } from 'redux';
-import { deptReducer } from "./components/store/deptReduser";
-import { officeReducer } from "./components/store/officeReduser";
+import { createStore } from 'redux';
+import { reducer } from "./components/store/reduser";
 import registerServiceWorker from './registerServiceWorker';
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 
 
-let store = createStore(combineReducers({ deptReducer, officeReducer }));
+let store = createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 
 ReactDOM.render(

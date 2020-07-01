@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 
-export class OfficeCreate extends Component {
+export default class OfficeCreate extends Component {
 
   /////// RENDER
   render() {
@@ -24,7 +24,7 @@ export class OfficeCreate extends Component {
                 <button
                   className="btn btn-outline-primary"
                   type="button"
-                  onClick={this.props.addOffice}
+                  onClick={this.props.createOffice}
                 >Создать</button>
               </div>
             </div>
