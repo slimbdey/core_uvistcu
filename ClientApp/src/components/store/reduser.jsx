@@ -2,6 +2,7 @@ let initialState = {
   depts: [],
   offices: [],
   users: [],
+  labours: [],
 }
 
 
@@ -23,8 +24,6 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         depts: action.depts,
-        offices: action.offices,
-        users: action.users
       };
 
     case "ADD_OFFICE":
@@ -43,7 +42,6 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         offices: action.offices,
-        users: action.users
       };
 
     case "ADD_USER":
@@ -62,7 +60,24 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         users: action.users,
-        offices: action.offices
+      };
+
+    case "ADD_LABOUR":
+      return {
+        ...state,
+        labours: [...state.labours, action.labour]
+      };
+
+    case "DELETE_LABOUR":
+      return {
+        ...state,
+        labours: state.labours.filter(l => l.id !== action.id)
+      };
+
+    case "FILL_LABOURS":
+      return {
+        ...state,
+        labours: action.labours
       };
 
     default: return state;

@@ -13,12 +13,10 @@ const deleteDept = function (id) {
     }
 };
 
-const fillDepts = function (depts, offices, users) {
+const fillDepts = function (depts) {
     return {
         type: "FILL_DEPTS",
         depts,
-        offices,
-        users
     }
 }
 
@@ -37,11 +35,10 @@ const deleteOffice = function (id) {
     }
 };
 
-const fillOffices = function (offices, users) {
+const fillOffices = function (offices) {
     return {
         type: "FILL_OFFICES",
-        offices,
-        users
+        offices
     }
 }
 
@@ -62,11 +59,34 @@ const deleteUser = function (id) {
     }
 };
 
-const fillUsers = function (users, offices) {
+const fillUsers = function (users) {
     return {
         type: "FILL_USERS",
-        users,
-        offices
+        users
+    }
+}
+
+
+
+///////////////////// LABROUR ///////////////////////////////
+const addLabour = function (labour) {
+    return {
+        type: "ADD_LABOUR",
+        labour
+    }
+};
+
+const deleteLabour = function (id) {
+    return {
+        type: "DELETE_LABOUR",
+        id
+    }
+};
+
+const fillLabours = function (labours) {
+    return {
+        type: "FILL_LABOURS",
+        labours
     }
 }
 
@@ -76,4 +96,5 @@ export default {
     fillDepts, addDept, deleteDept,
     addOffice, deleteOffice, fillOffices,
     addUser, deleteUser, fillUsers,
+    addLabour, deleteLabour, fillLabours,
 }

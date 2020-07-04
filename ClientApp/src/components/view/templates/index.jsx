@@ -37,7 +37,7 @@ export class DateGroup extends Component {
     return (
       <div className="input-group form-group">
         <div className="input-group-prepend">
-          <button className="btn btn-outline-secondary" type="button"
+          <button className="btn btn-outline-info" type="button"
             onClick={() => document.getElementsByName(this.props.name)[0].value = (new Date()).toISOString().slice(0, 10)}
           > Сегодня</button>
         </div>
@@ -71,6 +71,14 @@ export class InputGroup extends Component {
     );
   }
 }
+
+
+export class Loading extends Component {
+  render = () => <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+}
+
+
+
 
 
 export default ModalExample;

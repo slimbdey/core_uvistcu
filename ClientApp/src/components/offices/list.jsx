@@ -15,7 +15,7 @@ export default class OfficeList extends Component {
     return (
       <div>
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead className="thead-light">
+          <thead>
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>

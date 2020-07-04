@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
 import actions from '../store/actions';
 import history from '../extra/history';
+import { Loading } from '../view/templates';
 
 import DepartmentList from './list';
 import DepartmentCreate from './create';
@@ -18,51 +19,31 @@ class Departments extends Component {
       title: "изменить отдел",
       titleLink: "Отмена",
       currentId: +this.props.match.params.id,
-      loading: true
+      loading: true,
     }
     : {
       mode: "list",
       title: "список отделов",
       titleLink: "Создать",
       currentId: null,
-      loading: true
+      loading: true,
     }
 
 
   componentDidMount = async () => {
-    if (this.props.depts.length === 0) {
-      let depts = [];
-      let offices = [];
-      let users = [];
+    let errors = "";
 
-      let d = bring("department");
-      let o = bring("office");
-      let u = bring("user");
+    if (this.props.depts.length === 0)
+      errors += await bring("department", this.props.fillDepts);
 
-      let errors = "";
-      let responses = await Promise.all([d, o, u])
-        .catch(error => {
-          blink(`Error: ${error}`, true);
-          return;
-        });
+    if (this.props.offices.length === 0)
+      errors += await bring("office", this.props.fillOffices);
 
-      responses[0].ok
-        ? depts = await responses[0].json()
-        : errors += "Отделы отсутствуют\n";
+    if (this.props.users.length === 0)
+      errors += await bring("user", this.props.fillUsers);
 
-      responses[1].ok
-        ? offices = await responses[1].json()
-        : errors += "Бюро отсутствуют";
-
-      responses[2].ok
-        ? users = await responses[2].json()
-        : errors += "Работники отсутствуют";
-
-      !!errors && blink(errors, true);
-      this.props.fillDepts(depts, offices, users);
-    }
-
-    this.setState({ loading: false });
+    !!errors && this.setState({ error: errors, loading: false });
+    !!!errors && this.setState({ loading: false })
   }
 
 
@@ -71,7 +52,11 @@ class Departments extends Component {
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+      return <Loading />;
+
+    else if (!!this.state.error)
+      return <div className="text-danger font-italic">{this.state.error}</div>
+
 
     let contents = [];
 

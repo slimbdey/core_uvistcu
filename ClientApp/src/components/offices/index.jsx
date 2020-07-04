@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
 import actions from '../store/actions';
 import history from '../extra/history';
+import { Loading } from '../view/templates';
 
 import OfficeList from './list'
 import OfficeCreate from './create';
@@ -30,34 +31,16 @@ class Offices extends Component {
 
 
   componentDidMount = async () => {
-    if (this.props.offices.length === 0) {
-      let offices = [];
-      let users = [];
+    let errors = "";
 
-      let o = bring("office");
-      let u = bring("user");
+    if (this.props.offices.length === 0)
+      errors += await bring("office", this.props.fillOffices);
 
-      let errors = "";
-      let responses = await Promise.all([o, u])
-        .catch(error => {
-          blink(`Error: ${error}`, true);
-          return;
-        });
+    if (this.props.users.length === 0)
+      errors += await bring("user", this.props.fillUsers);
 
-      responses[0].ok
-        ? offices = await responses[0].json()
-        : errors += "Бюро отсутствуют";
-
-      responses[1].ok
-        ? users = await responses[1].json()
-        : errors += "Пользователи не заведены\n";
-
-      !!errors && blink(errors, true);
-
-      this.props.fillOffices(offices, users);
-    }
-
-    this.setState({ loading: false });
+    !!errors && this.setState({ error: errors, loading: false });
+    !!!errors && this.setState({ loading: false })
   }
 
 
@@ -65,7 +48,7 @@ class Offices extends Component {
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+      return <Loading />
 
     let contents = [];
 

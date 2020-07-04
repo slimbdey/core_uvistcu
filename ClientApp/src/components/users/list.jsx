@@ -16,7 +16,7 @@ export default class UserList extends Component {
     return (
       <div>
         <table className='table mytable table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead className="thead-light">
+          <thead>
             <tr>
               <th>Ф.И.О.</th>
               <th>Таб.№</th>
