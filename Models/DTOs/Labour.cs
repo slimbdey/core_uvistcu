@@ -19,6 +19,6 @@ namespace UVSITCU.Models.DTOs
 
 
         [NotMapped]
-        public IEnumerable<User> Users { get; set; }
+        public IEnumerable<int> UserIds { get; set; }
     }
 }

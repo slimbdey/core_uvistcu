@@ -5,7 +5,7 @@ import actions from '../store/actions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
 
-//import LabourList from './list';
+import LabourList from './list';
 import LabourCreate from './create';
 //import LabourAlter from './alter';
 
@@ -58,13 +58,12 @@ class Labours extends Component {
 
     let contents = [];
 
-    //if (this.state.mode === "list")
-    //  contents = <LabourList
-    //    labours={this.props.labours}
-    //    offices={this.props.offices}
-    //    users={this.props.users}
-    //    deleteLabour={this.props.deleteLabour}
-    //  />
+    if (this.state.mode === "list")
+      contents = <LabourList
+        labours={this.props.labours}
+        users={this.props.users}
+        deleteLabour={this.props.deleteLabour}
+      />
 
     if (this.state.mode === "create")
       contents = <LabourCreate
@@ -92,33 +91,43 @@ class Labours extends Component {
 
 
   createLabour = () => {
-    //const form = document.forms["CreateForm"];
-    //let name = form.elements["Name"].value;
-    //let id = form.elements["ChiefId"].value;
+    const form = document.forms["CreateForm"];
+    let date = new Date(form.elements["Date"].value).toISOString();
+    let managerId = form.elements["ManagerId"].value;
+    let users = form.elements["Users[]"];
+    let userIds = [];
 
-    //fetch("api/labour", {
-    //  method: "PUT",
-    //  headers: {
-    //    "Accept": "application/json",
-    //    "Content-Type": "application/json",
-    //  },
-    //  body: JSON.stringify({
-    //    Name: name,
-    //    ManagerId: +id
-    //  })
-    //})
-    //  .then(response => {
-    //    response.json()
-    //      .then(data => {
-    //        if (response.ok) {
-    //          this.props.addLabour({ id: data, name: name, managerId: id });
-    //          blink(`Отдел ${name} успешно добавлен`);
-    //          this.linkToggle();
-    //        }
-    //        else
-    //          blink(errorHandler(data), true);
-    //      });
-    //  });
+    if (users.nodeName === "SELECT")
+      userIds.push(+users.value);
+
+    else
+      for (let user of users)
+        userIds.push(+user.value);
+
+    fetch("api/labour", {
+      method: "PUT",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Date: date,
+        ManagerId: +managerId,
+        UserIds: userIds
+      })
+    })
+      .then(response =>
+        response.json()
+          .then(data => {
+            if (response.ok) {
+              this.props.addLabour({ id: data, date: date, managerId: +managerId, userIds: userIds });
+              blink(`Субботник успешно добавлен`);
+              this.linkToggle();
+            }
+            else
+              blink(errorHandler(data), true);
+          })
+      );
   }
 
 
@@ -146,7 +155,7 @@ class Labours extends Component {
 
 
   linkToggle = async (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
 
     if (this.state.mode === "list")
       this.setState({ mode: "create", titleLink: "Отмена", title: "создать субботник" });

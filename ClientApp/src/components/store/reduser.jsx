@@ -65,19 +65,19 @@ export let reducer = function (state = initialState, action) {
     case "ADD_LABOUR":
       return {
         ...state,
-        labours: [...state.labours, action.labour]
+        labours: [...state.labours, action.labour].sort((a, b) => a.date < b.date)
       };
 
     case "DELETE_LABOUR":
       return {
         ...state,
-        labours: state.labours.filter(l => l.id !== action.id)
+        labours: state.labours.filter(l => l.id !== action.id).sort((a, b) => a.date < b.date)
       };
 
     case "FILL_LABOURS":
       return {
         ...state,
-        labours: action.labours
+        labours: action.labours.sort((a, b) => a.date < b.date)
       };
 
     default: return state;

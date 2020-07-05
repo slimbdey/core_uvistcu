@@ -148,7 +148,7 @@ class Departments extends Component {
 
 
   linkToggle = async (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
 
     if (this.state.mode === "list")
       this.setState({ mode: "create", titleLink: "Отмена", title: "создать отдел" });

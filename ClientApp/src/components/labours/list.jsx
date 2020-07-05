@@ -1,50 +1,106 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import Modal from '../view/templates';
-import { blink, errorHandler } from '../extra/extensions';
+import { correctDate, blink, errorHandler } from '../extra/extensions';
 import { Link } from 'react-router-dom';
 
 
-export default class DepartmentList extends Component {
-  displayName = DepartmentList.name;
+const Filter = props => {
+  return (
+    <div className="input-group form-group">
+      <div className="input-group-prepend">
+        <button className="btn btn-outline-info" type="button"
+          onClick={() => document.getElementsByName(props.name)[0].value = (new Date()).toISOString().slice(0, 10)}
+        > Сегодня</button>
+      </div>
+      <input type="date" className="form-control date" name={props.name} defaultValue={props.value.slice(0, 10)} />
+      <div className="input-group-append">
+        <span className="input-group-text">{props.hint}</span>
+      </div>
+      <div className="input-group-append">
+        <button className="btn btn-outline-secondary" type="button"
+          onClick={() => props.reset()}
+        > Сбросить</button>
+      </div>
+      <div className="input-group-append">
+        <button className="btn btn-outline-success" type="button"
+          onClick={() => props.set(document.getElementsByName(props.name)[0].value.slice(0, 10))}
+        > Применить</button>
+      </div>
+    </div>
+  );
+}
 
+
+class Labour extends PureComponent {
+  labour = this.props.labour;
+  manager = this.props.users.find(u => u.id === +this.labour.managerId);
+  users = this.labour.userIds
+    .map(uid =>
+      <div key={uid}>
+        <Link to={`/user/${uid}`} >{this.props.users.find(u => u.id === uid).fullName}</Link>
+      </div>);
+
+  render() {
+    console.log("labour render");//////////////////////
+    return (
+      <tr key={this.props.id}>
+        <td>{correctDate(this.labour.date)}</td>
+        <td><Link to={`/user/${this.manager.id}`}>{this.manager.fullName}</Link></td>
+        <td>{this.users}</td>
+        <td>
+          <div className="d-flex">
+            <Modal
+              buttonLabel="Удалить"
+              text="Вы действительно хотите удалить субботник?"
+              func={() => this.props.deleteClick(this.labour.id)} />
+          </div>
+        </td>
+      </tr>
+    );
+  }
+}
+
+
+export default class LabourList extends Component {
+  displayName = LabourList.name;
+
+  state = {
+    labours: this.props.labours
+  }
 
   ///// RENDER
   render() {
-    if (this.props.depts.length === 0)
+    if (this.state.labours.length === 0)
       return <div></div>;
 
     return (
       <div>
+        <div className="col-md-6 pl-0">
+          <Filter
+            name="currentDate"
+            value={new Date().toISOString()}
+            hint="Фильтр"
+            set={this.filter}
+            reset={this.resetFilter}
+          />
+        </div>
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
           <thead>
             <tr>
-              <th>Наименование</th>
+              <th>Дата</th>
               <th width="35%">Руководитель</th>
-              <th>Бюро</th>
+              <th>Работники</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {this.props.depts.map(dept => {
-              let manager = this.props.users.find(u => u.id === +dept.managerId);
-              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os =>
-                <div key={os.id}>
-                  <Link to={`/office/${os.id}`} >{os.name}</Link>
-                </div>);
-              return <tr key={dept.id}>
-                <td><Link to={`/department/${dept.id}`}>{dept.name}</Link></td>
-                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
-                <td>{offices}</td>
-                <td>
-                  <div className="d-flex">
-                    <Modal
-                      buttonLabel="Удалить"
-                      text={`Вы действительно хотите удалить отдел ${dept.name}?`}
-                      func={() => this.deleteClick(dept.id, dept.name)} />
-                  </div>
-                </td>
-              </tr>
-            })}
+            {this.state.labours.map(labour =>
+              <Labour
+                key={labour.id}
+                labour={labour}
+                users={this.props.users}
+                deleteClick={this.deleteClick}
+              />)}
           </tbody>
         </table>
       </div>
@@ -52,8 +108,23 @@ export default class DepartmentList extends Component {
   }
 
 
-  deleteClick = async (id, name) => {
-    const response = await fetch(`api/department/${id}`, {
+
+  filter = date => {
+    this.setState({
+      labours: this.state.labours.filter(l => l.date.slice(0, 10) === date)
+    });
+  }
+
+  resetFilter = () => {
+    this.setState({
+      labours: this.props.labours
+    });
+  }
+
+
+
+  deleteClick = async id => {
+    const response = await fetch(`api/labour/${id}`, {
       method: "DELETE",
       headers: {
         "Accept": "application/json",
@@ -62,8 +133,9 @@ export default class DepartmentList extends Component {
     });
 
     if (response.ok) {
-      blink(`Отдел ${name} успешно удален`);
-      this.props.deleteDept(id);
+      blink(`Субботник успешно удален`);
+      this.props.deleteLabour(id);
+      this.setState({ labours: this.props.labours });
     }
     else
       response.json()

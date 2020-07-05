@@ -1,5 +1,5 @@
 
-export let blink = async (message, bad = false) => {
+export const blink = async (message, bad = false) => {
   let popup = document.getElementById("message");
 
   if (bad)
@@ -16,7 +16,7 @@ export let blink = async (message, bad = false) => {
 
 
 
-export let errorHandler = (data) => {
+export const errorHandler = (data) => {
   let errors = [];
   for (let er in data.errors)
     errors.push(data.errors[er]);
@@ -27,12 +27,12 @@ export let errorHandler = (data) => {
 
 
 
-export let log = (module, data) => {
+export const log = (module, data) => {
   console.log(module.displayName, data);
 }
 
 
-export let bring = async (source, func) => {
+export const bring = async (source, func) => {
   let error = "";
 
   let response = await fetch(`api/${source}`, {
@@ -49,4 +49,14 @@ export let bring = async (source, func) => {
     : error += `${data}\n`;
 
   return error;
+}
+
+
+export const correctDate = str => {
+  let date = new Date(str);
+  let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+  let month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+  let year = date.getFullYear();
+
+  return `${day}.${month}.${year}`;
 }

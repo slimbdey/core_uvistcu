@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { DateGroup } from '../view/templates';
+import React, { Component, PureComponent } from 'react';
+import { DateGroup, OptionsInputGroup } from '../view/templates';
 
 
-class LabourInputGroup extends Component {
+class LabourInputGroup extends PureComponent {
   id = this.props.id;
 
   render() {
@@ -11,7 +11,7 @@ class LabourInputGroup extends Component {
         <div className="input-group-prepend">
           <button type="button" className="btn btn-outline-danger" onClick={() => this.props.removeInputGroup(this.id)}>-</button>
         </div>
-        <select className="custom-select" name="Users">{this.props.options}</select>
+        <select className="custom-select" name="Users[]">{this.props.options}</select>
         <div className="input-group-append">
           <span className="input-group-text">Работник</span>
           <button type="button" className="btn btn-outline-success" onClick={this.props.addInputGroup}>+</button>
@@ -35,7 +35,7 @@ export default class LabourCreate extends Component {
         inputGroups: [...old.inputGroups,
         <LabourInputGroup
           id={id}
-          key={Math.random() * 1000}
+          key={this.keyGen()}
           options={this.options}
           addInputGroup={this.addInputGroup}
           removeInputGroup={this.removeInputGroup}
@@ -46,15 +46,14 @@ export default class LabourCreate extends Component {
 
   }
 
-  removeInputGroup = (id) => {
-    id > 1 && document.getElementById(id).remove();
-  }
+  keyGen = () => Math.floor(Math.random() * 10000);
+  removeInputGroup = id => id > 1 && document.getElementById(id).remove();
 
   state = {
     inputGroups: [
       <LabourInputGroup
         id={++this.counter}
-        key={Math.random() * 1000}
+        key={this.keyGen()}
         options={this.options}
         addInputGroup={this.addInputGroup}
         removeInputGroup={this.removeInputGroup}
@@ -73,13 +72,7 @@ export default class LabourCreate extends Component {
 
           <div className="col-md-6 pl-0" id="participants">
             <DateGroup name="Date" value={(new Date()).toISOString().slice(0, 10)} hint="Дата субботника" />
-
-            <div className="form-group input-group">
-              <select className="custom-select" name="ManagerId">{this.options}</select>
-              <div className="input-group-append">
-                <span className="input-group-text">Кто назначил</span>
-              </div>
-            </div>
+            <OptionsInputGroup reversed name="ManagerId" options={this.options} hint="Кто назначил" />
             {this.state.inputGroups}
           </div>
 
