@@ -7,7 +7,7 @@ import { Loading } from '../view/templates';
 
 import LabourList from './list';
 import LabourCreate from './create';
-//import LabourAlter from './alter';
+import LabourAlter from './alter';
 
 
 class Labours extends Component {
@@ -71,13 +71,12 @@ class Labours extends Component {
         createLabour={this.createLabour}
       />
 
-    //else if (this.state.mode === "alter")
-    //  contents = <LabourAlter
-    //    labour={this.props.labours.find(d => d.id === this.state.currentId)}
-    //    offices={this.props.offices}
-    //    users={this.props.users}
-    //    alterClick={this.alterLabour}
-    //  />
+    else if (this.state.mode === "alter")
+      contents = <LabourAlter
+        users={this.props.users}
+        labour={this.props.labours.find(l => l.id === this.state.currentId)}
+        alterClick={this.alterLabour}
+      />
 
     return (
       <div>
@@ -100,9 +99,16 @@ class Labours extends Component {
     if (users.nodeName === "SELECT")
       userIds.push(+users.value);
 
-    else
+    else {
       for (let user of users)
-        userIds.push(+user.value);
+        if (userIds.includes(+user.value)) {
+          blink("Один из работников указан дважды", true);
+          return;
+        }
+
+        else
+          userIds.push(+user.value);
+    }
 
     fetch("api/labour", {
       method: "PUT",
@@ -132,25 +138,49 @@ class Labours extends Component {
 
 
   alterLabour = async () => {
-    //let labour = this.props.labours.find(d => d.id === this.state.currentId);
-    //labour.managerId = +document.getElementById("managerId").value;
+    const form = document.forms["CreateForm"];
 
-    //const response = await fetch(`api/labour`, {
-    //  method: "POST",
-    //  headers: {
-    //    "Accept": "application/json",
-    //    "Content-Type": "application/json",
-    //  },
-    //  body: JSON.stringify({
-    //    Id: labour.id,
-    //    Name: labour.name,
-    //    ManagerId: labour.managerId,
-    //  })
-    //});
+    let labour = { id: +this.state.currentId };
+    labour.date = new Date(form.elements["Date"].value).toISOString();
+    labour.managerId = +form.elements["ManagerId"].value;
 
-    //response.ok
-    //  ? blink(`Отдел ${labour.name} успешно изменен`)
-    //  : response.json().then(error => blink(errorHandler(error), true));
+    let users = form.elements["Users[]"];
+    labour.userIds = [];
+
+    if (users.nodeName === "SELECT")
+      labour.userIds.push(+users.value);
+
+    else {
+      for (let user of users)
+        if (labour.userIds.includes(+user.value)) {
+          blink("Один из работников указан дважды", true);
+          return;
+        }
+
+        else
+          labour.userIds.push(+user.value);
+    }
+
+    let response = await fetch("api/labour", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(labour)
+    });
+
+    if (response.ok) {
+      setTimeout(() => blink(`Субботник успешно изменен`), 10);
+      this.props.alterLabour(labour);
+      return new Promise(resolve => resolve(true));
+    }
+
+    response.json()
+      .then(data => {
+        blink(errorHandler(data), true);
+        return new Promise(resolve => resolve(false));
+      });
   }
 
 

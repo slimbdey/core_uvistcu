@@ -79,10 +79,25 @@ namespace UVSITCU.Models.Repositories
 
         public async Task<bool> Post(Labour obj)
         {
-            await Delete(obj.Id);
-            await Put(obj);
+            try
+            {
+                _db.Open();
+                string query = "delete from UserLabours where LabourId=@Id";
+                await _db.ExecuteAsync(query, obj);
 
-            return true;
+                query = "update Labours set Date=@Date, ManagerId=@ManagerId where Id=@Id";
+                await _db.ExecuteAsync(query, obj);
+
+                query = "insert into UserLabours (UserId, LabourId) values ";
+                foreach (int userId in obj.UserIds)
+                    query = string.Concat(query, "(", userId.ToString(), ",", obj.Id.ToString(), "),");
+
+                query = query.Remove(query.Length - 1);
+                await _db.ExecuteAsync(query);
+
+                return true;
+            }
+            finally { _db.Close(); }
         }
 
         public async Task<int> Put(Labour obj)

@@ -32,7 +32,7 @@ export default class OfficeAlter extends Component {
               <OptionsInputGroup reversed
                 name="chiefId"
                 id="chiefId"
-                defaultValue={this.props.office.chiefId}
+                value={this.props.office.chiefId}
                 options={usrOptions}
                 hint="Руководитель бюро"
               />

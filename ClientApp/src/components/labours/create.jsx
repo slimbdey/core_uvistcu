@@ -1,70 +1,64 @@
-import React, { Component, PureComponent } from 'react';
-import { DateGroup, OptionsInputGroup } from '../view/templates';
-
-
-class LabourInputGroup extends PureComponent {
-  id = this.props.id;
-
-  render() {
-    return (
-      <div className="form-group input-group" id={this.id}>
-        <div className="input-group-prepend">
-          <button type="button" className="btn btn-outline-danger" onClick={() => this.props.removeInputGroup(this.id)}>-</button>
-        </div>
-        <select className="custom-select" name="Users[]">{this.props.options}</select>
-        <div className="input-group-append">
-          <span className="input-group-text">Работник</span>
-          <button type="button" className="btn btn-outline-success" onClick={this.props.addInputGroup}>+</button>
-        </div>
-      </div>
-    );
-  }
-}
+import React, { Component } from 'react';
+import { DateGroup, OptionsInputGroup, CustomInputGroup } from '../view/templates';
+import { keyGen, blink } from '../extra/extensions';
 
 
 export default class LabourCreate extends Component {
 
-  options = this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option>);
+  options = this.props.users.map(user =>
+    <option
+      key={user.id}
+      value={user.id}
+      onClick={e => {
+        let oldId = +e.target.parentNode.parentNode.id;
+        let newId = +e.target.value;
+
+        if (this.state.inputGroups.includes(newId) && newId !== oldId) {
+          blink("Этот пользователь уже есть в списке!", true);
+          e.target.parentNode[oldId - 1].selected = true;
+        }
+
+        else
+          this.setState({
+            inputGroups: this.state.inputGroups.map(ig =>
+              ig === oldId
+                ? newId
+                : ig
+            )
+          })
+      }}
+    > {user.fullName}</option >);
+
   counter = 0;
 
   addInputGroup = () => {
-    let id = ++this.counter;
-
-    this.setState(old => {
-      return {
-        inputGroups: [...old.inputGroups,
-        <LabourInputGroup
-          id={id}
-          key={this.keyGen()}
-          options={this.options}
-          addInputGroup={this.addInputGroup}
-          removeInputGroup={this.removeInputGroup}
-        />],
-        ids: [...old.ids, id]
-      }
-    });
-
+    this.counter = Math.max(...this.state.inputGroups) + 1;
+    this.setState({ inputGroups: [...this.state.inputGroups, +this.counter] });
   }
 
-  keyGen = () => Math.floor(Math.random() * 10000);
-  removeInputGroup = id => id > 1 && document.getElementById(id).remove();
+  removeInputGroup = id => {
+    this.state.inputGroups.length > 1 && this.setState({ inputGroups: this.state.inputGroups.filter(i => i !== id) })
+  }
 
   state = {
-    inputGroups: [
-      <LabourInputGroup
-        id={++this.counter}
-        key={this.keyGen()}
-        options={this.options}
-        addInputGroup={this.addInputGroup}
-        removeInputGroup={this.removeInputGroup}
-      />
-    ],
-    ids: []
+    inputGroups: [++this.counter]
   }
 
 
   /////// RENDER
   render() {
+    let inputs = this.state.inputGroups.map(i =>
+      <CustomInputGroup
+        key={keyGen()}
+        id={i}
+        hint="Работник"
+        name="Users[]"
+        value={i}
+        options={this.options}
+        addInputGroup={this.addInputGroup}
+        removeInputGroup={this.removeInputGroup}
+      />);
+
     return (
       <div className="mt-3">
         <form name="CreateForm">
@@ -73,7 +67,7 @@ export default class LabourCreate extends Component {
           <div className="col-md-6 pl-0" id="participants">
             <DateGroup name="Date" value={(new Date()).toISOString().slice(0, 10)} hint="Дата субботника" />
             <OptionsInputGroup reversed name="ManagerId" options={this.options} hint="Кто назначил" />
-            {this.state.inputGroups}
+            {inputs}
           </div>
 
           <div className="col-md-3 mt-5 pl-0">

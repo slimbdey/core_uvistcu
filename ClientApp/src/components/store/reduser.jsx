@@ -80,6 +80,12 @@ export let reducer = function (state = initialState, action) {
         labours: action.labours.sort((a, b) => a.date < b.date)
       };
 
+    case "ALTER_LABOUR":
+      return {
+        ...state,
+        labours: state.labours.map(lab => lab.id === action.labour.id ? action.labour : lab)
+      };
+
     default: return state;
   }
 }

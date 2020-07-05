@@ -23,7 +23,7 @@ export default class UserAlter extends Component {
               <InputGroup name="TabNum" value={user.tabNum} hint="Таб. №" />
               <InputGroup name="Email" value={user.email} hint="Email" />
               <InputGroup name="PhoneNum" value={user.phoneNum} hint="Телефон" />
-              <OptionsInputGroup hint="Бюро" name="orriceId" defaultValue={user.officeId} options={offices} />
+              <OptionsInputGroup hint="Бюро" name="orriceId" value={user.officeId} options={offices} />
 
               <div className="input-group form-group">
                 <div className="input-group-prepend">
@@ -64,8 +64,7 @@ export default class UserAlter extends Component {
                         history.push('/user');
                     });
                 }}
-              >Изменить
-              </button>
+              >Изменить</button>
             )} />
           </div>
         </form >

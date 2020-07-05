@@ -60,3 +60,6 @@ export const correctDate = str => {
 
   return `${day}.${month}.${year}`;
 }
+
+
+export const keyGen = () => Math.floor(Math.random() * 10000);

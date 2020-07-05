@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, PureComponent } from 'react';
 import { Button, Modal, ModalBody, ModalFooter } from 'reactstrap';
 
 const ModalExample = (props) => {
@@ -75,7 +75,7 @@ export const OptionsInputGroup = props => {
           className="custom-select"
           id={props.id}
           name={props.name}
-          defaultValue={props.defaultValue}>{props.options}
+          defaultValue={props.value}>{props.options}
         </select>
         <div className="input-group-append">
           <span className="input-group-text">{props.hint}</span>
@@ -89,7 +89,7 @@ export const OptionsInputGroup = props => {
           className="custom-select"
           id={props.id}
           name={props.name}
-          defaultValue={props.defaultValue}>{props.options}
+          defaultValue={props.value}>{props.options}
         </select>
       </div>
   );
@@ -101,7 +101,35 @@ export const Loading = props => {
 }
 
 
+export class CustomInputGroup extends PureComponent {
 
+  render() {
+    return (
+      <div className="form-group input-group" id={this.props.id}>
+        <div className="input-group-prepend">
+          <button
+            type="button"
+            className="btn btn-outline-danger"
+            onClick={() => this.props.removeInputGroup(this.props.id)}
+          >-</button>
+        </div>
+        <select
+          className="custom-select"
+          name={this.props.name}
+          defaultValue={this.props.value}
+        >{this.props.options}</select>
+        <div className="input-group-append">
+          <span className="input-group-text">{this.props.hint}</span>
+          <button
+            type="button"
+            className="btn btn-outline-success"
+            onClick={this.props.addInputGroup}
+          >+</button>
+        </div>
+      </div>
+    );
+  }
+}
 
 
 export default ModalExample;

@@ -20,14 +20,16 @@ class Users extends Component {
       title: "изменить работника",
       titleLink: "Отмена",
       currentId: +this.props.match.params.id,
-      loading: true
+      loading: true,
+      error: ""
     }
     : {
       mode: "list",
       title: "список работников",
       titleLink: "Создать",
       currentId: null,
-      loading: true
+      loading: true,
+      error: ""
     }
 
 
@@ -50,6 +52,9 @@ class Users extends Component {
   render() {
     if (this.state.loading)
       return <Loading />;
+
+    else if (!!this.state.error)
+      return <div className="text-danger font-italic">{this.state.error}</div>
 
     let contents = [];
 

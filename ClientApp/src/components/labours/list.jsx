@@ -2,6 +2,7 @@ import React, { Component, PureComponent } from 'react';
 import Modal from '../view/templates';
 import { correctDate, blink, errorHandler } from '../extra/extensions';
 import { Link } from 'react-router-dom';
+import '../view/fixedTable.css';
 
 
 const Filter = props => {
@@ -41,14 +42,14 @@ class Labour extends PureComponent {
       </div>);
 
   render() {
-    console.log("labour render");//////////////////////
     return (
-      <tr key={this.props.id}>
-        <td>{correctDate(this.labour.date)}</td>
+      <tr>
+        <td width="10%">{correctDate(this.labour.date)}</td>
         <td><Link to={`/user/${this.manager.id}`}>{this.manager.fullName}</Link></td>
         <td>{this.users}</td>
-        <td>
+        <td width="15%">
           <div className="d-flex">
+            <Link to={`/labour/${this.props.labour.id}`}>Изменить</Link>&nbsp;&nbsp;&nbsp;
             <Modal
               buttonLabel="Удалить"
               text="Вы действительно хотите удалить субботник?"
@@ -84,16 +85,16 @@ export default class LabourList extends Component {
             reset={this.resetFilter}
           />
         </div>
-        <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
+        <table className='table table-sm table-hover mt-3 mytable' aria-labelledby="tabelLabel">
           <thead>
             <tr>
-              <th>Дата</th>
-              <th width="35%">Руководитель</th>
+              <th width="10%">Дата</th>
+              <th>Руководитель</th>
               <th>Работники</th>
-              <th></th>
+              <th width="15%"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ maxHeight: "60vh" }}>
             {this.state.labours.map(labour =>
               <Labour
                 key={labour.id}
