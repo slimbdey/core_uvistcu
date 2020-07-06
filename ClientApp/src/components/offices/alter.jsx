@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
 import { Route } from 'react-router-dom';
-import { InputGroup } from '../view/templates';
+import { InputGroup, OptionsInputGroup } from '../view/templates';
 
 
 export default class OfficeAlter extends Component {
@@ -29,18 +29,13 @@ export default class OfficeAlter extends Component {
 
             <div className="col-md-5 pl-0">
               <InputGroup name="name" value={this.props.office.name} hint="Наименование бюро" reversed />
-
-              <div className="input-group form-group">
-                <select
-                  className="custom-select"
-                  name="chiefId"
-                  id="chiefId"
-                  defaultValue={this.props.office.chiefId}
-                >{usrOptions}</select>
-                <div className="input-group-append">
-                  <span className="input-group-text">Руководитель бюро</span>
-                </div>
-              </div>
+              <OptionsInputGroup reversed
+                name="chiefId"
+                id="chiefId"
+                value={this.props.office.chiefId}
+                options={usrOptions}
+                hint="Руководитель бюро"
+              />
 
               <div className="input-group form-group">
                 <select className="custom-select" id="newUser" name="add">{usrOptions}</select>

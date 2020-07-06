@@ -7,6 +7,7 @@ import history from '../extra/history';
 import UserList from './list'
 import UserCreate from './create';
 import UserAlter from './alter';
+import { Loading } from '../view/templates';
 
 
 class Users extends Component {
@@ -19,46 +20,30 @@ class Users extends Component {
       title: "изменить работника",
       titleLink: "Отмена",
       currentId: +this.props.match.params.id,
-      loading: true
+      loading: true,
+      error: ""
     }
     : {
       mode: "list",
       title: "список работников",
       titleLink: "Создать",
       currentId: null,
-      loading: true
+      loading: true,
+      error: ""
     }
 
 
   componentDidMount = async () => {
-    if (this.props.users.length === 0) {
-      let users = [];
-      let offices = [];
+    let errors = "";
 
-      let u = bring("user");
-      let o = bring("office");
+    if (this.props.users.length === 0)
+      errors += await bring("user", this.props.fillUsers);
 
-      let errors = "";
-      let responses = await Promise.all([u, o])
-        .catch(error => {
-          blink(`Error: ${error}`, true);
-          return;
-        });
+    if (this.props.offices.length === 0)
+      errors += await bring("office", this.props.fillOffices);
 
-
-      responses[0].ok
-        ? users = await responses[0].json()
-        : errors += "Работники отсутствуют";
-
-      responses[1].ok
-        ? offices = await responses[1].json()
-        : errors += "Бюро отсутствуют";
-
-      !!errors && blink(errors, true);
-      this.props.fillUsers(users, offices);
-    }
-
-    this.setState({ loading: false });
+    !!errors && this.setState({ error: errors, loading: false });
+    !!!errors && this.setState({ loading: false })
   }
 
 
@@ -66,7 +51,10 @@ class Users extends Component {
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+      return <Loading />;
+
+    else if (!!this.state.error)
+      return <div className="text-danger font-italic">{this.state.error}</div>
 
     let contents = [];
 

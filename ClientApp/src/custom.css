@@ -29,3 +29,7 @@ code {
     max-width: 1500px;
   }
 }
+
+.fade {
+  transition: 70ms;
+}

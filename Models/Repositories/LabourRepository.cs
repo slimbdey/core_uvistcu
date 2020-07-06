@@ -39,20 +39,16 @@ namespace UVSITCU.Models.Repositories
             try
             {
                 _db.Open();
-                string query = @"with ids as (
-                                    select ul.UserId Id
-                                    from UserLabours ul
-                                    join Labours l
-                                    on ul.LabourId = l.id
-                                    where LabourId=@id
-                                )
-                                select * from Users u
-                                where u.Id = ids.Id";
-                IEnumerable<User> labourUsers = await _db.QueryAsync<User>(query, new { id });
+                string query = @"select ul.UserId Id
+                                 from UserLabours ul
+                                 join Labours l
+                                 on ul.LabourId = l.id
+                                 where LabourId=@id";
+                IEnumerable<int> labourUsers = await _db.QueryAsync<int>(query, new { id });
 
-                query = "select * from Labours where Id=@id";
+                query = "select* from Labours where Id = @id";
                 Labour labour = await _db.QuerySingleOrDefaultAsync<Labour>(query, new { id });
-                labour.Users = labourUsers;
+                labour.UserIds = labourUsers;
 
                 return labour;
             }
@@ -70,14 +66,11 @@ namespace UVSITCU.Models.Repositories
                 query = "select * from Labours";
                 IEnumerable<Labour> labours = await _db.QueryAsync<Labour>(query);
 
-                query = "select * from Users";
-                IEnumerable<User> users = await _db.QueryAsync<User>(query);
-
                 var it = labours.GetEnumerator();
                 while (it.MoveNext())
-                    it.Current.Users = users
-                    .Where(u => userLabours
-                    .Where(ul => ul.LabourId == it.Current.Id).All(usl => usl.UserId == u.Id));
+                    it.Current.UserIds = userLabours
+                    .Where(ul => ul.LabourId == it.Current.Id)
+                    .Select(usl => usl.UserId).ToList();
 
                 return labours;
             }
@@ -86,10 +79,25 @@ namespace UVSITCU.Models.Repositories
 
         public async Task<bool> Post(Labour obj)
         {
-            await Delete(obj.Id);
-            await Put(obj);
+            try
+            {
+                _db.Open();
+                string query = "delete from UserLabours where LabourId=@Id";
+                await _db.ExecuteAsync(query, obj);
 
-            return true;
+                query = "update Labours set Date=@Date, ManagerId=@ManagerId where Id=@Id";
+                await _db.ExecuteAsync(query, obj);
+
+                query = "insert into UserLabours (UserId, LabourId) values ";
+                foreach (int userId in obj.UserIds)
+                    query = string.Concat(query, "(", userId.ToString(), ",", obj.Id.ToString(), "),");
+
+                query = query.Remove(query.Length - 1);
+                await _db.ExecuteAsync(query);
+
+                return true;
+            }
+            finally { _db.Close(); }
         }
 
         public async Task<int> Put(Labour obj)
@@ -97,16 +105,18 @@ namespace UVSITCU.Models.Repositories
             try
             {
                 _db.Open();
-                string query = "insert into Labours(Date) values (@Date)";
-                int rowsInserted = await _db.ExecuteAsync(query, obj);
+                string query = @"insert into Labours(Date, ManagerId) 
+                                output inserted.Id
+                                values (@Date, @ManagerId)";
+                obj.Id = await _db.QuerySingleAsync<int>(query, obj);
 
                 query = "insert into UserLabours (UserId, LabourId) values ";
-                foreach (User user in obj.Users)
-                    query = string.Concat(query, "(", user.Id.ToString(), ",", obj.Id.ToString(), "),");
+                foreach (int userId in obj.UserIds)
+                    query = string.Concat(query, "(", userId.ToString(), ",", obj.Id.ToString(), "),");
 
                 query = query.Remove(query.Length - 1);
                 await _db.ExecuteAsync(query);
-                return rowsInserted;
+                return obj.Id;
             }
             finally { _db.Close(); }
         }

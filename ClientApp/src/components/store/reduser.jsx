@@ -2,6 +2,7 @@ let initialState = {
   depts: [],
   offices: [],
   users: [],
+  labours: [],
 }
 
 
@@ -23,8 +24,6 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         depts: action.depts,
-        offices: action.offices,
-        users: action.users
       };
 
     case "ADD_OFFICE":
@@ -43,7 +42,6 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         offices: action.offices,
-        users: action.users
       };
 
     case "ADD_USER":
@@ -62,7 +60,32 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         users: action.users,
-        offices: action.offices
+      };
+
+    case "ADD_LABOUR":
+      return {
+        ...state,
+        labours: [...state.labours, action.labour].sort((a, b) => a.date < b.date)
+      };
+
+    case "DELETE_LABOUR":
+      return {
+        ...state,
+        labours: state.labours.filter(l => l.id !== action.id).sort((a, b) => a.date < b.date)
+      };
+
+    case "FILL_LABOURS":
+      return {
+        ...state,
+        labours: action.labours.sort((a, b) => a.date < b.date)
+      };
+
+    case "ALTER_LABOUR":
+      return {
+        ...state,
+        labours: state.labours
+          .map(lab => lab.id === action.labour.id ? action.labour : lab)
+          .sort((a, b) => a.date < b.date)
       };
 
     default: return state;
