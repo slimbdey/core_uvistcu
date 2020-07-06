@@ -1,8 +1,7 @@
-import React, { Component, PureComponent } from 'react';
-import Modal from '../view/templates';
-import { correctDate, blink, errorHandler } from '../extra/extensions';
-import { Link } from 'react-router-dom';
+import React, { Component } from 'react';
+import { blink, errorHandler } from '../extra/extensions';
 import '../view/fixedTable.css';
+import { Labour } from './Labour';
 
 
 const Filter = props => {
@@ -32,35 +31,6 @@ const Filter = props => {
 }
 
 
-class Labour extends PureComponent {
-  labour = this.props.labour;
-  manager = this.props.users.find(u => u.id === +this.labour.managerId);
-  users = this.labour.userIds
-    .map(uid =>
-      <div key={uid}>
-        <Link to={`/user/${uid}`} >{this.props.users.find(u => u.id === uid).fullName}</Link>
-      </div>);
-
-  render() {
-    return (
-      <tr>
-        <td width="10%">{correctDate(this.labour.date)}</td>
-        <td><Link to={`/user/${this.manager.id}`}>{this.manager.fullName}</Link></td>
-        <td>{this.users}</td>
-        <td width="15%">
-          <div className="d-flex">
-            <Link to={`/labour/${this.props.labour.id}`}>Изменить</Link>&nbsp;&nbsp;&nbsp;
-            <Modal
-              buttonLabel="Удалить"
-              text="Вы действительно хотите удалить субботник?"
-              func={() => this.props.deleteClick(this.labour.id)} />
-          </div>
-        </td>
-      </tr>
-    );
-  }
-}
-
 
 export default class LabourList extends Component {
   displayName = LabourList.name;
@@ -76,14 +46,18 @@ export default class LabourList extends Component {
 
     return (
       <div>
-        <div className="col-md-6 pl-0">
-          <Filter
-            name="currentDate"
-            value={new Date().toISOString()}
-            hint="Фильтр"
-            set={this.filter}
-            reset={this.resetFilter}
-          />
+
+        <div className="d-flex flex-row justify-content-between flex">
+          <div className="col-md-6 pl-0">
+            <Filter
+              name="currentDate"
+              value={new Date().toISOString()}
+              hint="Фильтр"
+              set={this.filter}
+              reset={this.resetFilter}
+            />
+          </div>
+          <a href="/labour" onClick={(e) => this.props.priorityClick(e)}>Приоритет</a>
         </div>
         <table className='table table-sm table-hover mt-3 mytable' aria-labelledby="tabelLabel">
           <thead>

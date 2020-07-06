@@ -7,7 +7,10 @@ import { Route } from 'react-router-dom';
 export default class LabourAlter extends Component {
   displayName = LabourAlter.name;
 
-  options = this.props.users.map(user =>
+  managers = this.props.users.map(user =>
+    <option key={user.id} value={user.id}>{user.fullName}</option>);
+
+  options = this.props.users.filter(u => u.participateInLabour).map(user =>
     <option
       key={user.id}
       value={user.id}
@@ -72,7 +75,7 @@ export default class LabourAlter extends Component {
               reversed
               value={this.props.labour.managerId}
               name="ManagerId"
-              options={this.options}
+              options={this.managers}
               hint="Кто назначил" />
             {inputs}
           </div>

@@ -8,6 +8,7 @@ import { Loading } from '../view/templates';
 import LabourList from './list';
 import LabourCreate from './create';
 import LabourAlter from './alter';
+import LabourPriority from './priority';
 
 
 class Labours extends Component {
@@ -63,12 +64,20 @@ class Labours extends Component {
         labours={this.props.labours}
         users={this.props.users}
         deleteLabour={this.props.deleteLabour}
+        priorityClick={this.priorityClick}
       />
 
     if (this.state.mode === "create")
       contents = <LabourCreate
         users={this.props.users}
         createLabour={this.createLabour}
+      />
+
+    else if (this.state.mode === "priority")
+      contents = <LabourPriority
+        labours={this.props.labours}
+        users={this.props.users}
+        appoint={this.linkToggle}
       />
 
     else if (this.state.mode === "alter")
@@ -181,6 +190,12 @@ class Labours extends Component {
         blink(errorHandler(data), true);
         return new Promise(resolve => resolve(false));
       });
+  }
+
+
+  priorityClick = (e) => {
+    e && e.preventDefault();
+    this.setState({ mode: "priority", titleLink: "Назад", title: "приоритет на субботник" });
   }
 
 

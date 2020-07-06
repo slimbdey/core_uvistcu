@@ -5,7 +5,10 @@ import { keyGen, blink } from '../extra/extensions';
 
 export default class LabourCreate extends Component {
 
-  options = this.props.users.map(user =>
+  managers = this.props.users.map(user =>
+    <option key={user.id} value={user.id}>{user.fullName}</option>);
+
+  options = this.props.users.filter(u => u.participateInLabour).map(user =>
     <option
       key={user.id}
       value={user.id}
@@ -66,7 +69,7 @@ export default class LabourCreate extends Component {
 
           <div className="col-md-6 pl-0" id="participants">
             <DateGroup name="Date" value={(new Date()).toISOString().slice(0, 10)} hint="Дата субботника" />
-            <OptionsInputGroup reversed name="ManagerId" options={this.options} hint="Кто назначил" />
+            <OptionsInputGroup reversed name="ManagerId" options={this.managers} hint="Кто назначил" />
             {inputs}
           </div>
 
