@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { fillDepts, fillOffices, fillUsers, deleteDept } from '../redux/actions';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../store/actions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
 
@@ -30,20 +31,30 @@ class Departments extends Component {
     }
 
 
-  componentDidMount = async () => {
-    let errors = "";
+  componentDidMount = () => {
+    let request = [];
 
     if (this.props.depts.length === 0)
-      errors += await bring("department", this.props.fillDepts);
+      request.push("department");
 
     if (this.props.offices.length === 0)
-      errors += await bring("office", this.props.fillOffices);
+      request.push("office");
 
     if (this.props.users.length === 0)
-      errors += await bring("user", this.props.fillUsers);
+      request.push("user");
 
-    !!errors && this.setState({ error: errors, loading: false });
-    !!!errors && this.setState({ loading: false })
+    request.length > 0
+      ? bring(request)
+        .catch(error => this.setState({ error: error, loading: false }))
+        .then(result => {
+          this.props.fillDepts({
+            depts: result.get("department"),
+            offices: result.get("office"),
+            users: result.get("user"),
+          });
+          this.setState({ loading: false });
+        })
+      : this.setState({ loading: false });
   }
 
 
@@ -56,7 +67,6 @@ class Departments extends Component {
 
     else if (!!this.state.error)
       return <div className="text-danger font-italic">{this.state.error}</div>
-
 
     let contents = [];
 
@@ -160,8 +170,8 @@ class Departments extends Component {
 
 }
 
-/////////// MAP STATE
-function chunkStateToProps(state) {
+/////////// MAPPS
+const chunkStateToProps = state => {
   return {
     depts: state.depts,
     offices: state.offices,
@@ -169,4 +179,13 @@ function chunkStateToProps(state) {
   }
 }
 
-export default connect(chunkStateToProps, actions)(Departments);
+const chunkDispatchToProps = dispatch =>
+  bindActionCreators({
+    fillDepts,
+    fillOffices,
+    fillUsers,
+    deleteDept
+  }, dispatch);
+
+
+export default connect(chunkStateToProps, chunkDispatchToProps)(Departments);
