@@ -16,6 +16,8 @@ namespace UVSITCU.Models.DTOs
         [Required(ErrorMessage = "Не указан руководитель бюро")]
         [RegularExpression(@"^\d{1,1000}$", ErrorMessage = "Не верный Id")]
         [Display(Name = "Руководитель бюро")]
-        public string ChiefId { get; set; }
+        public int ChiefId { get; set; }
+
+        public int DeptId { get; set; }
     }
 }
