@@ -36,7 +36,7 @@ export default class DepartmentAlter extends Component {
                 reversed
                 name="managerId"
                 id="managerId"
-                defaultValue={this.props.dept.managerId}
+                value={this.props.dept.managerId}
                 options={usrOptions}
                 hint="Руководитель отдела"
               />
@@ -73,7 +73,7 @@ export default class DepartmentAlter extends Component {
                 className="btn btn-outline-primary"
                 onClick={() => {
                   history.push('/department');
-                  this.props.alterClick();
+                  this.props.alterDept();
                 }}
               >
                 Изменить

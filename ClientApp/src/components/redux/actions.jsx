@@ -1,6 +1,7 @@
 
 export const addDept = dept => { return { type: "ADD_DEPT", dept }; }
 export const deleteDept = id => { return { type: "DELETE_DEPT", id }; }
+export const alterDept = dept => { return { type: "ALTER_DEPT", dept }; }
 export const fillDepts = data => { return { type: "FILL_DEPTS", data }; }
 
 
