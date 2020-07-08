@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../store/actions';
+import actions from '../redux/actions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
 
@@ -30,17 +30,26 @@ class Offices extends Component {
     }
 
 
-  componentDidMount = async () => {
-    let errors = "";
+  componentDidMount = () => {
+    let request = [];
 
     if (this.props.offices.length === 0)
-      errors += await bring("office", this.props.fillOffices);
+      request.push("office");
 
     if (this.props.users.length === 0)
-      errors += await bring("user", this.props.fillUsers);
+      request.push("user");
 
-    !!errors && this.setState({ error: errors, loading: false });
-    !!!errors && this.setState({ loading: false })
+    request.length > 0
+      ? bring(request)
+        .catch(error => this.setState({ error: error, loading: false }))
+        .then(result => {
+          this.props.fillOffices({
+            offices: result.get("office"),
+            users: result.get("user"),
+          });
+          this.setState({ loading: false });
+        })
+      : this.setState({ loading: false });
   }
 
 

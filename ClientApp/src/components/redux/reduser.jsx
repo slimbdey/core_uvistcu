@@ -8,6 +8,8 @@ let initialState = {
 
 export let reducer = function (state = initialState, action) {
   switch (action.type) {
+
+    /////////////////////////////// DEPTS ////////////////////////////
     case "ADD_DEPT":
       return {
         ...state,
@@ -23,9 +25,12 @@ export let reducer = function (state = initialState, action) {
     case "FILL_DEPTS":
       return {
         ...state,
-        depts: action.depts,
+        depts: action.data.depts,
+        offices: action.data.offices ? action.data.offices : state.offices,
+        users: action.data.users ? action.data.users : state.users,
       };
 
+    /////////////////////////////// OFFICES ////////////////////////////      
     case "ADD_OFFICE":
       return {
         ...state,
@@ -41,9 +46,11 @@ export let reducer = function (state = initialState, action) {
     case "FILL_OFFICES":
       return {
         ...state,
-        offices: action.offices,
+        offices: action.data.offices,
+        users: action.data.users ? action.data.users : state.users,
       };
 
+    /////////////////////////////// USERS ////////////////////////////      
     case "ADD_USER":
       return {
         ...state,
@@ -59,9 +66,11 @@ export let reducer = function (state = initialState, action) {
     case "FILL_USERS":
       return {
         ...state,
-        users: action.users,
+        offices: action.data.offices ? action.data.offices : state.offices,
+        users: action.data.users,
       };
 
+    /////////////////////////////// LABOURS ////////////////////////////      
     case "ADD_LABOUR":
       return {
         ...state,
@@ -77,7 +86,8 @@ export let reducer = function (state = initialState, action) {
     case "FILL_LABOURS":
       return {
         ...state,
-        labours: action.labours.sort((a, b) => a.date < b.date)
+        users: action.data.users ? action.data.users : state.users,
+        labours: action.data.labours.sort((a, b) => a.date < b.date)
       };
 
     case "ALTER_LABOUR":

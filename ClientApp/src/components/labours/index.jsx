@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../store/actions';
+import { fillLabours, alterLabour, addLabour, deleteLabour } from '../redux/actions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
 
@@ -9,6 +9,7 @@ import LabourList from './list';
 import LabourCreate from './create';
 import LabourAlter from './alter';
 import LabourPriority from './priority';
+import { bindActionCreators } from 'redux';
 
 
 class Labours extends Component {
@@ -34,16 +35,25 @@ class Labours extends Component {
 
 
   componentDidMount = async () => {
-    let errors = "";
+    let request = [];
 
     if (this.props.labours.length === 0)
-      errors += await bring("labour", this.props.fillLabours);
+      request.push("labour");
 
     if (this.props.users.length === 0)
-      errors += await bring("user", this.props.fillUsers);
+      request.push("user");
 
-    !!errors && this.setState({ error: errors, loading: false });
-    !!!errors && this.setState({ loading: false })
+    request.length > 0
+      ? bring(request)
+        .catch(error => this.setState({ error: error, loading: false }))
+        .then(result => {
+          this.props.fillLabours({
+            labours: result.get("labour"),
+            users: result.get("user"),
+          });
+          this.setState({ loading: false });
+        })
+      : this.setState({ loading: false });
   }
 
 
@@ -212,12 +222,21 @@ class Labours extends Component {
 
 }
 
-/////////// MAP STATE
-function chunkStateToProps(state) {
+/////////// MAPPS
+const chunkStateToProps = state => {
   return {
     labours: state.labours,
     users: state.users,
   }
 }
 
-export default connect(chunkStateToProps, actions)(Labours);
+const chunkDispatchToProps = dispatch =>
+  bindActionCreators({
+    fillLabours,
+    deleteLabour,
+    alterLabour,
+    addLabour,
+  }, dispatch)
+
+
+export default connect(chunkStateToProps, chunkDispatchToProps)(Labours);

@@ -32,24 +32,22 @@ export const log = (module, data) => {
 }
 
 
-export const bring = async (source, func) => {
-  let error = "";
 
-  let response = await fetch(`api/${source}`, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-    }
-  });
+export const bring = async (source) => {
+  let request = source.map(s => fetch(`api/${s}`));
 
-  let data = await response.json();
-  response.ok
-    ? func(data)
-    : error += `${data}\n`;
+  let response = await Promise.all(request)
+    .catch(response => response.json()
+      .then(error => { throw new Error(error) }))
 
-  return error;
+  let data = await Promise.all(response.map(res => res.json()));
+  let result = new Map();
+  for (let i = 0; i < source.length; ++i)
+    result.set(source[i], data[i])
+
+  return result;
 }
+
 
 
 export const correctDate = str => {
@@ -60,6 +58,7 @@ export const correctDate = str => {
 
   return `${day}.${month}.${year}`;
 }
+
 
 
 export const keyGen = () => Math.floor(Math.random() * 10000);
