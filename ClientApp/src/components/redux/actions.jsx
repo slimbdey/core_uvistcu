@@ -18,11 +18,3 @@ export const addLabour = labour => { return { type: "ADD_LABOUR", labour }; }
 export const deleteLabour = id => { return { type: "DELETE_LABOUR", id }; }
 export const fillLabours = data => { return { type: "FILL_LABOURS", data }; }
 export const alterLabour = labour => { return { type: "ALTER_LABOUR", labour }; }
-
-
-export default {
-    fillDepts, addDept, deleteDept,
-    addOffice, deleteOffice, fillOffices,
-    addUser, deleteUser, fillUsers,
-    addLabour, deleteLabour, fillLabours, alterLabour
-}

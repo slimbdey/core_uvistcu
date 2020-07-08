@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../redux/actions';
+import { addOffice, deleteOffice, fillOffices } from '../redux/actions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
 
 import OfficeList from './list'
 import OfficeCreate from './create';
 import OfficeAlter from './alter';
+import { bindActionCreators } from 'redux';
 
 
 class Offices extends Component {
@@ -160,12 +161,19 @@ class Offices extends Component {
 
 }
 
-/////////// MAP STATE
-function chunkStateToProps(state) {
+/////////// MAPPS
+const chunkStateToProps = state => {
   return {
     offices: state.offices,
     users: state.users,
   }
 }
 
-export default connect(chunkStateToProps, actions)(Offices);
+const chunkDispatchToProps = dispatch =>
+  bindActionCreators({
+    addOffice,
+    deleteOffice,
+    fillOffices
+  }, dispatch);
+
+export default connect(chunkStateToProps, chunkDispatchToProps)(Offices);
