@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../redux/actions';
+import { fillUsers, addUser, deleteUser } from '../redux/actions';
 import history from '../extra/history';
 
 import UserList from './list'
 import UserCreate from './create';
 import UserAlter from './alter';
 import { Loading } from '../view/templates';
+import { bindActionCreators } from 'redux';
 
 
 class Users extends Component {
@@ -200,12 +201,20 @@ class Users extends Component {
 
 }
 
-/////////// MAP STATE
-function chunkStateToProps(state) {
+/////////// MAPPS
+const chunkStateToProps = state => {
   return {
     users: state.users,
     offices: state.offices,
   }
 }
 
-export default connect(chunkStateToProps, actions)(Users);
+const chunkDispatchToProps = dispatch =>
+  bindActionCreators({
+    fillUsers,
+    deleteUser,
+    addUser,
+  }, dispatch);
+
+
+export default connect(chunkStateToProps, chunkDispatchToProps)(Users);
