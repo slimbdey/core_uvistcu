@@ -43,8 +43,18 @@ namespace UVSITCU.Controllers
         {
             if (ModelState.IsValid)
             {
-                var newObj = await _repo.Put(obj);
-                return Ok(newObj);
+                int id = default;
+
+                try
+                {
+                    id = await _repo.Put(obj);
+                    return Ok(id);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { errors = new { ex.Message } });
+                }
+
             }
 
             return BadRequest(ModelState);
@@ -55,8 +65,16 @@ namespace UVSITCU.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(T obj)
         {
-            if (await _repo.Post(obj))
-                return Ok();
+            try
+            {
+                var success = await _repo.Post(obj);
+                if (success)
+                    return Ok(success);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { errors = new { ex.Message } });
+            }
 
             return BadRequest();
         }

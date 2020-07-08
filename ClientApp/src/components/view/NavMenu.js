@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
-import { Link } from 'react-router-dom';
+import { NavLink as Link } from 'react-router-dom';
 import './NavMenu.css';
 
 
 export class NavMenu extends Component {
-  static displayName = NavMenu.name;
+  displayName = NavMenu.name;
 
   constructor(props) {
     super(props);
@@ -38,7 +38,10 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="manager" to="/office">Бюро</NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} to="/">Home</NavLink>
+                  <NavLink tag={Link} className="manager" to="/user">Работники</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink tag={Link} className="manager" to="/labour">Субботники</NavLink>
                 </NavItem>
               </ul>
             </Collapse>

@@ -1,66 +1,64 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { blink, errorHandler } from '../extra/extensions';
-import actions from '../store/actions';
+import { blink, errorHandler, bring } from '../extra/extensions';
+import actions from '../redux/actions';
+import history from '../extra/history';
+import { Loading } from '../view/templates';
 
-import { OfficeList } from './list'
-import { OfficeCreate } from './alter';
-import { OfficeDetails } from './details';
+import OfficeList from './list'
+import OfficeCreate from './create';
+import OfficeAlter from './alter';
 
 
 class Offices extends Component {
   displayName = Offices.name;
 
-
-  state = {
-    mode: "list",
-    linkText: "Создать",
-    title: "список бюро",
-    officeId: null
-  }
-
-
-  componentDidMount = async () => {
-    let users = [];
-    let offices = [];
-
-    async function bring(source) {
-      return await fetch(`api/${source}`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        }
-      });
+  state = this.props.match.params.id
+    ? {
+      mode: "alter",
+      title: "изменить бюро",
+      titleLink: "Отмена",
+      currentId: +this.props.match.params.id,
+      loading: true,
+    }
+    : {
+      mode: "list",
+      title: "список бюро",
+      titleLink: "Создать",
+      currentId: null,
+      loading: true
     }
 
-    let u = bring("user");
-    let o = bring("office");
 
-    let errors = "";
-    let responses = await Promise.all([u, o])
-      .catch(error => {
-        blink(`Error: ${error}`, true);
-        return;
-      });
+  componentDidMount = () => {
+    let request = [];
 
-    responses[0].ok
-      ? users = await responses[0].json()
-      : errors += "Пользователи не заведены\n";
+    if (this.props.offices.length === 0)
+      request.push("office");
 
-    responses[1].ok
-      ? offices = await responses[1].json()
-      : errors += "Бюро отсутствуют";
+    if (this.props.users.length === 0)
+      request.push("user");
 
-    !!errors && blink(errors, true);
-
-    this.props.fillOffices(users, offices);
+    request.length > 0
+      ? bring(request)
+        .catch(error => this.setState({ error: error, loading: false }))
+        .then(result => {
+          this.props.fillOffices({
+            offices: result.get("office"),
+            users: result.get("user"),
+          });
+          this.setState({ loading: false });
+        })
+      : this.setState({ loading: false });
   }
 
 
 
   ///// RENDER
   render() {
+    if (this.state.loading)
+      return <Loading />
+
     let contents = [];
 
     if (this.state.mode === "list")
@@ -68,26 +66,26 @@ class Offices extends Component {
         offices={this.props.offices}
         users={this.props.users}
         deleteOffice={this.props.deleteOffice}
-        blink={blink} />
+      />
 
     else if (this.state.mode === "create")
       contents = <OfficeCreate
         users={this.props.users}
-        addOffice={this.createOffice}
-        blink={blink} />
+        createOffice={this.createOffice}
+      />
 
     else if (this.state.mode === "alter")
       contents = <OfficeAlter
-        state={this.props}
-        officeId={this.state.officeId}
+        office={this.props.offices.find(o => o.id === this.state.currentId)}
+        users={this.props.users}
         alterClick={this.alterOffice}
-        blink={blink} />
+      />
 
     return (
       <div>
         <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
-        <a href="/office" className="text-primary" onClick={(e) => { e.preventDefault(); this.linkToggle(); }}>{this.state.linkText}</a>
-        <div className="text-success" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
+        <a href="/office" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
+        <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
       </div>
     );
@@ -95,9 +93,7 @@ class Offices extends Component {
 
 
 
-  createOffice = async (e) => {
-    e.preventDefault();
-
+  createOffice = async () => {
     const form = document.forms["CreateForm"];
     let name = form.elements["Name"].value;
     let id = form.elements["ChiefId"].value;
@@ -114,20 +110,20 @@ class Offices extends Component {
       })
     });
 
-    let data = await response.json();
-    if (response.ok) {
-      this.props.addOffice({ id: data, name: name, chiefId: id });
-      blink(`Бюро ${name} успешно добавлено`);
-      this.linkToggle();
-    }
-    else
-      blink(errorHandler(data), true);
+    response.json()
+      .then(data => {
+        if (response.ok) {
+          this.props.addOffice({ id: data, name: name, chiefId: id });
+          blink(`Бюро ${name} успешно добавлено`);
+        }
+        else
+          blink(errorHandler(data), true);
+      })
   }
 
 
-
-  alterDept = async () => {
-    let dept = this.props.depts.find(o => o.id === this.state.officeId);
+  alterOffice = async () => {
+    let office = this.props.offices.find(o => o.id === this.state.currentId);
     office.chiefId = +document.getElementById("chiefId").value;
 
     const response = await fetch(`api/office`, {
@@ -140,41 +136,36 @@ class Offices extends Component {
         Id: office.id,
         Name: office.name,
         ChiefId: office.chiefId,
+        DeptId: +office.deptId
       })
     });
 
-    if (response.ok) {
-      blink(`Бюро ${office.name} успешно изменено`);
-      this.setState({ mode: "list", linkText: "Создать", title: "список бюро" });
-    }
-    else {
-      let data = await response.json();
-      blink(errorHandler(data), true);
-    }
+    response.ok
+      ? blink(`Бюро ${office.name} успешно изменено`)
+      : response.json().then(error => blink(errorHandler(error), true));
   }
 
 
-  alterClick = async (id) => {
-    this.setState({ mode: "alter", linkText: "Назад", title: "изменить бюро", deptId: id });
-  }
 
+  linkToggle = async (e) => {
+    e.preventDefault();
 
-  linkToggle = async () => {
     if (this.state.mode === "list")
-      this.setState({ mode: "create", linkText: "Назад", title: "создать бюро" });
-    else
-      this.setState({ mode: "list", linkText: "Создать", title: "список бюро" });
+      this.setState({ mode: "create", titleLink: "Отмена", title: "создать бюро" });
+    else {
+      history.push("/office");
+      this.setState({ mode: "list", titleLink: "Создать", title: "список бюро" });
+    }
   }
 
 }
 
 /////////// MAP STATE
-function mapStateToProps(state) {
+function chunkStateToProps(state) {
   return {
-    offices: state.officeReducer.offices,
-    users: state.officeReducer.users,
-    title: state.officeReducer.title,
+    offices: state.offices,
+    users: state.users,
   }
 }
 
-export default connect(mapStateToProps, actions)(Offices);
+export default connect(chunkStateToProps, actions)(Offices);

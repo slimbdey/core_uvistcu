@@ -22,7 +22,7 @@ html {
   color: yellowgreen !important;
 }
 
-.admin:hover, .admin-active {
+.admin:hover, .admin:focus {
   color: chartreuse !important;
 }
 
@@ -30,6 +30,6 @@ html {
   color: darkgoldenrod !important;
 }
 
-.manager:hover {
+.manager:hover, .manager:focus {
   color: #f5b820 !important;
 }

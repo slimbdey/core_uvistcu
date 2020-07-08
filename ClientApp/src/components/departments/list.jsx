@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import Modal from '../../extra/modal';
+import Modal from '../view/templates';
+import { blink, errorHandler } from '../extra/extensions';
+import { Link } from 'react-router-dom';
 
 
-
-export class DepartmentList extends Component {
+export default class DepartmentList extends Component {
   displayName = DepartmentList.name;
+
 
   ///// RENDER
   render() {
@@ -14,7 +16,7 @@ export class DepartmentList extends Component {
     return (
       <div>
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead className="thead-light">
+          <thead>
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>
@@ -24,16 +26,17 @@ export class DepartmentList extends Component {
           </thead>
           <tbody>
             {this.props.depts.map(dept => {
-              let manager = this.props.users.length > 0 && this.props.users.find(u => u.id === +dept.managerId);
-              let officesNum = this.props.offices.filter(o => o.deptId === +dept.id).map(os => <div key={os.id}>{os.name}</div>);
-
+              let manager = this.props.users.find(u => u.id === +dept.managerId);
+              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os =>
+                <div key={os.id}>
+                  <Link to={`/office/${os.id}`} >{os.name}</Link>
+                </div>);
               return <tr key={dept.id}>
-                <td>{dept.name}</td>
-                <td>{manager.fullName}</td>
-                <td>{officesNum}</td>
+                <td><Link to={`/department/${dept.id}`}>{dept.name}</Link></td>
+                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td>{offices}</td>
                 <td>
                   <div className="d-flex">
-                    <a href="/management" onClick={(e) => { e.preventDefault(); this.props.alterClick(dept.id); }}>Изменить</a>&nbsp;&nbsp;
                     <Modal
                       buttonLabel="Удалить"
                       text={`Вы действительно хотите удалить отдел ${dept.name}?`}
@@ -59,11 +62,12 @@ export class DepartmentList extends Component {
     });
 
     if (response.ok) {
-      this.props.blink(`Отдел ${name} успешно удален`);
+      blink(`Отдел ${name} успешно удален`);
       this.props.deleteDept(id);
     }
     else
-      this.props.blink(response.statusText, true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 }

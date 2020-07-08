@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import Modal from '../../extra/modal';
+import Modal from '../view/templates';
+import { blink, errorHandler } from '../extra/extensions';
+import { Link } from 'react-router-dom';
 
 
-
-export class OfficeList extends Component {
+export default class OfficeList extends Component {
+  displayName = OfficeList.name;
 
   ///// RENDER
   render() {
@@ -13,24 +15,27 @@ export class OfficeList extends Component {
     return (
       <div>
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead className="thead-light">
+          <thead>
             <tr>
               <th>Наименование</th>
               <th width="35%">Руководитель</th>
-              <th>Сотрудники</th>
+              <th>Работники</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {this.props.offices.map(office => {
-              let userName = this.props.users.length > 0 && this.props.users.find(u => u.id === +office.chiefId).fullName;
+              let manager = this.props.users.find(u => u.id === +office.chiefId);
+              let users = this.props.users.filter(u => u.officeId === +office.id).map(us =>
+                <div key={us.id}>
+                  <Link to={`/user/${us.id}`} >{us.fullName}</Link>
+                </div>);
               return <tr key={office.id}>
-                <td>{office.name}</td>
-                <td>{userName}</td>
-                <td></td>
+                <td><Link to={`/office/${office.id}`}>{office.name}</Link></td>
+                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td>{users}</td>
                 <td>
                   <div className="d-flex">
-                    <a href="/management" onClick={this.props.detailsClick}>Подробно</a>&nbsp;&nbsp;
                     <Modal
                       buttonLabel="Удалить"
                       text={`Вы действительно хотите удалить бюро ${office.name}?`}
@@ -56,11 +61,12 @@ export class OfficeList extends Component {
     });
 
     if (response.ok) {
-      this.props.blink(`Бюро ${name} успешно удалено`);
+      blink(`Бюро ${name} успешно удалено`);
       this.props.deleteOffice(id);
     }
     else
-      this.props.blink(response.statusText, true);
+      response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 }
