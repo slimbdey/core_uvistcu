@@ -40,6 +40,9 @@ export class NavMenu extends Component {
                 <NavItem>
                   <NavLink tag={Link} className="manager" to="/user">Работники</NavLink>
                 </NavItem>
+                <NavItem>
+                  <NavLink tag={Link} className="manager" to="/labour">Субботники</NavLink>
+                </NavItem>
               </ul>
             </Collapse>
           </Container>

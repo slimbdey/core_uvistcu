@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { InputGroup, OptionsInputGroup } from '../view/templates';
 
 
 export default class OfficeCreate extends Component {
@@ -13,19 +14,8 @@ export default class OfficeCreate extends Component {
           <button type="submit" disabled style={{ display: 'none' }} ></button>
 
           <div className="col-md-6 pl-0">
-            <div className="input-group form-group">
-              <div className="input-group-prepend">
-                <span className="input-group-text">Наименование</span>
-              </div>
-              <input className="form-control" name="Name" />
-            </div>
-
-            <div className="input-group form-group">
-              <div className="input-group-prepend">
-                <span className="input-group-text">Руководитель</span>
-              </div>
-              <select className="custom-select" name="ChiefId">{options}</select>
-            </div>
+            <InputGroup reversed placeholder="Произвольное название" hint="Наименование" name="Name" />
+            <OptionsInputGroup reversed hint="Руководитель" name="ChiefId" options={options} />
           </div>
 
           <div className="col-md-3 mt-5 pl-0">

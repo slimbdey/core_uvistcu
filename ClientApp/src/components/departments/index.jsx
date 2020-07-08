@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { fillDepts, fillOffices, fillUsers, deleteDept } from '../redux/actions';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../store/actions';
 import history from '../extra/history';
+import { Loading } from '../view/templates';
 
 import DepartmentList from './list';
 import DepartmentCreate from './create';
@@ -18,51 +20,41 @@ class Departments extends Component {
       title: "изменить отдел",
       titleLink: "Отмена",
       currentId: +this.props.match.params.id,
-      loading: true
+      loading: true,
     }
     : {
       mode: "list",
       title: "список отделов",
       titleLink: "Создать",
       currentId: null,
-      loading: true
+      loading: true,
     }
 
 
-  componentDidMount = async () => {
-    if (this.props.depts.length === 0) {
-      let depts = [];
-      let offices = [];
-      let users = [];
+  componentDidMount = () => {
+    let request = [];
 
-      let d = bring("department");
-      let o = bring("office");
-      let u = bring("user");
+    if (this.props.depts.length === 0)
+      request.push("department");
 
-      let errors = "";
-      let responses = await Promise.all([d, o, u])
-        .catch(error => {
-          blink(`Error: ${error}`, true);
-          return;
-        });
+    if (this.props.offices.length === 0)
+      request.push("office");
 
-      responses[0].ok
-        ? depts = await responses[0].json()
-        : errors += "Отделы отсутствуют\n";
+    if (this.props.users.length === 0)
+      request.push("user");
 
-      responses[1].ok
-        ? offices = await responses[1].json()
-        : errors += "Бюро отсутствуют";
-
-      responses[2].ok
-        ? users = await responses[2].json()
-        : errors += "Работники отсутствуют";
-
-      !!errors && blink(errors, true);
-      this.props.fillDepts(depts, offices, users);
-    }
-
-    this.setState({ loading: false });
+    request.length > 0
+      ? bring(request)
+        .catch(error => this.setState({ error: error, loading: false }))
+        .then(result => {
+          this.props.fillDepts({
+            depts: result.get("department"),
+            offices: result.get("office"),
+            users: result.get("user"),
+          });
+          this.setState({ loading: false });
+        })
+      : this.setState({ loading: false });
   }
 
 
@@ -71,7 +63,10 @@ class Departments extends Component {
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+      return <Loading />;
+
+    else if (!!this.state.error)
+      return <div className="text-danger font-italic">{this.state.error}</div>
 
     let contents = [];
 
@@ -163,7 +158,7 @@ class Departments extends Component {
 
 
   linkToggle = async (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
 
     if (this.state.mode === "list")
       this.setState({ mode: "create", titleLink: "Отмена", title: "создать отдел" });
@@ -175,8 +170,8 @@ class Departments extends Component {
 
 }
 
-/////////// MAP STATE
-function chunkStateToProps(state) {
+/////////// MAPPS
+const chunkStateToProps = state => {
   return {
     depts: state.depts,
     offices: state.offices,
@@ -184,4 +179,13 @@ function chunkStateToProps(state) {
   }
 }
 
-export default connect(chunkStateToProps, actions)(Departments);
+const chunkDispatchToProps = dispatch =>
+  bindActionCreators({
+    fillDepts,
+    fillOffices,
+    fillUsers,
+    deleteDept
+  }, dispatch);
+
+
+export default connect(chunkStateToProps, chunkDispatchToProps)(Departments);

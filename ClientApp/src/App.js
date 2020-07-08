@@ -5,6 +5,7 @@ import { Home } from './components/Home';
 import Departments from './components/departments';
 import Offices from './components/offices';
 import Users from './components/users';
+import Labours from './components/labours';
 
 import './custom.css';
 
@@ -19,6 +20,8 @@ export default class App extends Component {
         <Route exact path='/user/:id' component={Users} />
         <Route exact path='/office' component={Offices} />
         <Route exact path='/office/:id' component={Offices} />
+        <Route exact path='/labour' component={Labours} />
+        <Route exact path='/labour/:id' component={Labours} />
         <Route exact path='/department' component={Departments} />
         <Route exact path='/department/:id' component={Departments} />
       </Layout>

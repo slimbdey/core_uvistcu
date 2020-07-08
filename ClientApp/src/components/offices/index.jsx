@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../store/actions';
+import actions from '../redux/actions';
 import history from '../extra/history';
+import { Loading } from '../view/templates';
 
 import OfficeList from './list'
 import OfficeCreate from './create';
@@ -29,35 +30,26 @@ class Offices extends Component {
     }
 
 
-  componentDidMount = async () => {
-    if (this.props.offices.length === 0) {
-      let offices = [];
-      let users = [];
+  componentDidMount = () => {
+    let request = [];
 
-      let o = bring("office");
-      let u = bring("user");
+    if (this.props.offices.length === 0)
+      request.push("office");
 
-      let errors = "";
-      let responses = await Promise.all([o, u])
-        .catch(error => {
-          blink(`Error: ${error}`, true);
-          return;
-        });
+    if (this.props.users.length === 0)
+      request.push("user");
 
-      responses[0].ok
-        ? offices = await responses[0].json()
-        : errors += "Бюро отсутствуют";
-
-      responses[1].ok
-        ? users = await responses[1].json()
-        : errors += "Пользователи не заведены\n";
-
-      !!errors && blink(errors, true);
-
-      this.props.fillOffices(offices, users);
-    }
-
-    this.setState({ loading: false });
+    request.length > 0
+      ? bring(request)
+        .catch(error => this.setState({ error: error, loading: false }))
+        .then(result => {
+          this.props.fillOffices({
+            offices: result.get("office"),
+            users: result.get("user"),
+          });
+          this.setState({ loading: false });
+        })
+      : this.setState({ loading: false });
   }
 
 
@@ -65,7 +57,7 @@ class Offices extends Component {
   ///// RENDER
   render() {
     if (this.state.loading)
-      return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
+      return <Loading />
 
     let contents = [];
 
