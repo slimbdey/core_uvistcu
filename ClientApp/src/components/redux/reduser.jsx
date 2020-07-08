@@ -22,6 +22,12 @@ export let reducer = function (state = initialState, action) {
         depts: state.depts.filter(d => d.id !== action.id)
       };
 
+    case "ALTER_DEPT":
+      return {
+        ...state,
+        depts: state.depts.map(d => d.id === action.dept.id ? action.dept : d)
+      }
+
     case "FILL_DEPTS":
       return {
         ...state,
