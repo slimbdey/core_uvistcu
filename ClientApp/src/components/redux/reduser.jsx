@@ -40,25 +40,25 @@ export let reducer = function (state = initialState, action) {
     case "ADD_OFFICE":
       return {
         ...state,
-        offices: [...state.offices, action.office]
+        offices: [...state.offices, action.office].sort((a, b) => a.name > b.name)
       };
 
     case "DELETE_OFFICE":
       return {
         ...state,
-        offices: state.offices.filter(o => o.id !== action.id)
+        offices: state.offices.filter(o => o.id !== action.id).sort((a, b) => a.name > b.name)
       };
 
     case "ALTER_OFFICE":
       return {
         ...state,
-        offices: state.offices.map(o => o.id === action.office.id ? action.office : o)
+        offices: state.offices.map(o => o.id === action.office.id ? action.office : o).sort((a, b) => a.name > b.name)
       };
 
     case "FILL_OFFICES":
       return {
         ...state,
-        offices: action.data.offices,
+        offices: action.data.offices.sort((a, b) => a.name > b.name),
         users: action.data.users ? action.data.users : state.users,
       };
 
@@ -66,7 +66,7 @@ export let reducer = function (state = initialState, action) {
     case "ADD_USER":
       return {
         ...state,
-        users: [...state.users, action.user]
+        users: [...state.users, action.user].sort((a, b) => a.fullName > b.fullName)
       };
 
     case "DELETE_USER":
@@ -75,11 +75,17 @@ export let reducer = function (state = initialState, action) {
         users: state.users.filter(u => u.id !== action.id)
       };
 
+    case "ALTER_USER":
+      return {
+        ...state,
+        users: state.users.map(u => +u.id === +action.user.id ? action.user : u).sort((a, b) => a.fullName > b.fullName)
+      };
+
     case "FILL_USERS":
       return {
         ...state,
         offices: action.data.offices ? action.data.offices : state.offices,
-        users: action.data.users,
+        users: action.data.users.sort((a, b) => a.fullName > b.fullName),
       };
 
     /////////////////////////////// LABOURS ////////////////////////////      

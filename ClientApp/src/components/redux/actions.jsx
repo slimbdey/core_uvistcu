@@ -12,6 +12,7 @@ export const fillOffices = data => { return { type: "FILL_OFFICES", data }; }
 
 
 export const addUser = user => { return { type: "ADD_USER", user }; }
+export const alterUser = user => { return { type: "ALTER_USER", user }; }
 export const deleteUser = id => { return { type: "DELETE_USER", id }; }
 export const fillUsers = data => { return { type: "FILL_USERS", data }; }
 

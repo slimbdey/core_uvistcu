@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Modal from '../view/templates';
 import { blink, errorHandler } from '../extra/extensions';
 import { Link } from 'react-router-dom';
+import '../view/fixedTable.css';
 
 
 export default class OfficeList extends Component {
@@ -14,7 +15,7 @@ export default class OfficeList extends Component {
 
     return (
       <div>
-        <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
+        <table className='table table-sm table-hover mt-3 mytable' aria-labelledby="tabelLabel">
           <thead>
             <tr>
               <th>Наименование</th>
@@ -30,9 +31,10 @@ export default class OfficeList extends Component {
                 <div key={us.id}>
                   <Link to={`/user/${us.id}`} >{us.fullName}</Link>
                 </div>);
+
               return <tr key={office.id}>
                 <td><Link to={`/office/${office.id}`}>{office.name}</Link></td>
-                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td width="35%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
                 <td>{users}</td>
                 <td>
                   <div className="d-flex">

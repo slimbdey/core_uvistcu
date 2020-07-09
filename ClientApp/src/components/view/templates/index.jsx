@@ -39,7 +39,7 @@ export const DateGroup = props => {
           onClick={() => document.getElementsByName(props.name)[0].value = (new Date()).toISOString().slice(0, 10)}
         > Сегодня</button>
       </div>
-      <input type="date" className="form-control date" name={props.name} defaultValue={props.value.slice(0, 10)} />
+      <input type="date" className="form-control date" name={props.name} defaultValue={props.value && props.value.slice(0, 10)} />
       <div className="input-group-append">
         <span className="input-group-text">{props.hint}</span>
       </div>
