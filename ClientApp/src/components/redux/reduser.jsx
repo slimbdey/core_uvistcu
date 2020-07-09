@@ -22,6 +22,12 @@ export let reducer = function (state = initialState, action) {
         depts: state.depts.filter(d => d.id !== action.id)
       };
 
+    case "ALTER_DEPT":
+      return {
+        ...state,
+        depts: state.depts.map(d => d.id === action.dept.id ? action.dept : d)
+      }
+
     case "FILL_DEPTS":
       return {
         ...state,
@@ -41,6 +47,12 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         offices: state.offices.filter(o => o.id !== action.id)
+      };
+
+    case "ALTER_OFFICE":
+      return {
+        ...state,
+        offices: state.offices.map(o => o.id === action.office.id ? action.office : o)
       };
 
     case "FILL_OFFICES":

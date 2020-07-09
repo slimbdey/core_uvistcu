@@ -28,13 +28,13 @@ namespace UVSITCU.Models.DTOs
         [RegularExpression(@"^\d{11}$", ErrorMessage = "Номер телефона состоит из 11 цифр")]
         public string PhoneNum { get; set; }
         public bool ParticipateInLabour { get; set; }
-        public DateTime MedExam { get; set; }
-        public DateTime LabourSecurityExam { get; set; }
-        public DateTime IndustrialSecurityExam { get; set; }
-        public DateTime GotHelmet { get; set; }
-        public DateTime GotSuit { get; set; }
-        public DateTime GotBoots { get; set; }
-        public DateTime GotCoat { get; set; }
+        public DateTime? MedExam { get; set; }
+        public DateTime? LabourSecurityExam { get; set; }
+        public DateTime? IndustrialSecurityExam { get; set; }
+        public DateTime? GotHelmet { get; set; }
+        public DateTime? GotSuit { get; set; }
+        public DateTime? GotBoots { get; set; }
+        public DateTime? GotCoat { get; set; }
 
     }
 }
