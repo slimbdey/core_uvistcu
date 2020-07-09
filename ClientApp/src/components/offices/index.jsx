@@ -97,7 +97,7 @@ class Offices extends Component {
   createOffice = async () => {
     const form = document.forms["CreateForm"];
     let name = form.elements["Name"].value;
-    let id = form.elements["ChiefId"].value;
+    let id = +form.elements["ChiefId"].value;
 
     const response = await fetch("api/office", {
       method: "PUT",
@@ -107,7 +107,7 @@ class Offices extends Component {
       },
       body: JSON.stringify({
         Name: name,
-        ChiefId: +id
+        ChiefId: id
       })
     });
 
