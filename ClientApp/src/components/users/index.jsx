@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import { fillUsers, addUser, deleteUser } from '../redux/actions';
+import { fillUsers, addUser, deleteUser, alterUser } from '../redux/actions';
 import history from '../extra/history';
 
 import UserList from './list'
@@ -22,7 +22,6 @@ class Users extends Component {
       titleLink: "Отмена",
       currentId: +this.props.match.params.id,
       loading: true,
-      error: ""
     }
     : {
       mode: "list",
@@ -30,7 +29,6 @@ class Users extends Component {
       titleLink: "Создать",
       currentId: null,
       loading: true,
-      error: ""
     }
 
 
@@ -98,11 +96,9 @@ class Users extends Component {
   }
 
 
-  createUser = async (e) => {
-    e.preventDefault();
-
+  createUser = async () => {
     const form = document.forms["CreateForm"];
-    let name = form.elements["Name"].value;
+    let name = form.elements["FullName"].value;
     let num = form.elements["TabNum"].value;
 
     fetch("api/user", {
@@ -133,7 +129,10 @@ class Users extends Component {
 
 
   alterUser = async () => {
-    let user = this.props.users.find(u => u.id === this.state.currentId);
+    let user = {};
+    Object.assign(user, this.props.users.find(u => u.id === this.state.currentId));
+
+    let handleDate = value => value === "" ? new Date('1800-01-01').toISOString() : value;
 
     const form = document.forms["alterForm"];
     user.fullName = form.elements["FullName"].value;
@@ -142,13 +141,13 @@ class Users extends Component {
     user.email = form.elements["Email"].value;
     user.phoneNum = form.elements["PhoneNum"].value;
     user.participateInLabour = form.elements["ParticipateInLabour"].checked ? true : false;
-    user.medExam = form.elements["MedExam"].value;
-    user.labourSecurityExam = form.elements["LabourSecurityExam"].value;
-    user.industrialSecurityExam = form.elements["IndustrialSecurityExam"].value;
-    user.gotHelmet = form.elements["GotHelmet"].value;
-    user.gotSuit = form.elements["GotSuit"].value;
-    user.gotBoots = form.elements["GotBoots"].value;
-    user.gotCoat = form.elements["GotCoat"].value;
+    user.medExam = handleDate(form.elements["MedExam"].value);
+    user.labourSecurityExam = handleDate(form.elements["LabourSecurityExam"].value); console.log(user.labourSecurityExam);
+    user.industrialSecurityExam = handleDate(form.elements["IndustrialSecurityExam"].value);
+    user.gotHelmet = handleDate(form.elements["GotHelmet"].value);
+    user.gotSuit = handleDate(form.elements["GotSuit"].value);
+    user.gotBoots = handleDate(form.elements["GotBoots"].value);
+    user.gotCoat = handleDate(form.elements["GotCoat"].value);
 
     let response = await fetch(`api/user`, {
       method: "POST",
@@ -172,23 +171,19 @@ class Users extends Component {
         GotBoots: user.gotBoots,
         GotCoat: user.gotCoat
       })
-    })
+    });
 
-    if (response.ok) {
-      setTimeout(() => {
-        blink(`Работник ${user.fullName} успешно изменен`);
-      }, 10);
-      return new Promise(resolve => resolve(true));
-    }
+    response.ok
+      ? blink(`Работник ${user.fullName} успешно изменен`)
+        .then(this.props.alterUser(user))
 
-    let data = await response.json();
-    blink(errorHandler(data), true);
-    return new Promise(resolve => resolve(false));
+      : response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 
   linkToggle = async (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
 
     if (this.state.mode === "list") {
       this.setState({ mode: "create", titleLink: "Отмена", title: "добавить работника" });
@@ -214,6 +209,7 @@ const chunkDispatchToProps = dispatch =>
     fillUsers,
     deleteUser,
     addUser,
+    alterUser
   }, dispatch);
 
 
