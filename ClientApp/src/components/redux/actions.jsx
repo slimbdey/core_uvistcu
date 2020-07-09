@@ -7,6 +7,7 @@ export const fillDepts = data => { return { type: "FILL_DEPTS", data }; }
 
 export const addOffice = office => { return { type: "ADD_OFFICE", office }; }
 export const deleteOffice = id => { return { type: "DELETE_OFFICE", id }; }
+export const alterOffice = office => { return { type: "ALTER_OFFICE", office }; }
 export const fillOffices = data => { return { type: "FILL_OFFICES", data }; }
 
 

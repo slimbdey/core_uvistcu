@@ -49,6 +49,12 @@ export let reducer = function (state = initialState, action) {
         offices: state.offices.filter(o => o.id !== action.id)
       };
 
+    case "ALTER_OFFICE":
+      return {
+        ...state,
+        offices: state.offices.map(o => o.id === action.office.id ? action.office : o)
+      };
+
     case "FILL_OFFICES":
       return {
         ...state,

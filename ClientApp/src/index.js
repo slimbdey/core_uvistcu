@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { Router } from 'react-router-dom';
 import history from './components/extra/history';
 import App from './App';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
