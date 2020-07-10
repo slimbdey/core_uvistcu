@@ -58,11 +58,8 @@ export default class UserAlter extends Component {
                 type="button"
                 className="btn btn-outline-primary"
                 onClick={() => {
+                  history.push('/user');
                   this.props.alterClick()
-                    .then(result => {
-                      if (result)
-                        history.push('/user');
-                    });
                 }}
               >Изменить</button>
             )} />

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fillDepts, fillOffices, fillUsers, deleteDept } from '../redux/actions';
+import { fillDepts, fillOffices, fillUsers, deleteDept, alterDept } from '../redux/actions';
 import { blink, errorHandler, bring } from '../extra/extensions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
@@ -89,7 +89,7 @@ class Departments extends Component {
         dept={this.props.depts.find(d => d.id === this.state.currentId)}
         offices={this.props.offices}
         users={this.props.users}
-        alterClick={this.alterDept}
+        alterDept={this.alterDept}
       />
 
     return (
@@ -135,8 +135,10 @@ class Departments extends Component {
 
 
   alterDept = async () => {
-    let dept = this.props.depts.find(d => d.id === this.state.currentId);
+    let dept = {};
+    Object.assign(dept, this.props.depts.find(d => d.id === this.state.currentId));
     dept.managerId = +document.getElementById("managerId").value;
+    dept.name = document.getElementsByName("name")[0].value;
 
     const response = await fetch(`api/department`, {
       method: "POST",
@@ -153,7 +155,10 @@ class Departments extends Component {
 
     response.ok
       ? blink(`Отдел ${dept.name} успешно изменен`)
-      : response.json().then(error => blink(errorHandler(error), true));
+        .then(this.props.alterDept(dept))
+
+      : response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 
@@ -184,7 +189,8 @@ const chunkDispatchToProps = dispatch =>
     fillDepts,
     fillOffices,
     fillUsers,
-    deleteDept
+    deleteDept,
+    alterDept
   }, dispatch);
 
 

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
-import actions from '../redux/actions';
+import { addOffice, deleteOffice, fillOffices, alterOffice, alterUser } from '../redux/actions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
 
 import OfficeList from './list'
 import OfficeCreate from './create';
 import OfficeAlter from './alter';
+import { bindActionCreators } from 'redux';
 
 
 class Offices extends Component {
@@ -59,6 +60,9 @@ class Offices extends Component {
     if (this.state.loading)
       return <Loading />
 
+    else if (!!this.state.error)
+      return <div className="text-danger font-italic">{this.state.error}</div>
+
     let contents = [];
 
     if (this.state.mode === "list")
@@ -93,10 +97,13 @@ class Offices extends Component {
 
 
 
-  createOffice = async () => {
+  createOffice = async (e) => {
     const form = document.forms["CreateForm"];
     let name = form.elements["Name"].value;
-    let id = form.elements["ChiefId"].value;
+    let id = +form.elements["ChiefId"].value;
+
+    let officeChief = {};
+    Object.assign(officeChief, this.props.users.find(u => u.id === id));
 
     const response = await fetch("api/office", {
       method: "PUT",
@@ -106,25 +113,42 @@ class Offices extends Component {
       },
       body: JSON.stringify({
         Name: name,
-        ChiefId: +id
+        ChiefId: id,
+        DeptId: 0
       })
     });
 
     response.json()
-      .then(data => {
-        if (response.ok) {
-          this.props.addOffice({ id: data, name: name, chiefId: id });
-          blink(`Бюро ${name} успешно добавлено`);
-        }
-        else
-          blink(errorHandler(data), true);
-      })
+      .then(data =>
+        response.ok
+          ? blink(`Бюро ${name} успешно добавлено`)
+            .then(this.props.addOffice({ id: +data, name: name, chiefId: id }))
+            .then(fetch("api/user", {
+              method: "POST",
+              headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                Id: officeChief.id,
+                FullName: officeChief.fullName,
+                TabNum: officeChief.tabNum,
+                OfficeId: +data
+              })
+            }))
+            .then(() => new Promise(resolve => { officeChief.officeId = +data; resolve(officeChief) }))
+            .then(chief => this.props.alterUser(chief))
+            .then(this.linkToggle())
+
+          : blink(errorHandler(data), true)
+      );
   }
 
-
   alterOffice = async () => {
-    let office = this.props.offices.find(o => o.id === this.state.currentId);
+    let office = {};
+    Object.assign(office, this.props.offices.find(o => +o.id === +this.state.currentId));
     office.chiefId = +document.getElementById("chiefId").value;
+    office.name = document.getElementsByName("name")[0].value;
 
     const response = await fetch(`api/office`, {
       method: "POST",
@@ -136,19 +160,22 @@ class Offices extends Component {
         Id: office.id,
         Name: office.name,
         ChiefId: office.chiefId,
-        DeptId: +office.deptId
+        DeptId: office.deptId ? office.deptId : 0
       })
     });
 
     response.ok
       ? blink(`Бюро ${office.name} успешно изменено`)
-      : response.json().then(error => blink(errorHandler(error), true));
+        .then(this.props.alterOffice(office))
+
+      : response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 
 
   linkToggle = async (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
 
     if (this.state.mode === "list")
       this.setState({ mode: "create", titleLink: "Отмена", title: "создать бюро" });
@@ -160,12 +187,22 @@ class Offices extends Component {
 
 }
 
-/////////// MAP STATE
-function chunkStateToProps(state) {
+/////////// MAPPS
+const chunkStateToProps = state => {
   return {
     offices: state.offices,
     users: state.users,
   }
 }
 
-export default connect(chunkStateToProps, actions)(Offices);
+const chunkDispatchToProps = dispatch =>
+  bindActionCreators({
+    addOffice,
+    deleteOffice,
+    fillOffices,
+    alterOffice,
+    alterUser
+  }, dispatch)
+
+
+export default connect(chunkStateToProps, chunkDispatchToProps)(Offices);
