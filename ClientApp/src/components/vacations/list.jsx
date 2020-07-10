@@ -1,58 +1,44 @@
 import React, { Component } from 'react';
-import Modal from '../view/templates';
 import { blink, errorHandler } from '../extra/extensions';
-import { Link } from 'react-router-dom';
+import { Vacation } from './Vacation';
 
 
-export default class DepartmentList extends Component {
-  displayName = DepartmentList.name;
+
+
+export default class VacationList extends Component {
+  displayName = VacationList.name;
 
 
   ///// RENDER
   render() {
-    if (this.props.depts.length === 0)
-      return <div></div>;
+    if (this.props.vacations.length === 0)
+      return <div>No vacations</div>;
+
+    let vacations = this.props.vacations.map(v =>
+      <Vacation
+        key={v.id}
+        vacation={v}
+        user={this.props.users.find(u => u.id === v.userId)}
+      />);
 
     return (
-      <div>
-        <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
-          <thead>
-            <tr>
-              <th>Наименование</th>
-              <th width="35%">Руководитель</th>
-              <th>Бюро</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.depts.map(dept => {
-              let manager = this.props.users.find(u => u.id === +dept.managerId);
-              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os =>
-                <div key={os.id}>
-                  <Link to={`/office/${os.id}`} >{os.name}</Link>
-                </div>);
-              return <tr key={dept.id}>
-                <td><Link to={`/department/${dept.id}`}>{dept.name}</Link></td>
-                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
-                <td>{offices}</td>
-                <td>
-                  <div className="d-flex">
-                    <Modal
-                      buttonLabel="Удалить"
-                      text={`Вы действительно хотите удалить отдел ${dept.name}?`}
-                      func={() => this.deleteClick(dept.id, dept.name)} />
-                  </div>
-                </td>
-              </tr>
-            })}
-          </tbody>
-        </table>
-      </div>
+      <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
+        <thead>
+          <tr>
+            <th width="30%">Сотрудник</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Продолжительность</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>{vacations}</tbody>
+      </table>
     );
   }
 
 
-  deleteClick = async (id, name) => {
+  deleteClick = async (id) => {
     const response = await fetch(`api/department/${id}`, {
       method: "DELETE",
       headers: {
@@ -61,12 +47,12 @@ export default class DepartmentList extends Component {
       }
     });
 
-    if (response.ok) {
-      blink(`Отдел ${name} успешно удален`);
-      this.props.deleteDept(id);
-    }
-    else
-      response.json()
+    response.ok
+      ? this.props.deleteVacation(id)
+        .catch(alert)
+        .then(blink(`Отпуск успешно удален`))
+
+      : response.json()
         .then(error => blink(errorHandler(error), true));
   }
 

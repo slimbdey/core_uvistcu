@@ -1,3 +1,6 @@
+import moment from 'moment';
+
+
 
 export const blink = async (message, bad = false) => {
   let popup = document.getElementById("message");
@@ -58,6 +61,10 @@ export const correctDate = str => {
 
   return `${day}.${month}.${year}`;
 }
+
+
+
+export const datesDiff = (begin, end) => moment(end).diff(moment(begin), 'days');
 
 
 

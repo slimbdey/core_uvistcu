@@ -21,3 +21,9 @@ export const addLabour = labour => { return { type: "ADD_LABOUR", labour }; }
 export const deleteLabour = id => { return { type: "DELETE_LABOUR", id }; }
 export const fillLabours = data => { return { type: "FILL_LABOURS", data }; }
 export const alterLabour = labour => { return { type: "ALTER_LABOUR", labour }; }
+
+
+export const addVacation = vacation => { return { type: "ADD_VACATION", vacation }; }
+export const alterVacation = vacation => { return { type: "ALTER_VACATION", vacation }; }
+export const deleteVacation = id => { return { type: "DELETE_VACATION", id }; }
+export const fillVacations = data => { return { type: "FILL_VACATIONS", data }; }

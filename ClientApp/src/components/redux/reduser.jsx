@@ -3,6 +3,7 @@ let initialState = {
   offices: [],
   users: [],
   labours: [],
+  vacations: [],
 }
 
 
@@ -114,6 +115,34 @@ export let reducer = function (state = initialState, action) {
         labours: state.labours
           .map(lab => lab.id === action.labour.id ? action.labour : lab)
           .sort((a, b) => a.date < b.date)
+      };
+
+    /////////////////////////////// VACATIONS ////////////////////////////      
+    case "ADD_VACATION":
+      return {
+        ...state,
+        vacations: [...state.vacations, action.vacation]
+      };
+
+    case "DELETE_VACATION":
+      return {
+        ...state,
+        vacations: state.vacations.filter(v => v.id !== action.id)
+      };
+
+    case "ALTER_VACATION":
+      return {
+        ...state,
+        vacations: state.vacations.map(v => v.id === action.vacation.id ? action.vacation : v)
+      };
+
+    case "FILL_VACATIONS":
+      return {
+        ...state,
+        users: action.data.users ? [...action.data.users] : state.users,
+        depts: action.data.depts ? [...action.data.depts] : state.depts,
+        offices: action.data.offices ? [...action.data.offices] : state.offices,
+        vacations: [...action.data.vacations]
       };
 
     default: return state;
