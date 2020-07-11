@@ -7,7 +7,7 @@ import history from '../extra/history';
 import { Loading } from '../view/templates';
 
 import VacationList from './list';
-//import VacationCreate from './create';
+import VacationCreate from './create';
 //import VacationAlter from './alter';
 
 
@@ -82,18 +82,18 @@ class Vacation extends Component {
         deleteVacation={this.props.deleteVacation}
       />
 
-    //else if (this.state.mode === "create")
-    //  contents = <VacationCreate
-    //    users={this.props.users}
-    //    createDept={this.createDept}
-    //  />
+    else if (this.state.mode === "create")
+      contents = <VacationCreate
+        users={this.props.users}
+        createVacation={this.createVacation}
+      />
 
     //else if (this.state.mode === "alter")
     //  contents = <VacationAlter
     //    vacation={this.props.vacations.find(d => d.id === this.state.currentId)}
     //    offices={this.props.offices}
     //    users={this.props.users}
-    //    alterClick={this.alterDept}
+    //    alterClick={this.alterVacation}
     //  />
 
     return (
@@ -107,10 +107,13 @@ class Vacation extends Component {
   }
 
 
-  createDept = () => {
+  createVacation = (e) => {
+    e && e.preventDefault();
+
     const form = document.forms["CreateForm"];
-    let name = form.elements["Name"].value;
-    let id = form.elements["ChiefId"].value;
+    const userId = +form.elements["userId"].value;
+    const beginDate = form.elements["beginDate"].value;
+    const endDate = form.elements["endDate"].value;
 
     fetch("api/vacation", {
       method: "PUT",
@@ -119,26 +122,26 @@ class Vacation extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        Name: name,
-        ManagerId: +id
+        UserId: userId,
+        BeginDate: beginDate,
+        EndDate: endDate
       })
     })
       .then(response => {
         response.json()
           .then(data => {
             if (response.ok) {
-              this.props.addDept({ id: data, name: name, managerId: id });
-              blink(`Отдел ${name} успешно добавлен`);
-              this.linkToggle();
+              this.props.addVacation({ id: +data, userId: userId, beginDate: beginDate, endDate: endDate })
+              blink(`Отпуск успешно добавлен`)
+                .then(this.linkToggle());
             }
-            else
-              blink(errorHandler(data), true);
+            else blink(errorHandler(data), true);
           });
       });
   }
 
 
-  alterDept = async () => {
+  alterVacation = async () => {
     let vacation = this.props.vacations.find(d => d.id === this.state.currentId);
     vacation.managerId = +document.getElementById("managerId").value;
 

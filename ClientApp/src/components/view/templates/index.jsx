@@ -1,4 +1,4 @@
-import React, { useState, PureComponent } from 'react';
+import React, { useState } from 'react';
 import { Button, Modal, ModalBody, ModalFooter } from 'reactstrap';
 
 const ModalExample = (props) => {
@@ -39,7 +39,14 @@ export const DateGroup = props => {
           onClick={() => document.getElementsByName(props.name)[0].value = (new Date()).toISOString().slice(0, 10)}
         > Сегодня</button>
       </div>
-      <input type="date" className="form-control date" name={props.name} defaultValue={props.value && props.value.slice(0, 10)} />
+      <input
+        type="date"
+        required
+        className="form-control date"
+        name={props.name}
+        defaultValue={props.value && props.value.slice(0, 10)}
+        onChange={props.onChange}
+      />
       <div className="input-group-append">
         <span className="input-group-text">{props.hint}</span>
       </div>
@@ -101,34 +108,29 @@ export const Loading = props => {
 }
 
 
-export class CustomInputGroup extends PureComponent {
-
-  render() {
-    return (
-      <div className="form-group input-group" id={this.props.id}>
-        <div className="input-group-prepend">
-          <button
-            type="button"
-            className="btn btn-outline-danger"
-            onClick={() => this.props.removeInputGroup(this.props.id)}
-          >-</button>
-        </div>
-        <select
-          className="custom-select"
-          name={this.props.name}
-          defaultValue={this.props.value}
-        >{this.props.options}</select>
-        <div className="input-group-append">
-          <span className="input-group-text">{this.props.hint}</span>
-          <button
-            type="button"
-            className="btn btn-outline-success"
-            onClick={this.props.addInputGroup}
-          >+</button>
-        </div>
-      </div>
-    );
-  }
+export const CustomInputGroup = props => {
+  return <div className="form-group input-group" id={props.id}>
+    <div className="input-group-prepend">
+      <button
+        type="button"
+        className="btn btn-outline-danger"
+        onClick={() => props.removeInputGroup(props.id)}
+      >-</button>
+    </div>
+    <select
+      className="custom-select"
+      name={props.name}
+      defaultValue={props.value}
+    >{props.options}</select>
+    <div className="input-group-append">
+      <span className="input-group-text">{props.hint}</span>
+      <button
+        type="button"
+        className="btn btn-outline-success"
+        onClick={props.addInputGroup}
+      >+</button>
+    </div>
+  </div>;
 }
 
 

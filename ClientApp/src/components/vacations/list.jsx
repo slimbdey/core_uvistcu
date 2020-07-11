@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
 import { Vacation } from './Vacation';
+import { Loading } from '../view/templates';
 
 
 
@@ -12,13 +13,14 @@ export default class VacationList extends Component {
   ///// RENDER
   render() {
     if (this.props.vacations.length === 0)
-      return <div>No vacations</div>;
+      return <Loading />;
 
     let vacations = this.props.vacations.map(v =>
       <Vacation
         key={v.id}
         vacation={v}
         user={this.props.users.find(u => u.id === v.userId)}
+        deleteClick={this.deleteClick}
       />);
 
     return (
@@ -39,21 +41,25 @@ export default class VacationList extends Component {
 
 
   deleteClick = async (id) => {
-    const response = await fetch(`api/department/${id}`, {
+    fetch(`api/vacation/${id}`, {
       method: "DELETE",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       }
-    });
+    })
+      .then(response =>
+        response.ok
+          ? blink(`Отпуск успешно удален`)
+            .then(this.props.deleteVacation(id))
 
-    response.ok
-      ? this.props.deleteVacation(id)
-        .catch(alert)
-        .then(blink(`Отпуск успешно удален`))
-
-      : response.json()
-        .then(error => blink(errorHandler(error), true));
+          : response.json()
+            .then(data =>
+              response.status === 404
+                ? blink(data.title, true)
+                : blink(errorHandler(data), true)
+            )
+      );
   }
 
 }
