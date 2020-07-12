@@ -142,7 +142,7 @@ class Users extends Component {
     user.phoneNum = form.elements["PhoneNum"].value;
     user.participateInLabour = form.elements["ParticipateInLabour"].checked ? true : false;
     user.medExam = handleDate(form.elements["MedExam"].value);
-    user.labourSecurityExam = handleDate(form.elements["LabourSecurityExam"].value); console.log(user.labourSecurityExam);
+    user.labourSecurityExam = handleDate(form.elements["LabourSecurityExam"].value);
     user.industrialSecurityExam = handleDate(form.elements["IndustrialSecurityExam"].value);
     user.gotHelmet = handleDate(form.elements["GotHelmet"].value);
     user.gotSuit = handleDate(form.elements["GotSuit"].value);

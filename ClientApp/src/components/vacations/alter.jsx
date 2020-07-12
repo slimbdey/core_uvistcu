@@ -1,129 +1,74 @@
 import React, { Component } from 'react';
-import { blink, errorHandler } from '../extra/extensions';
-import { Route } from 'react-router-dom';
-import { InputGroup, OptionsInputGroup } from '../view/templates';
+import { OptionsInputGroup, DateGroup } from '../view/templates';
+import { datesDiff, blink } from '../extra/extensions';
+import history from '../extra/history';
 
 
-export default class DepartmentAlter extends Component {
-  displayName = DepartmentAlter.name;
+export default class VacationAlter extends Component {
 
+  componentDidMount = () => this.props.vacation.id && this.onChange();
 
-  state = {
-    deptOffices: this.props.offices.filter(of => of.deptId === this.props.dept.id)
+  onChange = () => {
+    let end = document.getElementsByName("endDate")[0].value;
+    let begin = document.getElementsByName("beginDate")[0].value;
+    let span = document.getElementById("days");
+    let btn = document.getElementById("bCreate");
+
+    let days = datesDiff(begin, end) + 1;
+    if (!isNaN(days) && days > 0) {
+      span.innerText = `${days} дней`;
+      btn.disabled = false;
+    }
+    else {
+      span.innerText = "0 дней";
+      btn.disabled = true;
+    }
   }
 
-
-  /////////// RENDER
+  /////// RENDER
   render() {
-    let usrOptions = this.props.users.map(user => <option key={user.id} value={user.id}> {user.fullName}</option>);
-    let ofcOptions = this.props.offices.map(office => <option key={office.id} value={office.id}>{office.name}</option>);
+    if (!this.props.vacation.id)
+      return <div className="text-danger font-italic">Нет такого отпуска</div>;
 
-    let offices = this.state.deptOffices.map(o =>
-      <li className="list-group-item" key={o.id}>
-        {o.name}
-        <a href="/office" className="float-right" onClick={(e) => { e.preventDefault(); this.appendRemoveClick(o.id, false); }}>Удалить</a>
-      </li>);
+    let options = this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option>);
 
     return (
-      <div>
-        <form name="alterForm" className="d-flex flex-column">
+      <div className="mt-3">
+        <form name="CreateForm">
           <button type="submit" disabled style={{ display: 'none' }} ></button>
-          <div className="d-flex flex-row col-md-12 pl-0">
 
-            <div className="col-md-5 pl-0">
-              <InputGroup name="name" value={this.props.dept.name} hint="Наименование" reversed />
-              <OptionsInputGroup
-                reversed
-                name="managerId"
-                id="managerId"
-                defaultValue={this.props.dept.managerId}
-                options={usrOptions}
-                hint="Руководитель отдела"
-              />
-
-              <div className="input-group form-group">
-                <select className="custom-select" id="newOffice" name="add">{ofcOptions}</select>
-                <div className="input-group-append">
-                  <button
-                    className="btn btn-outline-secondary"
-                    type="button"
-                    onClick={() => this.appendRemoveClick(document.getElementById("newOffice").value)}
-                  >Добавить</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mr-5">&nbsp;</div>
-
-            <div className="col-md-6">
-              <div className="form-group">
-                <div className="card">
-                  <div className="card-header text-muted">Бюро в отделе:</div>
-                  <ul className="list-group list-group-flush">{offices.length > 0 ? offices : <li className="list-group-item">Нет бюро</li>}</ul>
-                </div>
-              </div>
-            </div>
-
+          <div className="col-md-6 pl-0">
+            <OptionsInputGroup
+              reversed hint="Работник" name="userId"
+              options={options} value={this.props.vacation.userId}
+            />
+            <DateGroup
+              name="beginDate" hint="Дата начала"
+              onChange={this.onChange} value={this.props.vacation.beginDate}
+            />
+            <DateGroup
+              name="endDate" hint="Дата окончания"
+              onChange={this.onChange} value={this.props.vacation.endDate}
+            />
           </div>
 
-          <div className="mb-5 col-md-3 pl-0"><br /><hr />
-            <Route render={({ history }) => (
-              <button
-                type="button"
-                className="btn btn-outline-primary"
-                onClick={() => {
-                  history.push('/department');
-                  this.props.alterClick();
-                }}
-              >
-                Изменить
-              </button>
-            )} />
+          <div className="col-md-3 mt-5 pl-0">
+            <hr />
+            <button
+              className="btn btn-outline-primary"
+              type="button"
+              id="bCreate"
+              onClick={() => {
+                this.props.alterVacation()
+                  .catch(error => blink(error, true))
+                  .then(success => success && history.push("/vacation"))
+              }}
+            >Изменить<span id="days" className="badge badge-light ml-2">0 дней</span>
+            </button>
           </div>
         </form >
       </div >
     );
-  }
-
-
-  appendRemoveClick = async (officeId, append = true) => {
-    let office = this.props.offices.find(o => o.id === +officeId);
-
-    let alreadyThere = this.state.deptOffices.includes(office);
-    if ((alreadyThere && append) || (!alreadyThere && !append))
-      return;
-
-    append
-      ? office.deptId = this.props.dept.id
-      : office.deptId = null;
-
-    const response = await fetch(`api/office`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        Id: office.id,
-        Name: office.name,
-        ChiefId: office.chiefId,
-        DeptId: +office.deptId
-      })
-    });
-
-    if (response.ok) {
-      blink(`Бюро ${office.name} успешно ${append ? "добавлено" : "удалено"}`);
-
-      let newOfficeSet = append
-        ? [...this.state.deptOffices, office]
-        : this.state.deptOffices.filter(o => o.id !== officeId);
-
-      this.setState({ deptOffices: newOfficeSet });
-    }
-    else {
-      response.json()
-        .then(error => blink(errorHandler(error), true));
-    }
   }
 
 }

@@ -2,7 +2,7 @@
 
 * {
   /* get rid of scrollbars in Firefox */
-  scrollbar-width: none;
+  /*scrollbar-width: none;*/
 }
 
 a {

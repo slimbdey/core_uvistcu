@@ -13,7 +13,7 @@ export default class VacationCreate extends Component {
     let span = document.getElementById("days");
     let btn = document.getElementById("bCreate");
 
-    let days = datesDiff(begin, end);
+    let days = datesDiff(begin, end) + 1;
     if (!isNaN(days) && days > 0) {
       span.innerText = `${days} дней`;
       btn.disabled = false;

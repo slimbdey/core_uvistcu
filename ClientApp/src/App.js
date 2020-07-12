@@ -24,7 +24,8 @@ export default class App extends Component {
         <Route exact path='/labour' component={Labours} />
         <Route exact path='/labour/:id' component={Labours} />
         <Route exact path='/vacation' component={Vacations} />
-        <Route exact path='/vacation/:id' component={Vacations} />
+        <Route exact path='/vacation/:id(\d+)' component={Vacations} />
+        <Route exact path='/vacation/create' component={Vacations} />
         <Route exact path='/department' component={Departments} />
         <Route exact path='/department/:id' component={Departments} />
       </Layout>

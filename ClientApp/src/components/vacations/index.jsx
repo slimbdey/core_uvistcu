@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fillVacations, deleteVacation, addVacation, alterVacation } from '../redux/actions';
-import { blink, errorHandler, bring } from '../extra/extensions';
+import { blink, errorHandler, bring, datesDiff } from '../extra/extensions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
+import moment from 'moment';
 
 import VacationList from './list';
 import VacationCreate from './create';
-//import VacationAlter from './alter';
+import VacationAlter from './alter';
 
 
 class Vacation extends Component {
@@ -22,16 +23,25 @@ class Vacation extends Component {
       currentId: +this.props.match.params.id,
       loading: true,
     }
-    : {
-      mode: "list",
-      title: "список отпусков",
-      titleLink: "Создать",
-      currentId: null,
-      loading: true,
-    }
+
+    : this.props.match.path === "/vacation/create"
+      ? {
+        mode: "create",
+        title: "создать отпуск",
+        titleLink: "Отмена",
+        loading: true,
+      }
+
+      : {
+        mode: "list",
+        title: "список отпусков",
+        titleLink: "Создать",
+        currentId: null,
+        loading: true,
+      }
 
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
     let request = [];
 
     if (this.props.vacations.length === 0)
@@ -46,21 +56,29 @@ class Vacation extends Component {
     if (this.props.offices.length === 0)
       request.push("office");
 
-    request.length > 0
-      ? bring(request)
-        .catch(error => this.setState({ error: error, loading: false }))
-        .then(result => this.props.fillVacations({
-          vacations: result.get("vacation"),
-          users: result.get("user"),
-          depts: result.get("department"),
-          offices: result.get("office"),
-        }))
-        .then(this.setState({ loading: false }))
+    if (request.length > 0) {
+      let result = await bring(request)
+        .catch(error => {
+          this.setState({ error: error, loading: false })
+          return;
+        })
+
+      await this.props.fillVacations({
+        vacations: result.get("vacation"),
+        users: result.get("user"),
+        depts: result.get("department"),
+        offices: result.get("office"),
+      });
+    }
+
+    this.state.currentId
+      ? this.setState({
+        loading: false,
+        vacation: Object.assign({}, this.props.vacations.find(v => v.id === this.state.currentId))
+      })
 
       : this.setState({ loading: false });
   }
-
-
 
 
   ///// RENDER
@@ -88,13 +106,12 @@ class Vacation extends Component {
         createVacation={this.createVacation}
       />
 
-    //else if (this.state.mode === "alter")
-    //  contents = <VacationAlter
-    //    vacation={this.props.vacations.find(d => d.id === this.state.currentId)}
-    //    offices={this.props.offices}
-    //    users={this.props.users}
-    //    alterClick={this.alterVacation}
-    //  />
+    else if (this.state.mode === "alter")
+      contents = <VacationAlter
+        vacation={this.state.vacation}
+        users={this.props.users}
+        alterVacation={this.alterVacation}
+      />
 
     return (
       <div>
@@ -114,6 +131,15 @@ class Vacation extends Component {
     const userId = +form.elements["userId"].value;
     const beginDate = form.elements["beginDate"].value;
     const endDate = form.elements["endDate"].value;
+
+    const vacation = {
+      userId: userId,
+      beginDate: beginDate,
+      endDate: endDate
+    };
+
+    try { this.isCorrectVacation(vacation) }
+    catch (error) { blink(error, true); return; }
 
     fetch("api/vacation", {
       method: "PUT",
@@ -140,27 +166,60 @@ class Vacation extends Component {
       });
   }
 
+  isCorrectVacation = (vacation, alter = false) => {
+    const begin = moment(vacation.beginDate);
+    const end = moment(vacation.endDate);
+    const vacationDays = datesDiff(begin, end) + 1;
+
+    const user = this.props.users.find(u => u.id === vacation.userId);
+    let daysTaken = this.props.vacations.filter(v => v.userId === user.id && moment(v.beginDate).year() === begin.year());
+
+    let daysOccupied = 0;
+    daysTaken instanceof Array
+      ? alter
+        ? daysTaken.filter(v => v.id !== vacation.id).forEach(dt => daysOccupied += datesDiff(dt.beginDate, dt.endDate) + 1)
+        : daysTaken.forEach(dt => daysOccupied += datesDiff(dt.beginDate, dt.endDate) + 1)
+
+      : daysOccupied = datesDiff(daysTaken.beginDate, daysTaken.endDate) + 1;
+
+    if (daysOccupied >= 28)
+      throw new Error("Нет доступных дней для отпуска в этом году");
+
+    if (daysOccupied + vacationDays > 28)
+      throw new Error(`Вам доступно только ${28 - daysOccupied} дней в этом году`);
+
+    return true;
+  }
+
 
   alterVacation = async () => {
-    let vacation = this.props.vacations.find(d => d.id === this.state.currentId);
-    vacation.managerId = +document.getElementById("managerId").value;
+    let vacation = Object.assign({}, this.props.vacations.find(d => d.id === this.state.currentId));
+    const form = document.forms["CreateForm"];
+    vacation.userId = +form.elements["userId"].value;
+    vacation.beginDate = form.elements["beginDate"].value;
+    vacation.endDate = form.elements["endDate"].value;
 
-    const response = await fetch(`api/vacation`, {
+    try { this.isCorrectVacation(vacation, true) }
+    catch (error) { throw error; }
+
+    fetch(`api/vacation`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        Id: vacation.id,
-        Name: vacation.name,
-        ManagerId: vacation.managerId,
-      })
-    });
+      body: JSON.stringify(vacation)
+    })
+      .then(response =>
+        response.ok
+          ? blink(`Отпуск успешно изменен`)
+            .then(this.props.alterVacation(vacation))
 
-    response.ok
-      ? blink(`Отдел ${vacation.name} успешно изменен`)
-      : response.json().then(error => blink(errorHandler(error), true));
+          : response.json()
+            .then(error => blink(errorHandler(error), true))
+      );
+
+    return true;
   }
 
 

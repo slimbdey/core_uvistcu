@@ -19,8 +19,8 @@ export default class OfficeList extends Component {
           <thead>
             <tr>
               <th>Наименование</th>
-              <th width="35%">Руководитель</th>
-              <th>Работники</th>
+              <th width="30%">Руководитель</th>
+              <th width="30%">Работники</th>
               <th></th>
             </tr>
           </thead>
@@ -34,8 +34,8 @@ export default class OfficeList extends Component {
 
               return <tr key={office.id}>
                 <td><Link to={`/office/${office.id}`}>{office.name}</Link></td>
-                <td width="35%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
-                <td>{users}</td>
+                <td width="30%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td width="30%">{users}</td>
                 <td>
                   <div className="d-flex">
                     <Modal
