@@ -71,7 +71,8 @@ namespace UVSITCU.Models.Repositories
                             GotHelmet=@GotHelmet,
                             GotSuit=@GotSuit,
                             GotBoots=@GotBoots,
-                            GotCoat=@GotCoat 
+                            GotCoat=@GotCoat,
+                            VacationRating=@VacationRating
                         where Id=@Id";
 
             int rowsAffected = await _db.ExecuteAsync(query, obj);
@@ -96,9 +97,9 @@ namespace UVSITCU.Models.Repositories
         public override async Task<bool> Post(Department obj)
         {
             string query = @"update Departments set 
-                            Name=@Name, 
-                            ManagerId=@ManagerId 
-                        where Id=@Id";
+                                Name=@Name, 
+                                ManagerId=@ManagerId 
+                            where Id=@Id";
 
             int rowsAffected = await _db.ExecuteAsync(query, obj);
             return rowsAffected > 0;
@@ -140,4 +141,34 @@ namespace UVSITCU.Models.Repositories
         }
     }
 
+
+
+    public class VacationRepository : TRepository<Vacation>
+    {
+        public VacationRepository(string conString) : base(conString, "Vacations") { }
+
+
+        public override async Task<bool> Post(Vacation obj)
+        {
+            string query = @"update Vacations set 
+                                UserId=@UserId, 
+                                BeginDate=@BeginDate,
+                                EndDate=@EndDate,
+                                Score=@Score 
+                            where Id=@Id";
+
+            int rowsAffected = await _db.ExecuteAsync(query, obj);
+            return rowsAffected > 0;
+        }
+
+
+        public override async Task<int> Put(Vacation obj)
+        {
+            var query = @"insert into Vacations (UserId, BeginDate, EndDate)
+                            output inserted.Id
+                            values (@UserId, @BeginDate, @EndDate)";
+
+            return await _db.QuerySingleAsync<int>(query, obj);
+        }
+    }
 }

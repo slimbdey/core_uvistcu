@@ -25,7 +25,7 @@ export class NavMenu extends Component {
   render() {
     return (
       <header className="position-relative" style={{ zIndex: 1 }}>
-        <Navbar className="navbar-expand-sm navbar-toggleable-sm bg-dark box-shadow mb-3" dark>
+        <Navbar className="navbar-expand-sm navbar-toggleable-lg bg-dark box-shadow mb-3" dark>
           <Container>
             <NavbarBrand tag={Link} to="/">Главная</NavbarBrand>
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
@@ -42,6 +42,9 @@ export class NavMenu extends Component {
                 </NavItem>
                 <NavItem>
                   <NavLink tag={Link} className="manager" to="/labour">Субботники</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink tag={Link} to="/vacation">Отпуска</NavLink>
                 </NavItem>
               </ul>
             </Collapse>

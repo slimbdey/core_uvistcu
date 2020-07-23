@@ -1,16 +1,58 @@
 .mytable tbody {
-    display: block;
+  display: block;
+  max-height: 71vh;
+  overflow-y: scroll;
+}
+
+@media (max-height: 900px) {
+  .mytable tbody {
     max-height: 65vh;
-    overflow-y: scroll;
+  }
 }
 
 .mytable thead, .mytable tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
-::-webkit-scrollbar {
+/*::-webkit-scrollbar {
     width: 0px;
     background: transparent;
+}*/
+
+.mytable2 tbody {
+  display: block;
+  max-height: 69vh;
+  overflow-y: scroll;
+}
+
+@media (max-height: 900px) {
+  .mytable2 tbody {
+    max-height: 62vh;
+  }
+}
+
+.mytable2 thead, .mytable2 tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.mytable-sm tbody {
+  display: block;
+  max-height: 63vh;
+  overflow-y: scroll;
+}
+
+@media (max-height: 900px) {
+  .mytable-sm tbody {
+    max-height: 55vh;
+  }
+}
+
+.mytable-sm thead, .mytable-sm tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }

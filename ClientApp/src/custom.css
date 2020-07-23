@@ -2,7 +2,7 @@
 
 * {
   /* get rid of scrollbars in Firefox */
-  scrollbar-width: none;
+  /*scrollbar-width: none;*/
 }
 
 a {
@@ -24,7 +24,7 @@ code {
   border-color: #1861ac;
 }
 
-@media (min-width: 1441px) {
+@media (min-width: 900px) {
   .container {
     max-width: 1500px;
   }
@@ -32,4 +32,14 @@ code {
 
 .fade {
   transition: 70ms;
+}
+
+.blink_me {
+  animation: blinker 1s step-end infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0.5;
+  }
 }

@@ -24,6 +24,7 @@ namespace UVSITCU
             services.AddScoped<IRepository<Office>, TRepository<Office>>(provider => new OfficeRepository(conString));
             services.AddScoped<IRepository<Department>, TRepository<Department>>(provider => new DepartmentRepository(conString));
             services.AddScoped<IRepository<Labour>, LabourRepository>(provider => new LabourRepository(conString));
+            services.AddScoped<IRepository<Vacation>, TRepository<Vacation>>(provider => new VacationRepository(conString));
 
             services.AddControllersWithViews();
 

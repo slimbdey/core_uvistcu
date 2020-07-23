@@ -7,6 +7,7 @@
     "jquery": "^3.5.1",
     "js-logger": "^1.6.0",
     "merge": "^1.2.1",
+    "moment": "^2.27.0",
     "oidc-client": "^1.9.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
@@ -22,13 +23,14 @@
   "devDependencies": {
     "ajv": "^6.9.1",
     "cross-env": "^5.2.0",
-    "typescript": "^3.7.5",
     "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.2.0",
     "eslint-plugin-flowtype": "^4.6.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.18.3"
+    "eslint-plugin-react": "^7.18.3",
+    "redux-devtools-extension": "^2.13.8",
+    "typescript": "^3.7.5"
   },
   "eslintConfig": {
     "extends": "react-app"

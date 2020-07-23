@@ -14,17 +14,14 @@ const Filter = props => {
       </div>
       <input type="date" className="form-control date" name={props.name} defaultValue={props.value.slice(0, 10)} />
       <div className="input-group-append">
-        <span className="input-group-text">{props.hint}</span>
+        <button className="btn btn-outline-success" type="button"
+          onClick={() => props.set(document.getElementsByName(props.name)[0].value.slice(0, 10))}
+        > Применить</button>
       </div>
       <div className="input-group-append">
         <button className="btn btn-outline-secondary" type="button"
           onClick={() => props.reset()}
         > Сбросить</button>
-      </div>
-      <div className="input-group-append">
-        <button className="btn btn-outline-success" type="button"
-          onClick={() => props.set(document.getElementsByName(props.name)[0].value.slice(0, 10))}
-        > Применить</button>
       </div>
     </div>
   );
@@ -52,7 +49,6 @@ export default class LabourList extends Component {
             <Filter
               name="currentDate"
               value={new Date().toISOString()}
-              hint="Фильтр"
               set={this.filter}
               reset={this.resetFilter}
             />
