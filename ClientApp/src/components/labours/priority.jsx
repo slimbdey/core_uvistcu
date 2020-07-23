@@ -43,7 +43,7 @@ class LabourPriority extends Component {
 
     return (
       <div className="d-flex flex-row justify-content-between">
-        <table className='table table-sm table-hover mytable col-md-6 mt-3' aria-labelledby="tabelLabel">
+        <table className='table table-sm table-hover mytable2 col-md-6 mt-3' aria-labelledby="tabelLabel">
           <thead>
             <tr>
               <th width="5%"></th>

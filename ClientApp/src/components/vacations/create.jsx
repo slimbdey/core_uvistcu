@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { OptionsInputGroup, DateGroup } from '../view/templates';
-import { datesDiff } from '../extra/extensions';
+import moment from 'moment';
 
 
 export default class VacationCreate extends Component {
@@ -8,14 +8,13 @@ export default class VacationCreate extends Component {
   componentDidMount = () => this.onChange();
 
   onChange = () => {
-    let end = document.getElementsByName("endDate")[0].value;
+    let range = +document.getElementById("range").value;
     let begin = document.getElementsByName("beginDate")[0].value;
     let span = document.getElementById("days");
     let btn = document.getElementById("bCreate");
 
-    let days = datesDiff(begin, end) + 1;
-    if (!isNaN(days) && days > 0) {
-      span.innerText = `${days} дней`;
+    if (moment(begin).isValid() && range > 0) {
+      span.innerText = `${range} дней`;
       btn.disabled = false;
     }
     else {
@@ -34,9 +33,27 @@ export default class VacationCreate extends Component {
           <button type="submit" disabled style={{ display: 'none' }} ></button>
 
           <div className="col-md-6 pl-0">
-            <OptionsInputGroup reversed hint="Работник" name="userId" options={options} />
+            <OptionsInputGroup
+              reversed
+              hint="Работник"
+              name="userId"
+              options={options}
+              value={this.props.voterId}
+            />
             <DateGroup name="beginDate" hint="Дата начала" onChange={this.onChange} />
-            <DateGroup name="endDate" hint="Дата окончания" onChange={this.onChange} />
+
+            <div className="form-group">
+              <label htmlFor="range" className="text-muted">Продолжительность:</label>
+              <input
+                type="range"
+                className="form-control-range"
+                id="range"
+                min="0"
+                max="28"
+                defaultValue="14"
+                onInput={this.onChange}
+              />
+            </div>
           </div>
 
           <div className="col-md-3 mt-5 pl-0">

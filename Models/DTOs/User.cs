@@ -36,5 +36,6 @@ namespace UVSITCU.Models.DTOs
         public DateTime? GotBoots { get; set; }
         public DateTime? GotCoat { get; set; }
 
+        public double? VacationRating { get; set; }
     }
 }

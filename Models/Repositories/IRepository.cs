@@ -71,7 +71,8 @@ namespace UVSITCU.Models.Repositories
                             GotHelmet=@GotHelmet,
                             GotSuit=@GotSuit,
                             GotBoots=@GotBoots,
-                            GotCoat=@GotCoat 
+                            GotCoat=@GotCoat,
+                            VacationRating=@VacationRating
                         where Id=@Id";
 
             int rowsAffected = await _db.ExecuteAsync(query, obj);

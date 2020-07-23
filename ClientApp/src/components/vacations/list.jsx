@@ -58,7 +58,7 @@ export default class VacationList extends Component {
               <th></th>
             </tr>
           </thead>
-          <tbody style={{ maxHeight: "60vh" }}>{vacations}</tbody>
+          <tbody style={{ maxHeight: "52vh" }}>{vacations}</tbody>
         </table>
       </Fragment>
     );
@@ -133,6 +133,7 @@ export default class VacationList extends Component {
         response.ok
           ? blink(`Отпуск успешно удален`)
             .then(this.props.deleteVacation(id))
+            .then(this.props.getMaxYear(this.props.currentDeptId))
             .then(this.setState({ vacations: this.props.vacations.filter(v => moment(v.beginDate).year() === moment().year()) }))
 
           : response.json()

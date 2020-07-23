@@ -1,4 +1,5 @@
 import moment from 'moment';
+import monthWeights from '../vacations/MonthWeights.json';
 
 
 
@@ -68,4 +69,52 @@ export const datesDiff = (begin, end) => moment(end).diff(moment(begin), 'days')
 
 
 
-export const keyGen = () => Math.floor(Math.random() * 10000);
+export const keyGen = () => Math.floor(Math.random() * 1000000);
+
+
+
+export const calculateRating = (users, vacations, year) => {
+
+  const fillYearRanks = k => {
+    let year = {};
+    for (let i = 1; i < 13; ++i)
+      year[i] = monthWeights[i] * k;
+    return year;
+  }
+
+  let yearRanks = {};
+  yearRanks[year] = fillYearRanks(1);
+  yearRanks[year - 1] = fillYearRanks(0.7);
+  yearRanks[year - 2] = fillYearRanks(0.5);
+
+  let scoreVacation = {};
+  vacations.forEach(v => {
+    const vMonth = moment(v.beginDate).month() + 1;
+    const vYear = moment(v.beginDate).year();
+    v.score = yearRanks[vYear][vMonth] * (datesDiff(v.beginDate, v.endDate) + 1);
+
+    if (!scoreVacation[vYear])
+      scoreVacation[vYear] = {};
+
+    if (!scoreVacation[vYear][v.userId])
+      scoreVacation[vYear][v.userId] = 0;
+
+    scoreVacation[vYear][v.userId] += v.score;
+  });
+
+  for (let year in scoreVacation) {
+    let values = Object.values(scoreVacation[year]);
+    const avg = values.reduce((p, c) => p + c, 0) / values.length;
+
+    users.forEach(u => {
+      if (!scoreVacation[year][u.id])
+        scoreVacation[year][u.id] = avg;
+    });
+  }
+
+  let years = Object.keys(yearRanks);
+  users.forEach(usr => usr.vacationRating = scoreVacation[years[0]][usr.id] + scoreVacation[years[1]][usr.id] + scoreVacation[years[2]][usr.id]);
+}
+
+
+export const round = num => Math.floor(num * 10) / 10;

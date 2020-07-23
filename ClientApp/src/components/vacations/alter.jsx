@@ -61,7 +61,7 @@ export default class VacationAlter extends Component {
               onClick={() => {
                 this.props.alterVacation()
                   .catch(error => blink(error, true))
-                  .then(success => success && history.push("/vacation"))
+                  .then(success => success && history.push("/vacation/list"))
               }}
             >Изменить<span id="days" className="badge badge-light ml-2">0 дней</span>
             </button>
