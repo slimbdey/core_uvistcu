@@ -27,14 +27,14 @@ export default class OfficeAlter extends Component {
           <button type="submit" disabled style={{ display: 'none' }} ></button>
           <div className="d-flex flex-row col-md-12 pl-0">
 
-            <div className="col-md-5 pl-0">
-              <InputGroup name="name" value={this.props.office.name} hint="Наименование бюро" reversed />
+            <div className="col-md-6 pl-0">
+              <InputGroup name="name" value={this.props.office.name} hint="Наименование группы" reversed />
               <OptionsInputGroup reversed
                 name="chiefId"
                 id="chiefId"
                 value={this.props.office.chiefId}
                 options={usrOptions}
-                hint="Руководитель бюро"
+                hint="Руководитель группы"
               />
 
               <div className="input-group form-group">
@@ -56,19 +56,17 @@ export default class OfficeAlter extends Component {
                       history.push('/office');
                       this.props.alterClick();
                     }}
-                  >
-                    Изменить
-                  </button>
+                  >Изменить</button>
                 )} />
               </div>
             </div>
 
             <div className="mr-5">&nbsp;</div>
 
-            <div className="col-md-7">
+            <div className="col-md-5">
               <div className="form-group">
                 <div className="card">
-                  <div className="card-header text-muted">Работники бюро:</div>
+                  <div className="card-header text-muted">Работники группы:</div>
                   <ul className="list-group list-group-flush">{ofcUsers.length > 0 ? ofcUsers : <li className="list-group-item">Нет работников</li>}</ul>
                 </div>
               </div>

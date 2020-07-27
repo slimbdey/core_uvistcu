@@ -18,9 +18,9 @@ export default class OfficeList extends Component {
         <table className='table table-sm table-hover mt-3 mytable' aria-labelledby="tabelLabel">
           <thead>
             <tr>
-              <th>Наименование</th>
-              <th width="30%">Руководитель</th>
-              <th width="30%">Работники</th>
+              <th width="30%">Наименование</th>
+              <th width="20%">Руководитель</th>
+              <th width="20%">Работники</th>
               <th></th>
             </tr>
           </thead>
@@ -33,15 +33,16 @@ export default class OfficeList extends Component {
                 </div>);
 
               return <tr key={office.id}>
-                <td><Link to={`/office/${office.id}`}>{office.name}</Link></td>
-                <td width="30%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
-                <td width="30%">{users}</td>
+                <td width="30%"><Link to={`/office/${office.id}`}>{office.name}</Link></td>
+                <td width="20%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td width="20%">{users}</td>
                 <td>
                   <div className="d-flex">
                     <Modal
                       buttonLabel="Удалить"
-                      text={`Вы действительно хотите удалить бюро ${office.name}?`}
-                      func={() => this.deleteClick(office.id, office.name)} />
+                      text={`Вы действительно хотите удалить группу ${office.name}?`}
+                      func={() => this.deleteClick(office.id, office.name)}
+                    />
                   </div>
                 </td>
               </tr>
@@ -63,7 +64,7 @@ export default class OfficeList extends Component {
     });
 
     if (response.ok) {
-      blink(`Бюро ${name} успешно удалено`);
+      blink(`Группа ${name} успешно удалена`);
       this.props.deleteOffice(id);
     }
     else

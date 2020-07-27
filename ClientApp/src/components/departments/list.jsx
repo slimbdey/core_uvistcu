@@ -18,22 +18,29 @@ export default class DepartmentList extends Component {
         <table className='table table-sm table-hover mt-3' aria-labelledby="tabelLabel">
           <thead>
             <tr>
-              <th>Наименование</th>
-              <th width="35%">Руководитель</th>
-              <th>Бюро</th>
+              <th width="20%">Наименование</th>
+              <th width="20%">Руководитель</th>
+              <th>Сотрудники</th>
+              <th>Группы</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {this.props.depts.map(dept => {
-              let manager = this.props.users.find(u => u.id === +dept.managerId);
-              let offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os =>
+              const manager = this.props.users.find(u => u.id === +dept.managerId);
+              const offices = this.props.offices.filter(o => o.deptId === +dept.id).map(os =>
                 <div key={os.id}>
                   <Link to={`/office/${os.id}`} >{os.name}</Link>
                 </div>);
+              const people = this.props.users.filter(us => us.deptId === +dept.id).map(usr =>
+                <div key={usr.id}>
+                  <Link to={`/user/${usr.id}`} >{usr.fullName}</Link>
+                </div>);
+
               return <tr key={dept.id}>
-                <td><Link to={`/department/${dept.id}`}>{dept.name}</Link></td>
-                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td width="20%"><Link to={`/department/${dept.id}`}>{dept.name}</Link></td>
+                <td width="20%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td>{people}</td>
                 <td>{offices}</td>
                 <td>
                   <div className="d-flex">

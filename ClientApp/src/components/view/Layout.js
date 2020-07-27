@@ -11,7 +11,7 @@ export class Layout extends Component {
   render() {
     return (
       <div>
-        {true && <Particles params={config} />}
+        {false && <Particles params={config} />}
         <NavMenu />
         <Container>
           {this.props.children}

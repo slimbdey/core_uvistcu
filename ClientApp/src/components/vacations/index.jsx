@@ -168,16 +168,16 @@ class Vacation extends Component {
 
     return (
       <div>
-        <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
+        <div className="display-5 text-uppercase text-muted">{this.state.title}</div>
         {breadcrumbs}
         <div className="d-flex flex-row justify-content-between">
           <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
           {this.state.mode === "voting" &&
             <div className="col-md-4 pr-0">
-              <div className="form-group input-group">
+              <div className="form-group input-group input-group-sm">
                 <select
                   id="dept"
-                  className="custom-select"
+                  className="custom-select custom-select-sm"
                   defaultValue={this.props.currentDeptId}
                   onChange={e => this.props.setCurrentDept(+document.getElementById("dept").value)}
                 >{this.props.depts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -202,7 +202,7 @@ class Vacation extends Component {
     const beginDate = form.elements["beginDate"].value;
     const range = +document.getElementById("range").value;
     const endDate = moment(beginDate).add(range - 1, 'days').format("YYYY-MM-DD");
-    debugger;
+
     const vacation = {
       userId: userId,
       beginDate: beginDate,
@@ -363,14 +363,14 @@ class Vacation extends Component {
 
 
   toggleVoting = () => {
-    const dept = this.props.depts.find(d => d.id === this.props.currentDeptId);
-    const deptOffices = this.props.offices.filter(of => of.deptId === this.props.currentDeptId);
-    const deptSlaves = this.props.users.slice().filter(u => deptOffices.some(o => u.officeId === o.id));
-    const deptManager = this.props.users.find(u => u.id === dept.managerId);
+    let deptPeople = [];
+    deptPeople.push(...this.props.users.filter(u => u.deptId === this.props.currentDeptId));
+
+    const deptOffices = this.props.offices.filter(o => o.deptId === this.props.currentDeptId);
+    if (deptOffices.length > 0)
+      deptPeople.push(...this.props.users.filter(u => deptOffices.some(o => u.officeId === o.id)));
+
     const headManager = this.props.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-
-    let deptPeople = [...deptSlaves, deptManager];
-
     if (this.props.currentDeptId === 1)
       deptPeople = [...deptPeople, headManager];
 
@@ -382,7 +382,7 @@ class Vacation extends Component {
 
     /////// CANCEL VOTING
     if (this.props.voterId) {
-      if (!window.confirm("Вы уверены в том, что хотите отменить голосование?"))
+      if (!window.confirm("Вы уверены в том, что хотите отменить голосование?\nВесь прогресс заполнения отпусков будет обнулен"))
         return;
 
       let peopleToVote = deptPeople.slice().filter(dp => dp.vacationRating !== null);

@@ -13,7 +13,7 @@ export default class DepartmentCreate extends Component {
         <form name="CreateForm">
           <button type="submit" disabled style={{ display: 'none' }} ></button>
 
-          <div className="col-md-6 pl-0">
+          <div className="col-md-5 pl-0">
             <InputGroup reversed hint="Наименование" name="Name" />
             <OptionsInputGroup reversed hint="Руководитель" name="ChiefId" options={options} />
           </div>

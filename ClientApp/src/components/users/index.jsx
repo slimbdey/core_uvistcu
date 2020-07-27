@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { blink, errorHandler, bring } from '../extra/extensions';
 import { fillUsers, addUser, deleteUser, alterUser } from '../redux/actions';
 import history from '../extra/history';
@@ -8,7 +9,6 @@ import UserList from './list'
 import UserCreate from './create';
 import UserAlter from './alter';
 import { Loading } from '../view/templates';
-import { bindActionCreators } from 'redux';
 
 
 class Users extends Component {
@@ -35,6 +35,9 @@ class Users extends Component {
   componentDidMount = () => {
     let request = [];
 
+    if (this.props.depts.length === 0)
+      request.push("department");
+
     if (this.props.offices.length === 0)
       request.push("office");
 
@@ -43,9 +46,13 @@ class Users extends Component {
 
     request.length > 0
       ? bring(request)
-        .catch(error => this.setState({ error: error, loading: false }))
+        .catch(error => {
+          debugger;
+          this.setState({ error: error.message, loading: false })
+        })
         .then(result => {
           this.props.fillUsers({
+            depts: result.get("department"),
             offices: result.get("office"),
             users: result.get("user"),
           });
@@ -62,32 +69,36 @@ class Users extends Component {
       return <Loading />;
 
     else if (!!this.state.error)
-      return <div className="text-danger font-italic">{this.state.error}</div>
+      return <div className="text-danger font-italic">{this.state.error}</div>;
 
     let contents = [];
 
     if (this.state.mode === "list")
       contents = <UserList
         users={this.props.users}
+        depts={this.props.depts}
         offices={this.props.offices}
         deleteUser={this.props.deleteUser}
       />
 
     else if (this.state.mode === "create")
       contents = <UserCreate
+        depts={this.props.depts}
+        offices={this.props.offices}
         createUser={this.createUser}
       />
 
     else if (this.state.mode === "alter")
       contents = <UserAlter
         user={this.props.users.find(u => u.id === this.state.currentId)}
+        depts={this.props.depts}
         offices={this.props.offices}
         alterClick={this.alterUser}
       />
 
     return (
       <div>
-        <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
+        <div className="display-5 text-uppercase text-muted">{this.state.title}</div>
         <a href="/user" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
         <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
@@ -96,10 +107,17 @@ class Users extends Component {
   }
 
 
-  createUser = async () => {
+  createUser = () => {
     const form = document.forms["CreateForm"];
-    let name = form.elements["FullName"].value;
-    let num = form.elements["TabNum"].value;
+
+    let user = {};
+    user.fullName = form.elements["FullName"].value;
+    user.tabNum = form.elements["TabNum"].value;
+    user.deptId = +form.elements["deptId"].value;
+    user.officeId = +form.elements["officeId"].value;
+    const handleDate = value => value === "" ? new Date('1800-01-01').toISOString() : value;
+    user.medExam = handleDate(form.elements["MedExam"].value);
+    user.participateInLabour = form.elements["ParticipateInLabour"].checked ? true : false;
 
     fetch("api/user", {
       method: "PUT",
@@ -107,18 +125,15 @@ class Users extends Component {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        FullName: name,
-        TabNum: num,
-        ParticipateInLabour: false,
-      })
+      body: JSON.stringify(user)
     })
       .then(response => {
         response.json()
           .then(data => {
             if (response.ok) {
-              this.props.addUser({ id: data, fullName: name, tabNum: num });
-              blink(`Работник ${name} успешно добавлен`);
+              user.id = +data
+              this.props.addUser(user);
+              blink(`Работник ${user.fullName} успешно добавлен`);
               this.linkToggle();
             }
             else
@@ -129,13 +144,13 @@ class Users extends Component {
 
 
   alterUser = async () => {
-    let user = {};
-    Object.assign(user, this.props.users.find(u => u.id === this.state.currentId));
+    let user = Object.assign({}, this.props.users.find(u => u.id === this.state.currentId));
 
-    let handleDate = value => value === "" ? new Date('1800-01-01').toISOString() : value;
+    const handleDate = value => value === "" ? new Date('1800-01-01').toISOString() : value;
 
     const form = document.forms["alterForm"];
     user.fullName = form.elements["FullName"].value;
+    user.deptId = +form.elements["deptId"].value;
     user.officeId = +form.elements["officeId"].value;
     user.tabNum = form.elements["TabNum"].value;
     user.email = form.elements["Email"].value;
@@ -155,22 +170,7 @@ class Users extends Component {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        Id: user.id,
-        FullName: user.fullName,
-        OfficeId: user.officeId,
-        TabNum: user.tabNum,
-        Email: user.email,
-        PhoneNum: user.phoneNum,
-        ParticipateInLabour: user.participateInLabour,
-        MedExam: user.medExam,
-        LabourSecurityExam: user.labourSecurityExam,
-        IndustrialSecurityExam: user.industrialSecurityExam,
-        GotHelmet: user.gotHelmet,
-        GotSuit: user.gotSuit,
-        GotBoots: user.gotBoots,
-        GotCoat: user.gotCoat
-      })
+      body: JSON.stringify(user)
     });
 
     response.ok
@@ -201,6 +201,7 @@ const chunkStateToProps = state => {
   return {
     users: state.users,
     offices: state.offices,
+    depts: state.depts,
   }
 }
 

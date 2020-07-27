@@ -60,6 +60,7 @@ namespace UVSITCU.Models.Repositories
     {
       var query = @"update Users set 
                             FullName=@FullName,
+                            DeptId=@DeptId,
                             OfficeId=@OfficeId,
                             TabNum=@TabNum,
                             Email=@Email,

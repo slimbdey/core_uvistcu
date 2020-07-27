@@ -92,8 +92,9 @@ export let reducer = function (state = initialState, action) {
     case "FILL_USERS":
       return {
         ...state,
-        offices: action.data.offices ? action.data.offices : state.offices,
-        users: action.data.users.sort((a, b) => a.fullName > b.fullName),
+        depts: action.data.depts || state.depts,
+        offices: action.data.offices || state.offices,
+        users: (action.data.users || state.users).sort((a, b) => a.fullName > b.fullName),
       };
 
     /////////////////////////////// LABOURS ////////////////////////////      
@@ -179,10 +180,10 @@ export let reducer = function (state = initialState, action) {
     case "FILL_VACATIONS":
       return {
         ...state,
-        users: action.data.users ? [...action.data.users] : state.users,
-        depts: action.data.depts ? [...action.data.depts] : state.depts,
-        offices: action.data.offices ? [...action.data.offices] : state.offices,
-        vacations: [...action.data.vacations]
+        users: action.data.users || state.users,
+        depts: action.data.depts || state.depts,
+        offices: action.data.offices || state.offices,
+        vacations: action.data.vacations
       };
 
 
@@ -194,16 +195,18 @@ export let reducer = function (state = initialState, action) {
       };
 
     case "FIND_DEPT_VOTER":
-      let deptUsersToVote = state.users.filter(u => state.offices.filter(o => o.deptId === action.deptId).some(of => u.officeId === of.id))
-        .filter(user => user.vacationRating);
+      let deptUsersToVote = [];
+      deptUsersToVote.push(...state.users.filter(u => u.deptId === action.deptId));
 
-      const deptManagerId = state.depts.find(d => d.id === action.deptId).managerId;
-      const deptManager = state.users.find(u => u.id === deptManagerId);
-      deptManager.vacationRating && deptUsersToVote.push(deptManager);
+      const dOffices = state.offices.filter(o => o.deptId === action.deptId);
+      if (dOffices.length > 0)
+        deptUsersToVote.push(...state.users.filter(u => dOffices.some(of => u.officeId === of.id)));
 
       const headManager = state.users.find(u => u.fullName === "Теличко Константин Сергеевич");
       if (action.deptId === 1 && headManager.vacationRating)
         deptUsersToVote.push(headManager);
+
+      deptUsersToVote = deptUsersToVote.filter(user => user.vacationRating);
 
       return {
         ...state,
@@ -213,12 +216,12 @@ export let reducer = function (state = initialState, action) {
       };
 
     case "GET_DEPT_VACATIONS_MAX_YEAR":
-      const deptOffices = state.offices.filter(o => o.deptId === action.deptId);
-      let deptUsers = state.users.filter(u => deptOffices.some(of => u.officeId === of.id));
+      let deptUsers = [];
+      deptUsers.push(...state.users.filter(u => u.deptId === action.deptId));
 
-      const dManagerId = state.depts.find(d => d.id === action.deptId).managerId;
-      const dManager = state.users.find(u => u.id === dManagerId);
-      deptUsers.push(dManager);
+      const deptOffices = state.offices.filter(o => o.deptId === action.deptId);
+      if (deptOffices.length > 0)
+        deptUsers.push(...state.users.filter(u => deptOffices.some(of => u.officeId === of.id)));
 
       const Telichko = state.users.find(u => u.fullName === "Теличко Константин Сергеевич");
       if (action.deptId === 1)

@@ -99,9 +99,11 @@ class Overtimes extends Component {
         alterOvertime={this.alterOvertime}
       />
 
+
+
     return (
       <div>
-        <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
+        <div className="display-5 text-uppercase text-muted">{this.state.title}</div>
         <a href="/overtime" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
         <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}

@@ -18,12 +18,8 @@ export default class OvertimeList extends Component {
     userId: 0
   }
 
+  headManager = this.props.users.find(u => u.fullName === "Теличко Константин Сергеевич");
 
-  componentDidMount = () => {
-    this.deptManagers = {};
-    this.props.depts.forEach(d => this.deptManagers[d.id] = this.props.users.find(u => u.id === d.managerId));
-    this.headManager = this.props.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-  }
 
 
   ///// RENDER
@@ -36,7 +32,10 @@ export default class OvertimeList extends Component {
       : this.props.offices;
 
     let users = cDeptId
-      ? [...this.props.users.filter(u => this.props.offices.filter(o => o.deptId === cDeptId).some(of => u.officeId === of.id)), this.deptManagers[cDeptId]]
+      ? [
+        ...this.props.users.filter(u => this.props.offices.filter(o => o.deptId === cDeptId).some(of => u.officeId === of.id)),
+        ...this.props.users.filter(us => us.deptId === cDeptId),
+      ]
       : this.props.users;
 
 
@@ -103,11 +102,17 @@ export default class OvertimeList extends Component {
     let overtimes = this.props.overtimes;
 
     if (dept) {
+      users = [...this.props.users.filter(u => u.deptId === dept.id)];
+
       let offices = this.props.offices.filter(o => o.deptId === dept.id);
+
       users = offices instanceof Array
-        ? this.props.users.filter(u => offices.some(of => u.officeId === of.id))
-        : this.props.users.filter(u => u.officeId === offices.id);
-      users = [...users, this.deptManagers[dept.id]];
+        ? offices.length > 0
+          ? [...users, ...this.props.users.filter(u => offices.some(of => u.officeId === of.id))]
+          : [...users]
+
+        : [...users, ...this.props.users.filter(u => u.officeId === offices.id)]
+
       if (dept.id === 1)
         users = [...users, this.headManager];
     }

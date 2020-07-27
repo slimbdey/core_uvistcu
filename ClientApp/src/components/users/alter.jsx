@@ -9,7 +9,9 @@ export default class UserAlter extends Component {
   /////// RENDER
   render() {
     let user = this.props.user;
-    let offices = this.props.offices.map(o => <option key={o.id} value={o.id}>{o.name}</option>);
+    const none = <option key={0} value={0}>- нет -</option>;
+    const offices = [none, ...this.props.offices.map(o => <option key={o.id} value={o.id}>{o.name}</option>)];
+    const depts = [none, ...this.props.depts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)]
 
     return (
       <div>
@@ -23,7 +25,8 @@ export default class UserAlter extends Component {
               <InputGroup name="TabNum" value={user.tabNum} hint="Таб. №" />
               <InputGroup name="Email" value={user.email} hint="Email" />
               <InputGroup name="PhoneNum" value={user.phoneNum} hint="Телефон" />
-              <OptionsInputGroup hint="Бюро" name="officeId" value={user.officeId} options={offices} />
+              <OptionsInputGroup hint="Отдел" name="deptId" value={user.deptId} options={depts} />
+              <OptionsInputGroup hint="Группа" name="officeId" value={user.officeId} options={offices} />
 
               <div className="input-group form-group">
                 <div className="input-group-prepend">

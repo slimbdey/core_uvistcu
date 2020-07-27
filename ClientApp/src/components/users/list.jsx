@@ -20,20 +20,25 @@ export default class UserList extends Component {
             <tr>
               <th width="25%">Ф.И.О.</th>
               <th width="10%">Таб.№</th>
-              <th>Бюро</th>
+              <th width="10%">Телефон</th>
+              <th>Email</th>
               <th>Руководитель</th>
-              <th width="10%"></th>
+              <th width="10%">&nbsp;</th>
             </tr>
           </thead>
           <tbody>
             {this.props.users.map(user => {
-              let office = this.props.offices.find(o => o.id === user.officeId);
-              let chief = office ? this.props.users.find(u => u.id === office.chiefId) : undefined;
+              let chief = user.deptId && user.deptId !== 0
+                ? this.props.users.find(u => u.id === this.props.depts.find(d => d.id === user.deptId).managerId)
+                : user.officeId && user.officeId !== 0
+                  ? this.props.users.find(u => u.id === this.props.offices.find(o => o.id === user.officeId).chiefId)
+                  : null
 
               return <tr key={user.id}>
                 <td width="25%"><Link to={`/user/${user.id}`}>{user.fullName}</Link></td>
                 <td width="10%">ЧМ-{user.tabNum}</td>
-                <td><Link to={`/office/${user.officeId}`}>{office ? office.name : ""}</Link></td>
+                <td width="10%">{user.phoneNum}</td>
+                <td>{user.email}</td>
                 <td><Link to={`/user/${chief ? chief.id : ""}`}>{chief ? chief.fullName : ""}</Link></td>
                 <td width="10%">
                   <div className="d-flex">

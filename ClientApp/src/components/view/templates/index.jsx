@@ -68,7 +68,7 @@ export const InputGroup = props => {
         <div className="input-group-prepend">
           <span className="input-group-text">{props.hint}</span>
         </div>
-        <input className="form-control" name={props.name} defaultValue={props.value} />
+        <input className="form-control" name={props.name} defaultValue={props.value} placeholder={props.placeholder} />
       </div>
   );
 }
@@ -151,7 +151,6 @@ export const filter = props => {
     <option key={y} value={y}>{y}</option >)];
 
 
-
   const MySelect = props =>
     <div className="d-flex flex-column mr-2">
       <span className="small text-uppercase text-muted ml-1">{props.hint}</span>
@@ -167,7 +166,7 @@ export const filter = props => {
   return (
     <div className="d-flex flex-row">
       <MySelect hint="Отдел" options={deptOptions} value={props.deptId} action={props.applyFilter} id="deptId" />
-      <MySelect hint="Бюро" options={officeOptions} value={props.officeId} action={props.applyFilter} id="officeId" />
+      <MySelect hint="Группа" options={officeOptions} value={props.officeId} action={props.applyFilter} id="officeId" />
       <MySelect hint="Работник" options={userOptions} value={props.userId} action={props.applyFilter} id="userId" />
       <MySelect hint="Год" options={yearOptions} value={props.year} action={props.applyFilter} id="year" />
       <div className="d-flex flex-column">

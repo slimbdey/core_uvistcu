@@ -19,10 +19,10 @@ const row = (userVacation) => {
     result.push(<td key={keyGen()} style={{ border: "1px solid whitesmoke" }}>{userVacation[i] || " "}</td>);
 
   return <tr className="text-center" key={keyGen()}>
-    <td width="3%" style={{ border: "1px solid whitesmoke", borderLeft: "none" }}>{round(rating)}</td>
-    <td width="30%" style={{ border: "1px solid whitesmoke", background: "whitesmoke" }} className="text-left">{fullName}</td>
+    <td width="3%" style={{ border: "1px solid whitesmoke", borderLeft: "none" }} className="text-muted">{round(rating)}</td>
+    <td width="30%" style={{ border: "1px solid whitesmoke", background: "rgba(245,245,245,.4)" }} className="text-left">{fullName}</td>
     {[...result]}
-    <td style={{ border: "1px solid whitesmoke", background: "#f0f7de" }}>{summ}</td>
+    <td style={{ border: "1px solid whitesmoke", background: "rgba(240,247,222,.4)" }}>{summ}</td>
   </tr>;
 }
 
@@ -33,14 +33,14 @@ export default class VacationVoting extends Component {
 
   /////// RENDER
   render() {
-    const dept = this.props.depts.find(d => d.id === this.props.deptId);
+    let deptPeople = [];
+    deptPeople.push(...this.props.users.filter(u => u.deptId === this.props.deptId));
+
     const deptOffices = this.props.offices.filter(o => o.deptId === this.props.deptId);
-    const deptSlaves = this.props.users.slice().filter(u => deptOffices.some(o => u.officeId === o.id));
-    const deptManager = this.props.users.find(u => u.id === dept.managerId);
+    if (deptOffices.length > 0)
+      deptPeople.push(...this.props.users.filter(u => deptOffices.some(o => u.officeId === o.id)));
+
     const headManager = this.props.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-
-    let deptPeople = [...deptSlaves, deptManager];
-
     if (this.props.deptId === 1)
       deptPeople = [...deptPeople, headManager];
 

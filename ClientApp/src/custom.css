@@ -2,7 +2,17 @@
 
 * {
   /* get rid of scrollbars in Firefox */
-  /*scrollbar-width: none;*/
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  background: whitesmoke;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 1px solid rgb(185, 185, 185);
+  border-radius: 3px;
 }
 
 a {
@@ -16,6 +26,12 @@ a:hover {
 
 code {
   color: #E01A76;
+}
+
+.display-5 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  line-height: 1.2;
 }
 
 .btn-primary {

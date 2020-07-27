@@ -17,14 +17,14 @@ class Offices extends Component {
   state = this.props.match.params.id
     ? {
       mode: "alter",
-      title: "изменить бюро",
+      title: "изменить группу",
       titleLink: "Отмена",
       currentId: +this.props.match.params.id,
       loading: true,
     }
     : {
       mode: "list",
-      title: "список бюро",
+      title: "список групп",
       titleLink: "Создать",
       currentId: null,
       loading: true
@@ -87,7 +87,7 @@ class Offices extends Component {
 
     return (
       <div>
-        <div className="display-4 text-uppercase text-muted">{this.state.title}</div>
+        <div className="display-5 text-uppercase text-muted">{this.state.title}</div>
         <a href="/office" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
         <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
@@ -178,10 +178,10 @@ class Offices extends Component {
     e && e.preventDefault();
 
     if (this.state.mode === "list")
-      this.setState({ mode: "create", titleLink: "Отмена", title: "создать бюро" });
+      this.setState({ mode: "create", titleLink: "Отмена", title: "создать группу" });
     else {
       history.push("/office");
-      this.setState({ mode: "list", titleLink: "Создать", title: "список бюро" });
+      this.setState({ mode: "list", titleLink: "Создать", title: "список групп" });
     }
   }
 

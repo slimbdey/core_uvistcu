@@ -6,7 +6,7 @@ import { Labour } from './Labour';
 
 const Filter = props => {
   return (
-    <div className="input-group form-group">
+    <div className="input-group input-group-sm form-group mb-0">
       <div className="input-group-prepend">
         <button className="btn btn-outline-info" type="button"
           onClick={() => document.getElementsByName(props.name)[0].value = (new Date()).toISOString().slice(0, 10)}
@@ -44,7 +44,7 @@ export default class LabourList extends Component {
     return (
       <div>
 
-        <div className="d-flex flex-row justify-content-between flex">
+        <div className="d-flex flex-row justify-content-between">
           <div className="col-md-6 pl-0">
             <Filter
               name="currentDate"
@@ -53,7 +53,7 @@ export default class LabourList extends Component {
               reset={this.resetFilter}
             />
           </div>
-          <a href="/labour" onClick={(e) => this.props.priorityClick(e)}>Приоритет</a>
+          <a href="/labour" className="btn btn-sm btn-outline-primary" onClick={(e) => this.props.priorityClick(e)}>Приоритет</a>
         </div>
         <table className='table table-sm table-hover mt-3 mytable' aria-labelledby="tabelLabel">
           <thead>
