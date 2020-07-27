@@ -43,3 +43,10 @@ code {
     opacity: 0.5;
   }
 }
+
+canvas {
+  display: block;
+  position: absolute;
+  z-index: -1;
+  opacity: 0.3;
+}

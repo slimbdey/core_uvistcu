@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
 import { Footer } from './Footer';
+import Particles from 'react-particles-js';
+import config from './particles.json';
 
 export class Layout extends Component {
   static displayName = Layout.name;
@@ -9,6 +11,7 @@ export class Layout extends Component {
   render() {
     return (
       <div>
+        {true && <Particles params={config} />}
         <NavMenu />
         <Container>
           {this.props.children}

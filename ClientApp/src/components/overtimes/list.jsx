@@ -1,22 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
 import { filter } from '../view/templates/index';
-import { Vacation } from './Vacation';
+import { Overtime } from './Overtime';
 import moment from 'moment';
 import '../view/fixedTable.css';
 
 
 
-export default class VacationList extends Component {
-  displayName = VacationList.name;
+export default class OvertimeList extends Component {
+  displayName = OvertimeList.name;
 
   state = {
-    vacations: this.props.vacations.filter(v => moment(v.beginDate).year() === moment().year()),
+    overtimes: this.props.overtimes.filter(o => moment(o.date).year() === moment().year()),
     year: moment().year(),
     deptId: 0,
     officeId: 0,
     userId: 0
   }
+
 
   componentDidMount = () => {
     this.deptManagers = {};
@@ -52,7 +53,7 @@ export default class VacationList extends Component {
       users: users,
       offices: offices,
       depts: this.props.depts,
-      years: [...new Set(this.props.vacations.map(v => moment(v.beginDate).year())).add(moment().year())],
+      years: [...new Set(this.props.overtimes.map(o => moment(o.date).year())).add(moment().year())],
       year: this.state.year,
       deptId: this.state.deptId,
       officeId: this.state.officeId,
@@ -62,14 +63,14 @@ export default class VacationList extends Component {
     }
 
 
-    if (this.state.vacations.length === 0)
+    if (this.state.overtimes.length === 0)
       return filter(filterProps);
 
-    let vacations = this.state.vacations.map(v =>
-      <Vacation
-        key={v.id}
-        vacation={v}
-        user={this.props.users.find(u => u.id === v.userId)}
+    let overtimes = this.state.overtimes.map(o =>
+      <Overtime
+        key={o.id}
+        overtime={o}
+        user={this.props.users.find(u => u.id === o.userId)}
         deleteClick={this.deleteClick}
       />);
 
@@ -80,18 +81,16 @@ export default class VacationList extends Component {
           <thead>
             <tr>
               <th width="30%">Работник</th>
-              <th>Начало</th>
-              <th>Окончание</th>
+              <th>Дата переработки</th>
               <th>Продолжительность</th>
               <th></th>
             </tr>
           </thead>
-          <tbody>{vacations}</tbody>
+          <tbody>{overtimes}</tbody>
         </table>
       </Fragment>
     );
   }
-
 
 
   applyFilter = () => {
@@ -101,7 +100,7 @@ export default class VacationList extends Component {
     const user = this.props.users.find(u => u.id === +document.getElementById("userId").value);
 
     let users;
-    let vacations = this.props.vacations;
+    let overtimes = this.props.overtimes;
 
     if (dept) {
       let offices = this.props.offices.filter(o => o.deptId === dept.id);
@@ -126,7 +125,7 @@ export default class VacationList extends Component {
     }
 
     if (year !== 0)
-      vacations = this.props.vacations.filter(v => moment(v.beginDate).year() === year)
+      overtimes = this.props.overtimes.filter(v => moment(v.beginDate).year() === year)
 
     if (!users)
       users = this.props.users;
@@ -136,14 +135,14 @@ export default class VacationList extends Component {
       deptId: dept ? dept.id : 0,
       officeId: office ? office.id : 0,
       userId: user ? user.id : 0,
-      vacations: users instanceof Array
-        ? vacations.filter(v => users.some(u => u.id === v.userId))
-        : vacations.filter(v => v.userId === users.id)
+      overtimes: users instanceof Array
+        ? overtimes.filter(v => users.some(u => u.id === v.userId))
+        : overtimes.filter(v => v.userId === users.id)
     });
   }
 
   reset = () => this.setState({
-    vacations: this.props.vacations.filter(v => moment(v.beginDate).year() === moment().year()),
+    overtimes: this.props.overtimes.filter(v => moment(v.beginDate).year() === moment().year()),
     year: moment().year(),
     deptId: null,
     officeId: null,
@@ -152,28 +151,23 @@ export default class VacationList extends Component {
 
 
 
-  deleteClick = async (id) => {
-    fetch(`api/vacation/${id}`, {
+  deleteClick = async id => {
+    const response = await fetch(`api/overtime/${id}`, {
       method: "DELETE",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       }
-    })
-      .then(response =>
-        response.ok
-          ? blink(`Отпуск успешно удален`)
-            .then(this.props.deleteVacation(id))
-            .then(this.props.getMaxYear(this.props.currentDeptId))
-            .then(this.setState({ vacations: this.props.vacations.filter(v => moment(v.beginDate).year() === moment().year()) }))
+    });
 
-          : response.json()
-            .then(data =>
-              response.status === 404
-                ? blink(data.title, true)
-                : blink(errorHandler(data), true)
-            )
-      );
+    if (response.ok) {
+      blink(`Переработка успешно удалена`);
+      this.props.deleteOvertime(id);
+      this.setState({ overtimes: this.props.overtimes });
+    }
+    else
+      response.json()
+        .then(error => blink(errorHandler(error), true));
   }
 
 }

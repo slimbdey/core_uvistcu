@@ -7,6 +7,7 @@ let initialState = {
   users: [],
   labours: [],
   vacations: [],
+  overtimes: [],
   currentDeptId: 1,
   voterId: null,
   maxYear: null,
@@ -122,6 +123,38 @@ export let reducer = function (state = initialState, action) {
           .map(lab => lab.id === action.labour.id ? action.labour : lab)
           .sort((a, b) => a.date < b.date)
       };
+
+
+    /////////////////////////////// OVERTIMES ////////////////////////////      
+    case "ADD_OVERTIME":
+      return {
+        ...state,
+        overtimes: [...state.overtimes, action.overtime].sort((a, b) => a.date < b.date)
+      };
+
+    case "DELETE_OVERTIME":
+      return {
+        ...state,
+        overtimes: state.overtimes.filter(o => o.id !== action.id).sort((a, b) => a.date < b.date)
+      };
+
+    case "FILL_OVERTIMES":
+      return {
+        ...state,
+        users: action.data.users ? action.data.users : state.users,
+        overtimes: action.data.overtimes.sort((a, b) => a.date < b.date),
+        depts: action.data.depts ? action.data.depts : state.depts,
+        offices: action.data.offices ? action.data.offices : state.offices,
+      };
+
+    case "ALTER_OVERTIME":
+      return {
+        ...state,
+        overtimes: state.overtimes
+          .map(ov => ov.id === action.overtime.id ? action.overtime : ov)
+          .sort((a, b) => a.date < b.date)
+      };
+
 
     /////////////////////////////// VACATIONS ////////////////////////////      
     case "ADD_VACATION":

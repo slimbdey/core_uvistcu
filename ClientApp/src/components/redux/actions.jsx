@@ -23,18 +23,22 @@ export const fillLabours = data => { return { type: "FILL_LABOURS", data }; }
 export const alterLabour = labour => { return { type: "ALTER_LABOUR", labour }; }
 
 
+export const addOvertime = overtime => { return { type: "ADD_OVERTIME", overtime }; }
+export const deleteOvertime = id => { return { type: "DELETE_OVERTIME", id }; }
+export const fillOvertimes = data => { return { type: "FILL_OVERTIMES", data }; }
+export const alterOvertime = overtime => { return { type: "ALTER_OVERTIME", overtime }; }
+
+
 export const addVacation = vacation => { return { type: "ADD_VACATION", vacation }; }
 export const alterVacation = vacation => { return { type: "ALTER_VACATION", vacation }; }
 export const deleteVacation = id => { return { type: "DELETE_VACATION", id }; }
 export const fillVacations = data => {
   return dispatch => {
     dispatch({ type: "FILL_VACATIONS", data });
-    dispatch(findDeptVoter(data.depts[0].id));
-    dispatch(getDeptVacationsMaxYear(data.depts[0].id));
+    dispatch(findDeptVoter(data.depts ? data.depts[0].id : 1));
+    dispatch(getDeptVacationsMaxYear(data.depts ? data.depts[0].id : 1));
   }
 }
-
-
 export const setCurrentDept = deptId => {
   return dispatch => {
     dispatch({ type: "SET_CURRENT_DEPT", deptId });

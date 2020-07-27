@@ -47,6 +47,20 @@ export default class OfficeAlter extends Component {
                   >Добавить</button>
                 </div>
               </div>
+              <div className="mb-4 col-md-3 pl-0"><br /><hr />
+                <Route render={({ history }) => (
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={() => {
+                      history.push('/office');
+                      this.props.alterClick();
+                    }}
+                  >
+                    Изменить
+                  </button>
+                )} />
+              </div>
             </div>
 
             <div className="mr-5">&nbsp;</div>
@@ -62,20 +76,6 @@ export default class OfficeAlter extends Component {
 
           </div>
 
-          <div className="mb-4 col-md-3 pl-0"><br /><hr />
-            <Route render={({ history }) => (
-              <button
-                type="button"
-                className="btn btn-outline-primary"
-                onClick={() => {
-                  history.push('/office');
-                  this.props.alterClick();
-                }}
-              >
-                Изменить
-              </button>
-            )} />
-          </div>
         </form >
       </div >
     );
