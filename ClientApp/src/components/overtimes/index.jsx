@@ -8,7 +8,7 @@ import { Loading } from '../view/templates';
 
 import OvertimeList from './list';
 import OvertimeCreate from './create';
-//import OvertimeAlter from './alter';
+import OvertimeAlter from './alter';
 
 
 class Overtimes extends Component {
@@ -92,19 +92,12 @@ class Overtimes extends Component {
         createOvertime={this.createOvertime}
       />
 
-    //else if (this.state.mode === "priority")
-    //  contents = <OvertimePriority
-    //    overtimes={this.props.overtimes}
-    //    users={this.props.users}
-    //    appoint={this.linkToggle}
-    //  />
-
-    //else if (this.state.mode === "alter")
-    //  contents = <OvertimeAlter
-    //    users={this.props.users}
-    //    overtime={this.props.overtimes.find(l => l.id === this.state.currentId)}
-    //    alterClick={this.alterOvertime}
-    //  />
+    else if (this.state.mode === "alter")
+      contents = <OvertimeAlter
+        users={this.props.users}
+        overtime={this.props.overtimes.find(l => l.id === this.state.currentId)}
+        alterOvertime={this.alterOvertime}
+      />
 
     return (
       <div>
@@ -151,48 +144,33 @@ class Overtimes extends Component {
 
   alterOvertime = async () => {
     const form = document.forms["CreateForm"];
+    let date = new Date(form.elements["Date"].value).toISOString();
+    let userId = +form.elements["UserId"].value;
+    let minutes = +form.elements["Range"].value;
 
-    let overtime = { id: +this.state.currentId };
-    overtime.date = new Date(form.elements["Date"].value).toISOString();
-    overtime.managerId = +form.elements["ManagerId"].value;
+    let overtime = { id: +this.state.currentId, userId: userId, date: date, minutes: minutes };
 
-    let users = form.elements["Users[]"];
-    overtime.userIds = [];
-
-    if (users.nodeName === "SELECT")
-      overtime.userIds.push(+users.value);
-
-    else {
-      for (let user of users)
-        if (overtime.userIds.includes(+user.value)) {
-          blink("Один из работников указан дважды", true);
-          return;
-        }
-
-        else
-          overtime.userIds.push(+user.value);
-    }
-
-    let response = await fetch("api/overtime", {
+    fetch("api/overtime", {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(overtime)
-    });
-
-    if (response.ok) {
-      setTimeout(() => blink(`Субботник успешно изменен`), 10);
-      this.props.alterOvertime(overtime);
-      return new Promise(resolve => resolve(true));
-    }
-
-    response.json()
-      .then(data => {
-        blink(errorHandler(data), true);
-        return new Promise(resolve => resolve(false));
-      });
+    })
+      .then(response =>
+        response.json()
+          .then(data => {
+            if (response.ok) {
+              overtime.id = data;
+              this.props.alterOvertime(overtime);
+              blink(`Переработка успешно изменена`);
+              this.linkToggle();
+            }
+            else
+              blink(errorHandler(data), true);
+          })
+      );
   }
 
 

@@ -1,68 +1,46 @@
 import React, { Component } from 'react';
-import { DateGroup, OptionsInputGroup, CustomInputGroup } from '../view/templates';
-import { keyGen, blink } from '../extra/extensions';
-import { Route } from 'react-router-dom';
+import { DateGroup, OptionsInputGroup } from '../view/templates';
+import moment from 'moment';
 
 
-export default class LabourAlter extends Component {
-  displayName = LabourAlter.name;
+export default class OvertimeAlter extends Component {
+  displayName = OvertimeAlter.name;
 
-  managers = this.props.users.map(user =>
-    <option key={user.id} value={user.id}>{user.fullName}</option>);
+  options = this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option >);
 
-  options = this.props.users.filter(u => u.participateInLabour).map(user =>
-    <option
-      key={user.id}
-      value={user.id}
-      onClick={e => {
-        let oldId = +e.target.parentNode.parentNode.id;
-        let newId = +e.target.value;
 
-        if (this.state.inputGroups.includes(newId) && newId !== oldId) {
-          blink("Этот пользователь уже есть в списке!", true);
-          e.target.parentNode[oldId - 1].selected = true;
-        }
+  onChange = () => {
+    let range = +document.getElementById("range").value;
+    let date = document.getElementsByName("Date")[0].value;
+    let span = document.getElementById("duration");
+    let btn = document.getElementById("createBtn");
 
-        else
-          this.setState({
-            inputGroups: this.state.inputGroups.map(ig =>
-              ig === oldId
-                ? newId
-                : ig
-            )
-          })
-      }}
-    > {user.fullName}</option >);
+    if (moment(date).isValid() && range > 0) {
+      let duration = "";
 
-  counter = 0;
+      let hours = ~~(range / 60);
+      if (hours > 0) {
+        duration += `${hours} ч. `;
+        range -= hours * 60;
+      }
 
-  addInputGroup = () => {
-    this.counter = Math.max(...this.state.inputGroups) + 1;
-    this.setState({ inputGroups: [...this.state.inputGroups, +this.counter] });
+      if (range > 0)
+        duration += `${range} мин.`;
+
+      span.innerText = duration;
+      btn.disabled = false;
+    }
+    else {
+      span.innerText = "0";
+      btn.disabled = true;
+    }
   }
 
-  removeInputGroup = id => {
-    this.state.inputGroups.length > 1 && this.setState({ inputGroups: this.state.inputGroups.filter(i => i !== id) })
-  }
-
-  state = {
-    inputGroups: [...this.props.labour.userIds]
-  }
+  componentDidMount = () => this.onChange();
 
 
   /////////// RENDER
   render() {
-    let inputs = this.state.inputGroups.map(id =>
-      <CustomInputGroup
-        key={keyGen()}
-        id={id}
-        hint="Работник"
-        name="Users[]"
-        value={id}
-        options={this.options}
-        addInputGroup={this.addInputGroup}
-        removeInputGroup={this.removeInputGroup}
-      />);
 
     return (
       <div className="mt-3">
@@ -70,29 +48,33 @@ export default class LabourAlter extends Component {
           <button type="submit" disabled style={{ display: 'none' }} ></button>
 
           <div className="col-md-6 pl-0" id="participants">
-            <DateGroup name="Date" value={this.props.labour.date.slice(0, 10)} hint="Дата субботника" />
-            <OptionsInputGroup
-              reversed
-              value={this.props.labour.managerId}
-              name="ManagerId"
-              options={this.managers}
-              hint="Кто назначил" />
-            {inputs}
+            <DateGroup name="Date" value={this.props.overtime.date.slice(0, 10)} hint="Дата переработки" />
+            <OptionsInputGroup reversed name="UserId" options={this.options} hint="Сотрудник" value={this.props.overtime.userId} />
+            <div className="form-group">
+              <label htmlFor="range" className="text-muted">Продолжительность:</label>
+              <input
+                type="range"
+                className="form-control-range"
+                id="range"
+                name="Range"
+                min="0"
+                step="5"
+                max="720"
+                defaultValue={this.props.overtime.minutes}
+                onInput={this.onChange}
+              />
+            </div>
           </div>
 
-          <div className="mb-5 col-md-3 pl-0"><br /><hr />
-            <Route render={({ history }) => (
-              <button
-                type="button"
-                className="btn btn-outline-primary"
-                onClick={() => {
-                  this.props.alterClick()
-                    .then(result => {
-                      result && history.push('/labour');
-                    });
-                }}
-              >Изменить</button>
-            )} />
+          <div className="col-md-3 mt-5 pl-0">
+            <hr />
+            <button
+              id="createBtn"
+              className="btn btn-outline-primary"
+              type="button"
+              onClick={this.props.alterOvertime}
+            >Изменить<span id="duration" className="badge badge-light ml-2"></span>
+            </button>
           </div>
         </form >
       </div>

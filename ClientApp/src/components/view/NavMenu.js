@@ -35,7 +35,7 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="admin" to="/department">Отделы</NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="manager" to="/office">Бюро</NavLink>
+                  <NavLink tag={Link} className="manager" to="/office">Группы</NavLink>
                 </NavItem>
                 <NavItem>
                   <NavLink tag={Link} className="manager" to="/user">Работники</NavLink>
@@ -44,7 +44,7 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="manager" to="/labour">Субботники</NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="manager" to="/overtime">Переработки</NavLink>
+                  <NavLink tag={Link} to="/overtime">Переработки</NavLink>
                 </NavItem>
                 <NavItem>
                   <NavLink tag={Link} to="/vacation">Отпуска</NavLink>

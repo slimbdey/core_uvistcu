@@ -36,7 +36,7 @@ export const fillVacations = data => {
   return dispatch => {
     dispatch({ type: "FILL_VACATIONS", data });
     dispatch(findDeptVoter(data.depts ? data.depts[0].id : 1));
-    dispatch(getDeptVacationsMaxYear(data.depts[0].id));
+    dispatch(getDeptVacationsMaxYear(data.depts ? data.depts[0].id : 1));
   }
 }
 export const setCurrentDept = deptId => {

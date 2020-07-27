@@ -46,7 +46,7 @@ code {
 
 canvas {
   display: block;
-  position: fixed;
+  position: absolute;
   z-index: -1;
   opacity: 0.3;
 }
