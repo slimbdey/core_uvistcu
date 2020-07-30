@@ -40,7 +40,7 @@ export default class VacationCreate extends Component {
               options={options}
               value={this.props.voterId}
             />
-            <DateGroup name="beginDate" hint="Дата начала" onChange={this.onChange} />
+            <DateGroup name="beginDate" hint="Дата начала" onChange={this.onChange} value={new Date().toISOString().slice(0, 10)} />
 
             <div className="form-group">
               <label htmlFor="range" className="text-muted">Продолжительность:</label>

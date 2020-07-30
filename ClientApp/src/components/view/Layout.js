@@ -12,7 +12,7 @@ export class Layout extends Component {
     return (
       <div>
         {false && <Particles params={config} />}
-        <NavMenu />
+        <NavMenu role={this.props.role} />
         <Container>
           {this.props.children}
         </Container>

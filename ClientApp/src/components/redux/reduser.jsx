@@ -2,6 +2,8 @@ import moment from 'moment';
 
 
 let initialState = {
+  user: null,
+  role: null,
   depts: [],
   offices: [],
   users: [],
@@ -232,6 +234,23 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         maxYear: Math.max(...deptVacations.map(v => moment(v.beginDate).year()))
+      };
+
+
+    /////////////////////////////// CUSTOM //////////////////////////////////
+    case "SET_BACK_LINK":
+      return {
+        ...state,
+        backLink: action.link
+      };
+
+
+    /////////////////////////////// AUTHENTICATE ////////////////////////////
+    case "AUTHENTICATE":
+      return {
+        ...state,
+        user: action.data.user,
+        role: action.data.role
       };
 
     default: return state;

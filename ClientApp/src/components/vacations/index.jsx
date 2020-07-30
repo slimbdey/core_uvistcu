@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { fillVacations, deleteVacation, addVacation, alterVacation, setCurrentDept, findDeptVoter, getDeptVacationsMaxYear } from '../redux/actions';
+import { fillVacations, deleteVacation, addVacation, alterVacation, setCurrentDept, findDeptVoter, getDeptVacationsMaxYear, setBackLink } from '../redux/actions';
 import { blink, errorHandler, bring, datesDiff, calculateRating } from '../extra/extensions';
 import history from '../extra/history';
 import { Loading } from '../view/templates';
@@ -142,6 +142,15 @@ class Vacation extends Component {
       />
 
 
+    let redButton =
+      <span
+        id="redButton"
+        className={this.props.voterId ? "text-danger" : "text-success blink_me"}
+        style={{ cursor: "pointer" }}
+        onClick={this.toggleVoting}
+      >{this.props.voterId ? "Остановить" : "Запустить"}</span>
+
+
     let breadcrumbs =
       <div className="d-flex flex-row justify-content-end">
         {this.state.mode === "list" &&
@@ -149,21 +158,21 @@ class Vacation extends Component {
             <Link className="text-primary" to="/vacation">Распределение</Link>
             <div>&nbsp;&nbsp;&nbsp;</div>
           </Fragment>}
-        <a href="/vacation" className="text-primary mb-2" onClick={this.linkToggle}>{this.state.titleLink}</a>
+        {this.props.role.id > 1 && <a href="/vacation" className="text-primary mb-2" onClick={this.linkToggle}>{this.state.titleLink}</a>}
         <div className="flex-grow-1"></div>
         {this.state.mode === "voting" &&
           <Fragment>
-            {this.props.voterId && <Fragment><Link className="text-primary" to="/vacation/create">Проголосовать</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Fragment>}
+            {this.props.voterId && this.props.voterId === this.props.user.id &&
+              <Fragment>
+                {/*<Link className="text-primary" to="/vacation/create">Проголосовать</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/}
+                <a href="/vacation/create" onClick={e => this.vote(e)}>Проголосовать</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </Fragment>}
             <span
               className={this.props.voterId ? "text-info text-right mr-4" : "text-secondary text-right mr-4"}
             >{this.props.voterId ? `Идет процесс голосования. Голосует ${this.props.users.find(u => u.id === this.props.voterId).fullName}` : "Процесс голосования не начат"}</span>
-            <span
-              id="redButton"
-              className={this.props.voterId ? "text-danger" : "text-success blink_me"}
-              style={{ cursor: "pointer" }}
-              onClick={this.toggleVoting}
-            >{this.props.voterId ? "Остановить" : "Запустить"}</span>
-          </Fragment>}
+            {this.props.role.id > 1 && redButton}
+          </Fragment>
+        }
       </div>
 
     return (
@@ -191,6 +200,13 @@ class Vacation extends Component {
         {contents}
       </div>
     );
+  }
+
+
+  vote = e => {
+    e && e.preventDefault();
+    this.props.setBackLink("/vacation");
+    history.push("/vacation/create");
   }
 
 
@@ -277,7 +293,9 @@ class Vacation extends Component {
               this.props.findDeptVoter(this.props.currentDeptId);
               this.props.getDeptVacationsMaxYear(this.props.currentDeptId);
               blink(`Отпуск успешно добавлен`)
-                .then(this.linkToggle());
+                .then(this.props.backLink
+                  ? history.push(this.props.backLink)
+                  : this.linkToggle());
             }
             else blink(errorHandler(data), true);
           });
@@ -472,6 +490,9 @@ const chunkStateToProps = state => {
     currentDeptId: state.currentDeptId,
     voterId: state.voterId,
     maxYear: state.maxYear,
+    user: state.user,
+    role: state.role,
+    backLink: state.backLink,
   }
 }
 
@@ -483,7 +504,8 @@ const chunkDispatchToProps = dispatch =>
     deleteVacation,
     setCurrentDept,
     findDeptVoter,
-    getDeptVacationsMaxYear
+    getDeptVacationsMaxYear,
+    setBackLink
   }, dispatch);
 
 
