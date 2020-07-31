@@ -210,10 +210,14 @@ export let reducer = function (state = initialState, action) {
 
       deptUsersToVote = deptUsersToVote.filter(user => user.vacationRating);
 
+      let min = deptUsersToVote.length > 0
+        ? Math.min(...deptUsersToVote.map(du => du.vacationRating))
+        : null;
+
       return {
         ...state,
-        voterId: deptUsersToVote.length > 0
-          ? deptUsersToVote.sort((a, b) => a.vacationRating > b.vacationRating)[0].id
+        voterId: min
+          ? deptUsersToVote.find(u => u.vacationRating === min).id
           : null
       };
 

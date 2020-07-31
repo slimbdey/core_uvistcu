@@ -1,21 +1,30 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { bring, blink } from '../extra/extensions';
-import { fillUsers, addUser, authenticate } from '../redux/actions';
+import { bring, blink, setCookie, getCookie, errorHandler } from '../extra/extensions';
+import { fillUsers, addUser, alterUser, authenticate } from '../redux/actions';
+import history from '../extra/history';
 
 import Login from './login';
+import Alter from './alter';
 import Register from './register';
 
 
 
 export class Authenticate extends Component {
 
-  state = {
-    mode: "Login",
-    title: "Вход на сайт",
-    titleLink: "Регистрация",
-  }
+  state = this.props.match.params.id
+    ? {
+      mode: "alter",
+      title: "Изменить учетные данные",
+      titleLink: "Отмена",
+      currentId: +this.props.match.params.id
+    }
+    : {
+      mode: "login",
+      title: "Вход на сайт",
+      titleLink: "Регистрация",
+    }
 
 
   componentDidMount = () => {
@@ -23,6 +32,19 @@ export class Authenticate extends Component {
     bring(request)
       .catch(error => this.setState({ error: error.message }))
       .then(result => this.props.fillUsers({ users: result.get("user") }))
+      .then(() => {
+        let user = +getCookie("user");
+
+        if (user) {
+          fetch(`api/user/${user}`)
+            .then(response => response.json())
+            .then(user => {
+              fetch(`api/user/getuserrole/${user.id}`)
+                .then(resp => resp.json())
+                .then(data => this.props.authenticate({ user: user, role: data }))
+            })
+        }
+      });
   }
 
 
@@ -31,9 +53,14 @@ export class Authenticate extends Component {
     if (!!this.state.error)
       return <div className="text-danger font-italic">{this.state.error}</div>
 
-    const contents = this.state.mode
+    const contents = this.state.mode === "login"
       ? <Login users={this.state.users} login={this.login} />
-      : <Register />
+      : this.state.mode === "alter"
+        ? <Alter
+          user={this.props.users.find(u => u.id === this.state.currentId)}
+          alter={this.alter}
+        />
+        : <Register register={this.register} users={this.props.users} />
 
 
     return (
@@ -49,15 +76,17 @@ export class Authenticate extends Component {
 
   linkToggle = e => {
     e && e.preventDefault();
-    console.log("linkToggle");
+
+    if (this.state.mode === "login")
+      this.setState({ mode: "register", titleLink: "Отмена", title: "регистрация" });
+
+    else {
+      this.setState({ mode: "login", titleLink: "Регистрация", title: "Вход на сайт" });
+      history.push("/");
+    }
   }
 
-  login = async e => {
-    e && e.preventDefault();
-
-    const fullName = document.getElementById("inputName").value;
-    const password = document.getElementById("inputPassword").value;
-
+  login = async (fullName, password) => {
     if (fullName === "" || password === "") {
       blink("Заполните поля формы пожалуйста", true);
       return;
@@ -70,11 +99,64 @@ export class Authenticate extends Component {
 
       fetch(`api/user/getuserrole/${user.id}`)
         .then(resp => resp.json())
-        .then(role => this.props.authenticate({ user: user, role: role }))
-        .then(setTimeout(() => blink(`Вы вошли как ${user.fullName}`), 500))
+        .then(role => {
+          this.props.authenticate({ user: user, role: role })
+          setCookie("user", user.id);
+          setCookie("role", role.id);
+        })
     }
     else
       blink("Неверный логин и/или пароль", true)
+  }
+
+  alter = async () => {
+    let user = this.props.user;
+    user.fullName = document.getElementById("inputName").value;
+
+    const newPwd = document.getElementById("newPassword");
+    newPwd
+      ? user.password = newPwd.value
+      : user.password = document.getElementById("oldPassword").value;
+
+    let response = await fetch(`api/user`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user)
+    });
+
+    response.ok
+      ? blink("Учетные данные успешно изменены")
+        .then(() => this.props.alterUser(user))
+        .then(() => this.linkToggle())
+
+      : response.json()
+        .then(error => blink(errorHandler(error), true));
+  }
+
+  register = async user => {
+    fetch("api/user", {
+      method: "PUT",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user)
+    })
+      .then(response => {
+        response.json()
+          .then(data => {
+            if (response.ok) {
+              user.id = +data
+              this.props.addUser(user);
+              this.login(user.fullName, user.password);
+            }
+            else
+              blink(errorHandler(data), true);
+          });
+      });
   }
 }
 
@@ -82,11 +164,11 @@ export class Authenticate extends Component {
 
 /////////// MAPPS
 const chunkStateToProps = state => {
-  return { users: state.users }
+  return { users: state.users, user: state.user }
 }
 
 const chunkDispatchToProps = dispatch =>
-  bindActionCreators({ fillUsers, addUser, authenticate }, dispatch);
+  bindActionCreators({ fillUsers, addUser, alterUser, authenticate }, dispatch);
 
 
 export default connect(chunkStateToProps, chunkDispatchToProps)(Authenticate);

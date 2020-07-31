@@ -44,5 +44,31 @@ namespace UVSITCU.Controllers
       }
       catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
     }
+
+
+    ///// GET: api/User/GetRoles
+    [HttpGet("GetRoles")]
+    public async Task<IActionResult> GetRoles()
+    {
+      try
+      {
+        var roles = await _auth.GetRoles();
+        return Ok(roles);
+      }
+      catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
+    }
+
+
+    ///// GET: api/User/SetUserRole?UserId=...&RoleId=...
+    [HttpGet("SetUserRole")]
+    public async Task<IActionResult> SetUserRole(int UserId, int RoleId)
+    {
+      try
+      {
+        var result = await _auth.SetUserRole(UserId, RoleId);
+        return Ok(result);
+      }
+      catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
+    }
   }
 }

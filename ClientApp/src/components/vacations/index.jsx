@@ -49,6 +49,7 @@ class Vacation extends Component {
           title: "распределение отпусков",
           titleLink: "Список",
           loading: true,
+          calculating: false,
         }
 
 
@@ -123,6 +124,7 @@ class Vacation extends Component {
         users={this.props.users}
         createVacation={this.createVacation}
         voterId={this.props.voterId}
+        role={this.props.role}
       />
 
     else if (this.state.mode === "alter")
@@ -142,8 +144,9 @@ class Vacation extends Component {
       />
 
 
-    let redButton =
-      <span
+    let redButton = this.state.calculating
+      ? <img alt="calculating..." src="calculating.gif" height={30} />
+      : <span
         id="redButton"
         className={this.props.voterId ? "text-danger" : "text-success blink_me"}
         style={{ cursor: "pointer" }}
@@ -164,7 +167,6 @@ class Vacation extends Component {
           <Fragment>
             {this.props.voterId && this.props.voterId === this.props.user.id &&
               <Fragment>
-                {/*<Link className="text-primary" to="/vacation/create">Проголосовать</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/}
                 <a href="/vacation/create" onClick={e => this.vote(e)}>Проголосовать</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               </Fragment>}
             <span
@@ -230,16 +232,18 @@ class Vacation extends Component {
 
     /////////////////////////////////////////////////// SWITCH VOTER
     let user = this.props.users.find(u => u.id === userId);
-    let deptId = 0;
+    let deptId = user.deptId;
 
-    if (user.fullName === "Теличко Константин Сергеевич")
-      deptId = 1
+    if (!deptId) {
+      if (user.fullName === "Теличко Константин Сергеевич")
+        deptId = 1
 
-    else if (this.props.depts.some(d => d.managerId === user.id))
-      deptId = this.props.depts.find(dep => dep.managerId === user.id).id;
+      //else if (this.props.depts.some(d => d.managerId === user.id))
+      //  deptId = this.props.depts.find(dep => dep.managerId === user.id).id;
 
-    else
-      deptId = this.props.offices.find(o => o.id === user.officeId).deptId;
+      else
+        deptId = this.props.offices.find(o => o.id === user.officeId).deptId;
+    }
 
     this.props.setCurrentDept(deptId);
 
@@ -381,6 +385,8 @@ class Vacation extends Component {
 
 
   toggleVoting = () => {
+    this.setState({ calculating: true });
+
     let deptPeople = [];
     deptPeople.push(...this.props.users.filter(u => u.deptId === this.props.currentDeptId));
 
@@ -400,8 +406,10 @@ class Vacation extends Component {
 
     /////// CANCEL VOTING
     if (this.props.voterId) {
-      if (!window.confirm("Вы уверены в том, что хотите отменить голосование?\nВесь прогресс заполнения отпусков будет обнулен"))
+      if (!window.confirm("Вы уверены в том, что хотите отменить голосование?\nВесь прогресс заполнения отпусков будет обнулен")) {
+        this.setState({ calculating: false });
         return;
+      }
 
       let peopleToVote = deptPeople.slice().filter(dp => dp.vacationRating !== null);
       peopleToVote.forEach(u => u.vacationRating = null);
@@ -438,7 +446,8 @@ class Vacation extends Component {
             ? blink(`Ошибка: не могу отменить голосование`, true)
             : blink(`Голосование отменено`)
               .then(vacsToDelete.forEach(v => this.props.deleteVacation(v.id)))
-              .then(this.props.setCurrentDept(this.props.currentDeptId));
+              .then(this.props.setCurrentDept(this.props.currentDeptId))
+              .then(this.setState({ calculating: false }))
         });
     }
     ////// START VOTING
@@ -472,7 +481,8 @@ class Vacation extends Component {
           responses.filter(r => !r.ok).length > 0
             ? blink(`Ошибка: не могу запустить голосование`, true)
             : blink(`Голосование запущено`)
-              .then(this.props.findDeptVoter(this.props.currentDeptId));
+              .then(this.props.findDeptVoter(this.props.currentDeptId))
+              .then(this.setState({ calculating: false }))
         });
     }
   }

@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Route } from 'react-router';
 import { Layout } from './components/view/Layout';
-import { Home } from './components/Home';
+import Home from './components/Home';
 import Departments from './components/departments';
 import Offices from './components/offices';
 import Users from './components/users';
@@ -49,7 +49,7 @@ export class App extends Component {
 
     return (
       this.props.user
-        ? <Layout role={this.props.role}>
+        ? <Layout role={this.props.role} user={this.props.user}>
           <Route exact path='/' component={Home} />
           <Route exact path='/overtime' component={Overtimes} />
           <Route exact path='/overtime/:id' component={Overtimes} />
@@ -57,6 +57,7 @@ export class App extends Component {
           <Route exact path='/vacation/:id(\d+)' component={Vacations} />
           <Route exact path='/vacation/create' component={Vacations} />
           <Route exact path='/vacation/list' component={Vacations} />
+          <Route exact path='/auth/:id' component={Authenticate} />
           {routes}
         </Layout>
         : <Layout><Route path="/" component={Authenticate} /></Layout>

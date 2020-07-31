@@ -46,6 +46,8 @@ export const DateGroup = props => {
         name={props.name}
         defaultValue={props.value && props.value.slice(0, 10)}
         onChange={props.onChange}
+        min={props.min}
+        max={props.max}
       />
       <div className="input-group-append">
         <span className="input-group-text">{props.hint}</span>

@@ -57,6 +57,7 @@ namespace UVSITCU.Models.Repositories
                             FullName=@FullName,
                             DeptId=@DeptId,
                             OfficeId=@OfficeId,
+                            RoleId=@RoleId,
                             TabNum=@TabNum,
                             Email=@Email,
                             PhoneNum=@PhoneNum,
@@ -78,9 +79,9 @@ namespace UVSITCU.Models.Repositories
 
     public async Task<int> Put(User obj)
     {
-      var query = @"insert into Users (FullName, TabNum, ParticipateInLabour) 
+      var query = @"insert into Users (FullName, TabNum, Password, ParticipateInLabour) 
                             output inserted.Id
-                            values (@FullName, @TabNum, @ParticipateInLabour)";
+                            values (@FullName, @TabNum, @Password, @ParticipateInLabour)";
 
       return await _db.QuerySingleAsync<int>(query, obj);
     }
@@ -88,7 +89,7 @@ namespace UVSITCU.Models.Repositories
 
     public async Task<bool> SetUserRole(int UserId, int RoleId)
     {
-      var query = @"update Users set UserRole=@RoleId where Id=@UserId";
+      var query = @"update Users set RoleId=@RoleId where Id=@UserId";
       int rowsAffected = await _db.ExecuteAsync(query, new { RoleId = RoleId, UserId = UserId });
       return rowsAffected > 0;
     }

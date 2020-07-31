@@ -104,7 +104,7 @@ class Overtimes extends Component {
     return (
       <div>
         <div className="display-5 text-uppercase text-muted">{this.state.title}</div>
-        <a href="/overtime" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>
+        {this.props.role.id > 1 && <a href="/overtime" className="text-primary" onClick={this.linkToggle}>{this.state.titleLink}</a>}
         <div className="text-success mb-3" style={{ opacity: 0, transition: "0.5s all" }} id="message">&nbsp;</div>
         {contents}
       </div>
@@ -196,6 +196,7 @@ const chunkStateToProps = state => {
     users: state.users,
     depts: state.depts,
     offices: state.offices,
+    role: state.role,
   }
 }
 

@@ -58,7 +58,7 @@ export default class Login extends Component {
           <button
             className="btn btn-outline-primary"
             type="button"
-            onClick={this.props.login}
+            onClick={() => this.props.login(document.getElementById("inputName").value, document.getElementById("inputPassword").value)}
           >Войти</button>
         </div>
       </form>

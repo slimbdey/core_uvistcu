@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { NavLink as Link } from 'react-router-dom';
 import './NavMenu.css';
+import { deleteCookie } from '../extra/extensions';
 
 
 
@@ -21,6 +22,13 @@ export class NavMenu extends Component {
     this.setState({
       collapsed: !this.state.collapsed
     });
+  }
+
+  out = e => {
+    e && e.preventDefault();
+    deleteCookie("user");
+    deleteCookie("role");
+    window.location.reload();
   }
 
 
@@ -47,6 +55,18 @@ export class NavMenu extends Component {
 
   render() {
     let links = [];
+    if (this.props.user)
+      links.push(
+        <Fragment key="3">
+          <NavItem>
+            <NavLink tag={Link} to={`/out`} onClick={e => this.out(e)} >Выйти</NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink tag={Link} to={`/auth/${this.props.user.id}`}>{this.props.user.fullName}</NavLink>
+          </NavItem>
+        </Fragment>
+      )
+
     if (this.props.role) {
       if (this.props.role.name === "Manager")
         links.push(this.manager)
@@ -57,11 +77,11 @@ export class NavMenu extends Component {
 
     return (
       <header className="position-relative" style={{ zIndex: 1 }}>
-        <Navbar className="navbar-expand-sm navbar-toggleable-lg bg-dark box-shadow mb-3" dark>
+        <Navbar className="navbar-expand-lg navbar-toggleable-lg bg-dark box-shadow mb-3" dark>
           <Container>
             <NavbarBrand tag={Link} to="/">Главная</NavbarBrand>
             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-            <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
+            <Collapse className="d-lg-inline-flex flex-lg-row-reverse" isOpen={!this.state.collapsed} navbar>
               <ul className="navbar-nav flex-grow nav-ul" id="nav-ul">
                 {links}
                 <NavItem>
