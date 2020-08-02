@@ -10,13 +10,13 @@ using UVSITCU.Models.Repositories;
 
 namespace UVSITCU.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class DepartmentController : TController<Department>
-    {
-        public DepartmentController(IRepository<Department> repo) : base(repo) { }
+  [ApiController]
+  [Route("api/[controller]")]
+  public class DepartmentController : TController<Department>
+  {
+    public DepartmentController(IRepository<Department> repo) : base(repo) { }
 
 
 
-    }
+  }
 }

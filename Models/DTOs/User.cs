@@ -14,6 +14,10 @@ namespace UVSITCU.Models.DTOs
     [Display(Name = "ФИО", Prompt = "Первые буквы заглавные")]
     public string FullName { get; set; }
 
+    public string Password { get; set; }
+
+    public int RoleId { get; set; }
+
 
     [Required(ErrorMessage = "Поле Таб. № обязательно")]
     [RegularExpression(@"^\d{7}$", ErrorMessage = "Таб № состоит из 7 цифр")]

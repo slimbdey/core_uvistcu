@@ -52,44 +52,6 @@ namespace UVSITCU.Models.Repositories
 
 
 
-  public class UserRepository : TRepository<User>
-  {
-    public UserRepository(string conString) : base(conString, "Users") { }
-
-    public override async Task<bool> Post(User obj)
-    {
-      var query = @"update Users set 
-                            FullName=@FullName,
-                            DeptId=@DeptId,
-                            OfficeId=@OfficeId,
-                            TabNum=@TabNum,
-                            Email=@Email,
-                            PhoneNum=@PhoneNum,
-                            ParticipateInLabour=@ParticipateInLabour,
-                            MedExam=@MedExam,
-                            LabourSecurityExam=@LabourSecurityExam,
-                            IndustrialSecurityExam=@IndustrialSecurityExam,
-                            GotHelmet=@GotHelmet,
-                            GotSuit=@GotSuit,
-                            GotBoots=@GotBoots,
-                            GotCoat=@GotCoat,
-                            VacationRating=@VacationRating
-                        where Id=@Id";
-
-      int rowsAffected = await _db.ExecuteAsync(query, obj);
-      return rowsAffected > 0;
-    }
-    public override async Task<int> Put(User obj)
-    {
-      var query = @"insert into Users (FullName, TabNum, ParticipateInLabour) 
-                            output inserted.Id
-                            values (@FullName, @TabNum, @ParticipateInLabour)";
-
-      return await _db.QuerySingleAsync<int>(query, obj);
-    }
-  }
-
-
 
   public class DepartmentRepository : TRepository<Department>
   {

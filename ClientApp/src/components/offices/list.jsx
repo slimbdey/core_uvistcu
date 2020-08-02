@@ -18,10 +18,10 @@ export default class OfficeList extends Component {
         <table className='table table-sm table-hover mt-3 mytable' aria-labelledby="tabelLabel">
           <thead>
             <tr>
-              <th width="30%">Наименование</th>
-              <th width="20%">Руководитель</th>
-              <th width="20%">Работники</th>
-              <th></th>
+              <th width="40%">Наименование</th>
+              <th>Руководитель</th>
+              <th>Работники</th>
+              <th width="10%"></th>
             </tr>
           </thead>
           <tbody>
@@ -33,10 +33,10 @@ export default class OfficeList extends Component {
                 </div>);
 
               return <tr key={office.id}>
-                <td width="30%"><Link to={`/office/${office.id}`}>{office.name}</Link></td>
-                <td width="20%"><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
-                <td width="20%">{users}</td>
-                <td>
+                <td width="40%"><Link to={`/office/${office.id}`}>{office.name}</Link></td>
+                <td><Link to={`/user/${manager.id}`}>{manager.fullName}</Link></td>
+                <td>{users}</td>
+                <td width="10%">
                   <div className="d-flex">
                     <Modal
                       buttonLabel="Удалить"

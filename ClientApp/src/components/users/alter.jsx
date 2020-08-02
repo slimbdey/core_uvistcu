@@ -1,17 +1,41 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
-import { DateGroup, InputGroup, OptionsInputGroup } from '../view/templates';
+import { DateGroup, InputGroup, OptionsInputGroup, Loading } from '../view/templates';
+import { blink, errorHandler } from '../extra/extensions';
 
 
 export default class UserAlter extends Component {
   displayName = UserAlter.name;
 
+  state = {
+    loading: true
+  }
+
+  componentDidMount = () => {
+    fetch(`api/user/getroles`)
+      .then(response =>
+        response.json()
+          .then(data => {
+            response.ok
+              ? this.setState({ roles: data, loading: false })
+              : blink(errorHandler(data, true))
+          })
+      );
+  }
+
+
   /////// RENDER
   render() {
+    if (this.state.loading)
+      return <Loading />;
+
     let user = this.props.user;
     const none = <option key={0} value={0}>- нет -</option>;
     const offices = [none, ...this.props.offices.map(o => <option key={o.id} value={o.id}>{o.name}</option>)];
     const depts = [none, ...this.props.depts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)]
+    let roles = [];
+    if (this.state.roles)
+      roles = this.state.roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
 
     return (
       <div>
@@ -27,6 +51,7 @@ export default class UserAlter extends Component {
               <InputGroup name="PhoneNum" value={user.phoneNum} hint="Телефон" />
               <OptionsInputGroup hint="Отдел" name="deptId" value={user.deptId} options={depts} />
               <OptionsInputGroup hint="Группа" name="officeId" value={user.officeId} options={offices} />
+              {this.props.role.id > 2 && <OptionsInputGroup hint="Роль" name="roleId" value={this.props.user.roleId} options={roles} />}
 
               <div className="input-group form-group">
                 <div className="input-group-prepend">

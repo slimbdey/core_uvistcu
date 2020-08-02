@@ -10,14 +10,65 @@ using UVSITCU.Models.Repositories;
 
 namespace UVSITCU.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserController : TController<User>
+  [ApiController]
+  [Route("api/[controller]")]
+  public class UserController : TController<User>
+  {
+    private readonly IUserRepository _auth;
+    public UserController(IUserRepository repo) : base(repo) { _auth = repo; }
+
+
+    ///// GET: api/User/Authenticate?Fullname=...&Password=...
+    [HttpGet("Authenticate")]
+    public async Task<IActionResult> Authenticate(string FullName, string Password)
     {
-        public UserController(IRepository<User> repo) : base(repo) { }
+      var users = await _repo.GetList();
 
-
-
-
+      try
+      {
+        var user = users.First(u => u.FullName == FullName && u.Password == Password);
+        return Ok(user);
+      }
+      catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
     }
+
+
+    ///// GET: api/User/GetUserRole/5
+    [HttpGet("GetUserRole/{id}")]
+    public async Task<IActionResult> GetUserRole(int id)
+    {
+      try
+      {
+        var role = await _auth.GetUserRole(id);
+        return Ok(role);
+      }
+      catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
+    }
+
+
+    ///// GET: api/User/GetRoles
+    [HttpGet("GetRoles")]
+    public async Task<IActionResult> GetRoles()
+    {
+      try
+      {
+        var roles = await _auth.GetRoles();
+        return Ok(roles);
+      }
+      catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
+    }
+
+
+    ///// GET: api/User/SetUserRole?UserId=...&RoleId=...
+    [HttpGet("SetUserRole")]
+    public async Task<IActionResult> SetUserRole(int UserId, int RoleId)
+    {
+      try
+      {
+        var result = await _auth.SetUserRole(UserId, RoleId);
+        return Ok(result);
+      }
+      catch (Exception ex) { return BadRequest(new { errors = new { ex.Message } }); }
+    }
+  }
 }

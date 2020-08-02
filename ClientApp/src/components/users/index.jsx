@@ -94,6 +94,7 @@ class Users extends Component {
         depts={this.props.depts}
         offices={this.props.offices}
         alterClick={this.alterUser}
+        role={this.props.role}
       />
 
     return (
@@ -164,6 +165,11 @@ class Users extends Component {
     user.gotBoots = handleDate(form.elements["GotBoots"].value);
     user.gotCoat = handleDate(form.elements["GotCoat"].value);
 
+    if (form.elements["roleId"]) {
+      user.roleId = +form.elements["roleId"].value;
+      await fetch(`api/user/setuserrole?UserId=${user.id}&RoleId=${+form.elements["roleId"].value}`)
+    }
+
     let response = await fetch(`api/user`, {
       method: "POST",
       headers: {
@@ -202,6 +208,7 @@ const chunkStateToProps = state => {
     users: state.users,
     offices: state.offices,
     depts: state.depts,
+    role: state.role,
   }
 }
 
