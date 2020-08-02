@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { blink, errorHandler } from '../extra/extensions';
 import '../view/fixedTable.css';
 import { Labour } from './Labour';
@@ -39,11 +39,20 @@ export default class LabourList extends Component {
   ///// RENDER
   render() {
     if (this.state.labours.length === 0)
-      return <div></div>;
+      return <div className="d-flex flex-row justify-content-between">
+        <div className="col-md-6 pl-0">
+          <Filter
+            name="currentDate"
+            value={new Date().toISOString()}
+            set={this.filter}
+            reset={this.resetFilter}
+          />
+        </div>
+        <a href="/labour" className="btn btn-sm btn-outline-primary" onClick={(e) => this.props.priorityClick(e)}>Приоритет</a>
+      </div>
 
     return (
-      <div>
-
+      <Fragment>
         <div className="d-flex flex-row justify-content-between">
           <div className="col-md-6 pl-0">
             <Filter
@@ -74,7 +83,7 @@ export default class LabourList extends Component {
               />)}
           </tbody>
         </table>
-      </div>
+      </Fragment>
     );
   }
 

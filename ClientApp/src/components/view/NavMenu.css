@@ -2,6 +2,12 @@
   white-space: normal;
   text-align: center;
   word-break: break-all;
+  text-transform: uppercase;
+  color: gray !important;
+}
+
+a.navbar-brand:hover, a.navbar-brand:active, a.navbar-brand:focus {
+  color: white !important;
 }
 
 html {

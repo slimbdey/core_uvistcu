@@ -48,3 +48,8 @@ export const setCurrentDept = deptId => {
 }
 export const findDeptVoter = deptId => { return { type: "FIND_DEPT_VOTER", deptId } };
 export const getDeptVacationsMaxYear = deptId => { return { type: "GET_DEPT_VACATIONS_MAX_YEAR", deptId } };
+
+
+
+export const setBackLink = link => { return { type: "SET_BACK_LINK", link } }
+export const authenticate = data => { return { type: "AUTHENTICATE", data } }

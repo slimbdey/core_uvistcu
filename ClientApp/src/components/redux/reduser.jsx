@@ -2,6 +2,8 @@ import moment from 'moment';
 
 
 let initialState = {
+  user: null,
+  role: null,
   depts: [],
   offices: [],
   users: [],
@@ -202,16 +204,22 @@ export let reducer = function (state = initialState, action) {
       if (dOffices.length > 0)
         deptUsersToVote.push(...state.users.filter(u => dOffices.some(of => u.officeId === of.id)));
 
-      const headManager = state.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-      if (action.deptId === 1 && headManager.vacationRating)
-        deptUsersToVote.push(headManager);
+      const headManager = state.users.find(u => u.fullName === window.headManager);
+      if (headManager) {
+        if (action.deptId === 1 && headManager.vacationRating)
+          deptUsersToVote.push(headManager);
+      }
 
       deptUsersToVote = deptUsersToVote.filter(user => user.vacationRating);
 
+      let min = deptUsersToVote.length > 0
+        ? Math.min(...deptUsersToVote.map(du => du.vacationRating))
+        : null;
+
       return {
         ...state,
-        voterId: deptUsersToVote.length > 0
-          ? deptUsersToVote.sort((a, b) => a.vacationRating > b.vacationRating)[0].id
+        voterId: min
+          ? deptUsersToVote.find(u => u.vacationRating === min).id
           : null
       };
 
@@ -223,8 +231,9 @@ export let reducer = function (state = initialState, action) {
       if (deptOffices.length > 0)
         deptUsers.push(...state.users.filter(u => deptOffices.some(of => u.officeId === of.id)));
 
-      const Telichko = state.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-      if (action.deptId === 1)
+      const Telichko = state.users.find(u => u.fullName === window.headManager);
+
+      if (action.deptId === 1 && Telichko)
         deptUsers.push(Telichko);
 
       const deptVacations = state.vacations.filter(v => deptUsers.some(du => v.userId === du.id))
@@ -232,6 +241,23 @@ export let reducer = function (state = initialState, action) {
       return {
         ...state,
         maxYear: Math.max(...deptVacations.map(v => moment(v.beginDate).year()))
+      };
+
+
+    /////////////////////////////// CUSTOM //////////////////////////////////
+    case "SET_BACK_LINK":
+      return {
+        ...state,
+        backLink: action.link
+      };
+
+
+    /////////////////////////////// AUTHENTICATE ////////////////////////////
+    case "AUTHENTICATE":
+      return {
+        ...state,
+        user: action.data.user,
+        role: action.data.role
       };
 
     default: return state;

@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import { OptionsInputGroup, DateGroup } from '../view/templates';
 import moment from 'moment';
+import { blink } from '../extra/extensions';
 
 
 export default class VacationCreate extends Component {
+
+  state = {
+    min: new Date(`${new Date().getFullYear() + 1}-01-01`),
+    max: new Date(`${new Date().getFullYear() + 1}-12-31`),
+  }
 
   componentDidMount = () => this.onChange();
 
@@ -23,9 +29,24 @@ export default class VacationCreate extends Component {
     }
   }
 
+
+  validate = () => {
+    let date = new Date(document.getElementsByName("beginDate")[0].value);
+    if (date < this.state.min || date > this.state.max) {
+      blink("Дата вне допустимых пределов", true);
+      return;
+    }
+    this.props.createVacation();
+  }
+
+
   /////// RENDER
   render() {
-    let options = this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option>);
+    const user = this.props.users.find(u => u.id === this.props.voterId);
+
+    let options = this.props.role.id > 1
+      ? this.props.users.map(user => <option key={user.id} value={user.id}>{user.fullName}</option>)
+      : <option key={user.id} value={user.id}>{user.fullName}</option>;
 
     return (
       <div className="mt-3">
@@ -40,7 +61,14 @@ export default class VacationCreate extends Component {
               options={options}
               value={this.props.voterId}
             />
-            <DateGroup name="beginDate" hint="Дата начала" onChange={this.onChange} />
+            <DateGroup
+              name="beginDate"
+              hint="Дата начала"
+              onChange={this.onChange}
+              value={this.state.min.toISOString().slice(0, 10)}
+              min={this.state.min.toISOString().slice(0, 10)}
+              max={this.state.max.toISOString().slice(0, 10)}
+            />
 
             <div className="form-group">
               <label htmlFor="range" className="text-muted">Продолжительность:</label>
@@ -62,7 +90,7 @@ export default class VacationCreate extends Component {
               className="btn btn-outline-primary"
               type="button"
               id="bCreate"
-              onClick={this.props.createVacation}
+              onClick={() => this.validate()}
             >Создать<span id="days" className="badge badge-light ml-2">0 дней</span>
             </button>
           </div>

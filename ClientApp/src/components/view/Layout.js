@@ -5,14 +5,17 @@ import { Footer } from './Footer';
 import Particles from 'react-particles-js';
 import config from './particles.json';
 
+
 export class Layout extends Component {
   static displayName = Layout.name;
+
+
 
   render() {
     return (
       <div>
-        {false && <Particles params={config} />}
-        <NavMenu />
+        {window.particles && <Particles params={config} />}
+        <NavMenu role={this.props.role} user={this.props.user} />
         <Container>
           {this.props.children}
         </Container>

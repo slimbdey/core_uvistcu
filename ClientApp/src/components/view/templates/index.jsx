@@ -46,6 +46,8 @@ export const DateGroup = props => {
         name={props.name}
         defaultValue={props.value && props.value.slice(0, 10)}
         onChange={props.onChange}
+        min={props.min}
+        max={props.max}
       />
       <div className="input-group-append">
         <span className="input-group-text">{props.hint}</span>
@@ -103,9 +105,10 @@ export const OptionsInputGroup = props => {
 }
 
 
-export const Loading = props => {
-  return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
-}
+export const Loading = () => <img alt="Loading..." src="ajax_loader.gif" height={70} />
+
+
+export const Calculating = props => <img alt="calculating..." src="calculating.gif" height={props.visible ? 30 : 0} />
 
 
 export const CustomInputGroup = props => {

@@ -40,8 +40,8 @@ export default class VacationVoting extends Component {
     if (deptOffices.length > 0)
       deptPeople.push(...this.props.users.filter(u => deptOffices.some(o => u.officeId === o.id)));
 
-    const headManager = this.props.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-    if (this.props.deptId === 1)
+    const headManager = this.props.users.find(u => u.fullName === window.headManager);
+    if (this.props.deptId === 1 && headManager)
       deptPeople = [...deptPeople, headManager];
 
     let userVacations = {};

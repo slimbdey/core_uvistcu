@@ -91,6 +91,7 @@ export const calculateRating = (users, vacations, year) => {
   vacations.forEach(v => {
     const vMonth = moment(v.beginDate).month() + 1;
     const vYear = moment(v.beginDate).year();
+
     v.score = yearRanks[vYear][vMonth] * (datesDiff(v.beginDate, v.endDate) + 1);
 
     if (!scoreVacation[vYear])
@@ -118,3 +119,41 @@ export const calculateRating = (users, vacations, year) => {
 
 
 export const round = num => Math.floor(num * 10) / 10;
+
+
+export const getCookie = name => {
+  let matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + "=([^;]*)"));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+
+export const setCookie = (name, value, options = {}) => {
+  options = {
+    path: '/',
+    sameSite: 'lax',
+    ...options
+  };
+
+  if (options.expires instanceof Date) {
+    options.expires = options.expires.toUTCString();
+  }
+
+  let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+
+  for (let optionKey in options) {
+    updatedCookie += "; " + optionKey;
+    let optionValue = options[optionKey];
+    if (optionValue !== true) {
+      updatedCookie += "=" + optionValue;
+    }
+  }
+
+  document.cookie = updatedCookie;
+}
+
+
+export const deleteCookie = name => {
+  setCookie(name, "", {
+    'max-age': -1
+  })
+}
