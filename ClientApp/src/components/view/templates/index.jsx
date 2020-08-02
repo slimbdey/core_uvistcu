@@ -105,9 +105,10 @@ export const OptionsInputGroup = props => {
 }
 
 
-export const Loading = props => {
-  return <img alt="Loading..." src="ajax_loader.gif" height={70} />;
-}
+export const Loading = () => <img alt="Loading..." src="ajax_loader.gif" height={70} />
+
+
+export const Calculating = props => <img alt="calculating..." src="calculating.gif" height={props.visible ? 30 : 0} />
 
 
 export const CustomInputGroup = props => {

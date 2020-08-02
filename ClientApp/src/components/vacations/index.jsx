@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { fillVacations, deleteVacation, addVacation, alterVacation, setCurrentDept, findDeptVoter, getDeptVacationsMaxYear, setBackLink } from '../redux/actions';
 import { blink, errorHandler, bring, datesDiff, calculateRating } from '../extra/extensions';
 import history from '../extra/history';
-import { Loading } from '../view/templates';
+import { Loading, Calculating } from '../view/templates';
 import moment from 'moment';
 
 
@@ -144,14 +144,16 @@ class Vacation extends Component {
       />
 
 
-    let redButton = this.state.calculating
-      ? <img alt="calculating..." src="calculating.gif" height={30} />
-      : <span
-        id="redButton"
-        className={this.props.voterId ? "text-danger" : "text-success blink_me"}
-        style={{ cursor: "pointer" }}
-        onClick={this.toggleVoting}
-      >{this.props.voterId ? "Остановить" : "Запустить"}</span>
+    let redButton =
+      <Fragment>
+        <span
+          id="redButton"
+          className={this.props.voterId ? "text-danger" : "text-success blink_me"}
+          style={{ cursor: "pointer", display: this.state.calculating ? "none" : "block" }}
+          onClick={this.toggleVoting}
+        >{this.props.voterId ? "Остановить" : "Запустить"}</span>
+        <Calculating visible={this.state.calculating} />
+      </Fragment >
 
 
     let breadcrumbs =
@@ -235,11 +237,8 @@ class Vacation extends Component {
     let deptId = user.deptId;
 
     if (!deptId) {
-      if (user.fullName === "Теличко Константин Сергеевич")
+      if (user.fullName === window.headManager)
         deptId = 1
-
-      //else if (this.props.depts.some(d => d.managerId === user.id))
-      //  deptId = this.props.depts.find(dep => dep.managerId === user.id).id;
 
       else
         deptId = this.props.offices.find(o => o.id === user.officeId).deptId;
@@ -394,8 +393,8 @@ class Vacation extends Component {
     if (deptOffices.length > 0)
       deptPeople.push(...this.props.users.filter(u => deptOffices.some(o => u.officeId === o.id)));
 
-    const headManager = this.props.users.find(u => u.fullName === "Теличко Константин Сергеевич");
-    if (this.props.currentDeptId === 1)
+    const headManager = this.props.users.find(u => u.fullName === window.headManager);
+    if (this.props.currentDeptId === 1 && headManager)
       deptPeople = [...deptPeople, headManager];
 
     let deptVacations = this.props.vacations.slice().filter(v => deptPeople.some(usr => v.userId === usr.id));
