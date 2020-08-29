@@ -1,5 +1,4 @@
 # FEATURES
-----------
 ***config.js***
 - allows to customize client side
 - available in publish release
