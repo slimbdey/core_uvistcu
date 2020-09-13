@@ -41,15 +41,15 @@ export const bring = async (source) => {
   let request = source.map(s => fetch(`api/${s}`));
 
   let response = await Promise.all(request)
-    .catch(response => response.json()
-      .then(error => { throw new Error(error) }))
+  //.catch(response => response.json()
+  //  .then(error => { throw new Error(error) }))
 
   let data = await Promise.all(response.map(res => res.json()));
   let result = new Map();
   for (let i = 0; i < source.length; ++i)
     result.set(source[i], data[i])
 
-  return result;
+  return new Promise(resolve => resolve(result));
 }
 
 
